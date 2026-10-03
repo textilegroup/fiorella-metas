@@ -11,6 +11,9 @@
 <script src="https://textilegroup.github.io/fiorella-ui/fiorella-ui.js?v=1.3.4" defer></script>
 <!-- Excel (importação de realizado e exportação de fechamentos) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+<!-- PDF de fechamento -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
 <style>
   .mt-hidden{display:none!important}
   .mt-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
@@ -44,7 +47,9 @@
   #tb-metas th:first-child,#tb-metas td:first-child,#tb-lanc th:first-child,#tb-lanc td:first-child{position:sticky;left:0;z-index:2;background:var(--fi-surface);box-shadow:1px 0 0 var(--fi-line)}
   #tb-metas th:first-child,#tb-lanc th:first-child,#tb-metas tfoot td:first-child{background:var(--fi-surface-alt)}
   .fi-table tfoot td{font-weight:750;background:var(--fi-surface-alt);border-top:1px solid var(--fi-line-strong)}
-  .fi-table tr.mt-sub td{background:color-mix(in srgb,var(--fi-surface-alt) 60%,transparent);font-size:.72rem}
+  .fi-table tr.mt-sub td{background:color-mix(in srgb,var(--fi-brand) 9%,var(--fi-surface));font-weight:750;font-size:.75rem;border-top:2px solid color-mix(in srgb,var(--fi-brand) 45%,transparent);border-bottom:2px solid color-mix(in srgb,var(--fi-brand) 45%,transparent)}
+  .fi-table tr.mt-sub td:first-child{color:var(--fi-brand);text-transform:uppercase;letter-spacing:.05em;box-shadow:inset 4px 0 0 var(--fi-brand)}
+  .fi-table tr.mt-sub .mt-pos{font-weight:800}
   .mt-pill{display:inline-block;min-width:44px;text-align:center;padding:2px 7px;border-radius:999px;font-size:.68rem;font-weight:750}
   .mt-m0{background:var(--fi-surface-alt);color:var(--fi-muted)}
   .mt-m1{background:color-mix(in srgb,var(--fi-warning) 14%,transparent);color:var(--fi-warning)}
@@ -221,7 +226,7 @@ const EN = {
   'Conta: {e}.':'Account: {e}.','Cadastre-se em Administração › Vendedores se também tiver metas.':'Register yourself in Administration › Sales reps if you also have targets.',
   'Peça à gestão comercial para cadastrá-lo com este e-mail.':'Ask sales management to register you with this e-mail.',
   'Nenhum módulo de metas liberado para você ainda.':'No target module released to you yet.',
-  'Prêmio do mês':'Month incentive','base {v}':'base {v}','Acumulado no ano':'Year to date','potencial do ano (1×) {v}':'full-year potential (1×) {v}',
+  'Prêmio do mês':'Month incentive','base {v}':'base {v}','Acumulado no ano':'Year to date','potencial do ano (100%) {v}':'full-year potential (100%) {v}',
   'Quanto falta em {m}':'What is left in {m}','Meta do mês não lançada':'Monthly target not entered',
   'Módulos de metas':'Target modules','Metas mensais':'Monthly targets','Lançamentos':'Actuals','Fechamentos':'Closings','Vendedores':'Sales reps','Regiões':'Regions','Tabelas de premiação':'Incentive tables',
   'Cadastros, metas, lançamentos e fechamentos. Somente administradores da ferramenta.':'Registrations, targets, actuals and closings. Tool administrators only.',
@@ -338,6 +343,42 @@ const EN = {
   'Exemplo: premiação da supervisão':'Example: supervision incentive','Conforme a tabela “{n}” — prêmio-base ilustrativo de {v}.':'Using table “{n}” — illustrative base incentive of {v}.',
   'Atingimento da equipe':'Team achievement','Supervisão recebe':'Supervision receives','Sem premiação':'No incentive',
   'O ganho da supervisão depende do resultado coletivo — quanto mais a equipe vende, maior a premiação.':'Supervision earnings depend on the collective result — the more the team sells, the higher the incentive.',
+  '{q}º trimestre':'Quarter {q}','Baixar PDF':'Download PDF','PDF do fechamento':'Closing PDF','Imprimir':'Print',
+  'Biblioteca de PDF ainda carregando, tente de novo.':'PDF library still loading, try again.',
+  'Gerado em {d} por {p}':'Generated on {d} by {p}','Página {a} de {b}':'Page {a} of {b}',
+  'Anexo — {n}':'Annex — {n}','Demonstrativo até {m}':'Statement through {m}','Demonstrativo de metas e premiação':'Targets & incentives statement',
+  'Resumo do fechamento':'Closing summary','Regras aplicadas':'Rules applied','Anexos por vendedor':'Annexes by sales rep',
+  'Meta de supervisão':'Supervision target','Meta de vendedor':'Sales rep target','Supervisor':'Supervisor','Equipe em {m}':'Team in {m}',
+  'Nenhum vendedor na equipe.':'No sales rep in the team.','Comissão pela própria carteira + premiação individual menor':'Commission on own portfolio + smaller individual incentive',
+  'Premiação por meta':'Target incentive','Sim — meta individual, valores menores (já recebe comissão)':'Yes — individual target, smaller amounts (already earns commission)',
+  'Sim — meta da equipe, tabela própria':'Yes — team target, own table','Tipo de meta no sistema':'Target type in the system','Premiação dos vendedores':'Sales rep incentives',
+  'Além da comissão, o vendedor também tem premiação por meta individual, com valores menores que os da supervisão, porque já é remunerado pela comissão. Cada público usa sua própria tabela de premiação (Meta de vendedor × Meta de supervisão).':'Besides commission, sales reps also earn an incentive on their individual target, with smaller amounts than supervision because they are already paid commission. Each group uses its own incentive table (Sales rep target × Supervision target).',
+  'Vendedores e supervisores':'Sales reps & supervisors','Nova pessoa':'New person','Função':'Role','Editar pessoa':'Edit person','Função *':'Role *',
+  'Vendedor — comissão + premiação individual':'Sales rep — commission + individual incentive','Supervisor — premiação pela meta da equipe':'Supervisor — incentive on the team target',
+  'Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago. Crie tabelas próprias para vendedores (premiação menor, pois já recebem comissão) e para a supervisão.':'Each tier sets the minimum achievement % and how much of the base incentive is paid. Create separate tables for sales reps (smaller incentive, since they already earn commission) and for supervision.',
+  'Para':'For','Ex.: Vendedores — premiação reduzida':'E.g.: Sales reps — reduced incentive','Para quem':'For whom',
+  'Abra um módulo para configurar participantes, metas e prêmios de cada mês. Meta de vendedor = individual; meta de supervisão = soma da equipe.':'Open a module to set up participants, targets and incentives for each month. Sales rep target = individual; supervision target = team total.',
+  'Tipo':'Type','Participantes':'Participants','Fechado até':'Closed through','Abrir':'Open','Detalhes e comissão equivalente':'Details and equivalent commission','Equipe':'Team',
+  '← Todos os módulos':'← All modules','Editar dados do módulo':'Edit module details','Lançamentos e fechamento':'Actuals & closing','Tabela de premiação':'Incentive table',
+  'Módulo base (vendedores)':'Base module (sales reps)',
+  'Meta e realizado de cada supervisor = soma da equipe no módulo “{b}”. Aqui você define a equipe e o prêmio-base da supervisão.':'Each supervisor’s target and actual = team total in module “{b}”. Here you set the team and the supervision base incentive.',
+  'Escolha o módulo base (vendedores) em “Editar dados do módulo”.':'Choose the base module (sales reps) in “Edit module details”.','Participantes e metas mensais':'Participants & monthly targets',
+  'Metas calculadas a partir da equipe — somente leitura. Para mudar, ajuste as metas dos vendedores no módulo base.':'Targets calculated from the team — read only. To change them, adjust the reps’ targets in the base module.',
+  'Prêmio-base mensal da supervisão.':'Monthly supervision base incentive.','Atrelar supervisor…':'Assign supervisor…','Outros':'Others',
+  'Clique no nome para ver detalhes e a comissão equivalente.':'Click a name to see details and the equivalent commission.','Nenhum supervisor atrelado.':'No supervisor assigned.',
+  '{n} participantes atrelados':'{n} participants assigned','Participante atrelado':'Participant assigned','Equipe de {n}':'Team of {n}',
+  'Vendedores do módulo “{b}” sob responsabilidade deste supervisor. A meta e o realizado da supervisão são a soma deles.':'Sales reps from module “{b}” under this supervisor. The supervision target and actual are their sum.',
+  'Marcar todos':'Select all','Limpar':'Clear','também na equipe de {n}':'also in {n}’s team','O módulo base ainda não tem vendedores.':'The base module has no sales reps yet.','Equipe salva':'Team saved',
+  'Salvar lançamentos ({n})':'Save actuals ({n})','Salvar lançamentos':'Save actuals','Prévia em Excel':'Preview in Excel','Fechar {m} e gerar PDF':'Close {m} and generate PDF',
+  'Você pode lançar o realizado deste mês desde já.':'You can already enter this month’s actuals.',
+  'O realizado da supervisão vem da equipe: feche antes {m} no módulo “{b}”.':'Supervision actuals come from the team: close {m} in module “{b}” first.',
+  'Lançamento e prévia':'Entry & preview','Realizado consolidado da equipe (somente leitura).':'Consolidated team actuals (read only).',
+  'Digite o realizado do mês; a premiação é recalculada na hora. Salve e, quando estiver tudo certo, feche o mês.':'Type the month’s actuals; incentives are recalculated instantly. Save and, when everything is right, close the month.',
+  'Congela os valores de {n} participante(s) — total a pagar {v}. Os lançamentos deste mês ficam travados e o PDF do fechamento é gerado em seguida.':'Freezes the values of {n} participant(s) — total payable {v}. This month’s actuals become locked and the closing PDF is generated right after.',
+  '{m} fechado — PDF gerado':'{m} closed — PDF generated','Tipo de meta *':'Target type *','Meta de vendedor (individual)':'Sales rep target (individual)',
+  'Meta de supervisão (soma da equipe)':'Supervision target (team total)','Módulo base (vendedores) *':'Base module (sales reps) *',
+  'De onde vêm as metas e o realizado da equipe de cada supervisor.':'Where each supervisor’s team targets and actuals come from.','Escolha o módulo base (vendedores).':'Choose the base module (sales reps).',
+  'Módulo criado — agora atrele os participantes':'Module created — now assign the participants','Nenhuma tabela para este tipo':'No table for this type',
   'Nenhuma tabela de premiação cadastrada ainda.':'No incentive table registered yet.','Vendedor A':'Rep A','Vendedor B':'Rep B','Vendedor C':'Rep C'
 };
 let LANG = 'pt';
@@ -359,7 +400,7 @@ const HOJE = new Date();
 const S = {
   sb: null, perm: null, admin: false, veTudo: false, email: '', nome: '',
   regioes: [], vendedores: [], tabelas: [], modulos: [], mv: [], realizado: [], fechamentos: [],
-  contas: null, admTab: 'modulos', lancModulo: null, metaModulo: null, metaCampo: 'metas', fechModulo: null, fechMes: null
+  contas: null, modEdit: null, admTab: 'modulos', lancModulo: null, metaModulo: null, metaCampo: 'metas', fechModulo: null, fechMes: null
 };
 
 /* ------------------------------ util ------------------------------ */
@@ -490,13 +531,34 @@ function realDe(moduloId, vendedorId) {
 }
 function fechadosDe(moduloId) { const s = new Set(); S.fechamentos.forEach(f => { if (f.modulo_id === moduloId) s.add(f.mes); }); return s; }
 function ultimoFechado(moduloId) { let u = 0; fechadosDe(moduloId).forEach(m => { if (m > u) u = m; }); return u; }
+const ehSup = m => !!m && m.tipo === 'supervisao';
+const tipoBadge = m => ehSup(m) ? `<span class="fi-badge fi-badge--info">${t('Meta de supervisão')}</span>` : `<span class="fi-badge">${t('Meta de vendedor')}</span>`;
 function vincDe(moduloId) {
-  return S.mv.filter(x => x.modulo_id === moduloId)
-    .map(x => ({ ...x, metas: (x.metas || Array(12).fill(null)).map(valorMeta), premios: (x.premios || Array(12).fill(0)), v: byId(S.vendedores, x.vendedor_id) }))
+  const mod = byId(S.modulos, moduloId);
+  const lista = S.mv.filter(x => x.modulo_id === moduloId)
+    .map(x => ({ ...x, equipe: x.equipe || [], metas: (x.metas || Array(12).fill(null)).map(valorMeta), premios: (x.premios || Array(12).fill(0)), v: byId(S.vendedores, x.vendedor_id) }))
     .filter(x => x.v)
     .sort((a, b) => a.v.nome.localeCompare(b.v.nome, 'pt-BR'));
+  if (ehSup(mod)) lista.forEach(x => Object.assign(x, consolidar(mod, x)));
+  return lista;
 }
-function calcVinc(mod, x, ate) { return calcular(byId(S.tabelas, mod.tabela_id), x.metas, x.premios, realDe(mod.id, x.vendedor_id), ate); }
+/* Supervisão: meta e realizado de cada mês = soma da equipe no módulo base de vendedores.
+   Mês com meta ou realizado faltando em algum vendedor da equipe fica nulo ("Aguardando dados"). */
+function consolidar(mod, x) {
+  const base = byId(S.modulos, mod.base_modulo_id);
+  const eq = base && !ehSup(base) ? vincDe(base.id).filter(z => x.equipe.includes(z.vendedor_id)) : [];
+  const metas = [], real = [];
+  for (let i = 0; i < 12; i++) {
+    if (!eq.length) { metas.push(null); real.push(null); continue; }
+    const ms = eq.map(z => z.metas[i]);
+    metas.push(ms.some(v => v == null) ? null : sum(ms));
+    const rs = eq.map(z => realDe(base.id, z.vendedor_id)[i]);
+    real.push(rs.some(v => v == null) ? null : sum(rs));
+  }
+  return { metas, realSup: real, equipeV: eq, baseMod: base };
+}
+function realPart(m, x) { return ehSup(m) ? (x.realSup || Array(12).fill(null)) : realDe(m.id, x.vendedor_id); }
+function calcVinc(mod, x, ate) { return calcular(byId(S.tabelas, mod.tabela_id), x.metas, x.premios, realPart(mod, x), ate); }
 function meusVendedores() { return S.vendedores.filter(v => v.email === S.email); }
 
 async function carregar() {
@@ -584,7 +646,7 @@ function rota() {
     if (nome === 'modulo' && h[1]) { navAtivo('inicio'); return vModulo(h[1]); }
     if (nome === 'painel') { navAtivo('painel'); return vPainel(); }
     if (nome === 'estrategia') { navAtivo('estrategia'); return vEstrategia(); }
-    if (nome === 'adm' && S.admin) { navAtivo('adm'); if (h[1]) S.admTab = h[1]; return vAdm(); }
+    if (nome === 'adm' && S.admin) { navAtivo('adm'); S.admTab = h[1] || 'modulos'; S.modEdit = S.admTab === 'modulos' ? (h[2] || null) : null; return vAdm(); }
     navAtivo('inicio'); return vInicio();
   } catch (e) { console.error(e); $('#view').innerHTML = `<div class="fi-alert fi-alert--danger">${esc(erroMsg(e))}</div>`; }
 }
@@ -593,7 +655,8 @@ function rota() {
 function vInicio() {
   setHead(t('Comercial'), t('Metas e Premiação'),
     S.veTudo ? t('Todos os módulos de metas. Clique para ver o detalhamento por vendedor.') : t('Módulos de metas liberados para você.'));
-  const mods = S.modulos.filter(m => S.veTudo || (m.visivel && m.ativo));
+  const meusIds = new Set(meusVendedores().map(v => v.id));
+  const mods = S.modulos.filter(m => S.veTudo || (m.visivel && m.ativo && S.mv.some(x => x.modulo_id === m.id && meusIds.has(x.vendedor_id))));
   if (!mods.length) {
     $('#view').innerHTML = `<div class="fi-card"><div class="fi-empty"><div><strong>${S.veTudo ? t('Nenhum módulo de metas criado ainda.') : t('Nenhum módulo de metas liberado ainda.')}</strong>
       <p class="mt-small">${S.admin ? t('Crie o primeiro em Administração › Módulos de metas.') :
@@ -613,7 +676,7 @@ function vInicio() {
       const tb = byId(S.tabelas, m.tabela_id), reg = byId(S.regioes, m.regiao_id), fech = ultimoFechado(m.id);
       html += `<article class="fi-card mt-modcard" data-mod="${m.id}" tabindex="0">
         <div class="fi-card__head"><div><div class="fi-card__title">${esc(m.nome)}</div>
-          <div class="fi-card__note">${esc(tb ? tb.nome : '—')}${reg ? ' · ' + esc(reg.nome) : ''}</div></div>
+          <div class="fi-card__note">${esc(tb ? tb.nome : '—')}${reg ? ' · ' + esc(reg.nome) : ''}</div><div style="margin-top:6px">${tipoBadge(m)}</div></div>
           <div class="mt-row">${S.veTudo ? (m.visivel ? `<span class="fi-badge fi-badge--success">${t('Liberado')}</span>` : `<span class="fi-badge">${t('Oculto')}</span>`) : ''}
           ${!m.ativo ? `<span class="fi-badge fi-badge--warning">${t('Inativo')}</span>` : ''}</div></div>
         <div class="fi-card__body">
@@ -646,7 +709,7 @@ function vModulo(id, mesSel, regSel) {
   const mes = mesSel || Math.max(ultimoFechado(m.id), mesPadrao(m.ano));
   let vinc = vincDe(m.id).filter(x => S.veTudo || x.v.email === S.email);
   if (regSel) vinc = vinc.filter(x => x.v.regiao_id === regSel);
-  setHead(m.ano + (byId(S.regioes, m.regiao_id) ? ' · ' + byId(S.regioes, m.regiao_id).nome : ''), m.nome,
+  setHead(m.ano + ' · ' + (ehSup(m) ? t('Meta de supervisão') : t('Meta de vendedor')) + (byId(S.regioes, m.regiao_id) ? ' · ' + byId(S.regioes, m.regiao_id).nome : ''), m.nome,
     (tb ? tb.nome : '') + (m.descricao ? ' — ' + m.descricao : ''),
     `<button class="fi-btn" id="bt-voltar">${t('← Módulos')}</button>
      <button class="fi-btn" id="bt-xls">${t('Exportar Excel')}</button>
@@ -683,7 +746,7 @@ function vModulo(id, mesSel, regSel) {
   html += `<section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Vendedores — {m}/{a}', { m: MESL(mes - 1), a: m.ano })}</div>
     <div class="fi-card__note">${t('Prêmio = prêmio-base × % da faixa. Recuperações são pagas no fechamento de Mar/Jun/Set/Dez (trimestre) e Dez (ano).')}</div></div></div>
     <div class="fi-table-wrap" style="border:0;border-radius:0"><table class="fi-table" id="tb-mod"><thead><tr>
-      <th>${t('Vendedor')}</th><th>${t('Região')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th><th class="mt-num">${t('Atingido')}</th><th>${t('Faixa')}</th>
+      <th>${ehSup(m) ? t('Supervisor') : t('Vendedor')}</th><th>${t('Região')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th><th class="mt-num">${t('Atingido')}</th><th>${t('Faixa')}</th>
       <th class="mt-num">${t('Prêmio-base')}</th><th class="mt-num">${t('Prêmio mês')}</th><th class="mt-num">${t('Recuperação')}</th><th class="mt-num">${t('Total mês')}</th>
       <th class="mt-num">${t('Acum. %')}</th><th class="mt-num">${t('Acum. prêmio')}</th><th class="mt-num">${t('Comissão equiv.')}</th></tr></thead><tbody>`;
   if (!linhas.length) html += `<tr><td colspan="13"><div class="fi-empty">${regSel ? t('Nenhum vendedor atrelado nesta região.') : t('Nenhum vendedor atrelado.')}</div></td></tr>`;
@@ -713,7 +776,7 @@ function vModulo(id, mesSel, regSel) {
   const fr = $('#f-reg'); if (fr) fr.addEventListener('change', e => vModulo(id, mes, e.target.value || null));
   $('#bt-voltar').addEventListener('click', () => { location.hash = '#/inicio'; });
   $('#bt-xls').addEventListener('click', () => exportarModulo(m, mes, linhas));
-  const bf = $('#bt-fechar'); if (bf) bf.addEventListener('click', () => { S.fechModulo = m.id; S.fechMes = mes; location.hash = '#/adm/fechamentos'; });
+  const bf = $('#bt-fechar'); if (bf) bf.addEventListener('click', () => { S.fechModulo = m.id; S.fechMes = mes; location.hash = '#/adm/fechamento'; });
   $$('#tb-mod tr[data-vend]').forEach(tr => tr.addEventListener('click', () => {
     modalVendedorAno(m, vincDe(m.id).find(v => v.vendedor_id === tr.dataset.vend), mes);
   }));
@@ -733,6 +796,13 @@ function regraHtml(tb) {
     </div></div></section>`;
 }
 
+function statusTri(tq, html) {
+  const sp = (cls, txt) => html ? `<span class="${cls}">${esc(txt)}</span>` : txt;
+  if (tq.metaQ == null || tq.realQ == null) return html ? WAIT() : t('Aguardando dados');
+  if (!tq.apurado) return sp('mt-muted', t('trimestre em andamento'));
+  if (tq.recuperou) return sp('mt-pos', tq.valor ? t('Faixa do trimestre {f} — recuperou {v}', { f: multTxt(tq.multQ), v: brl(tq.valor) }) : t('Faixa do trimestre {f} (nada a recuperar)', { f: multTxt(tq.multQ) }));
+  return sp('mt-muted', t('Não bateu a meta do trimestre'));
+}
 function tabelaAnoHtml(m, x, c) {
   const fech = fechadosDe(m.id);
   let h = `<div class="fi-table-wrap"><table class="fi-table"><thead><tr><th>${t('Mês')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th>
@@ -747,11 +817,12 @@ function tabelaAnoHtml(m, x, c) {
       <td class="mt-num mt-strong">${brl(mm.total)}</td></tr>`;
     if (mm.mes % 3 === 0) {
       const tq = c.tri[mm.mes / 3 - 1];
-      h += `<tr class="mt-sub"><td>${t('{q}º tri', { q: tq.q })}</td><td class="mt-num">${brlOuWait(tq.metaQ)}</td><td class="mt-num">${brlOuWait(tq.realQ)}</td>
-        <td class="mt-num">${tq.atingQ == null ? WAIT() : pct(tq.atingQ)}</td><td colspan="6">${tq.metaQ == null || tq.realQ == null ? WAIT() :
-          !tq.apurado ? `<span class="mt-muted">${t('trimestre em andamento')}</span>` :
-          tq.recuperou ? (tq.valor ? `<span class="mt-pos">${t('Faixa do trimestre {f} — recuperou {v}', { f: multTxt(tq.multQ), v: brl(tq.valor) })}</span>` : `<span class="mt-pos">${t('Faixa do trimestre {f} (nada a recuperar)', { f: multTxt(tq.multQ) })}</span>`)
-          : `<span class="mt-muted">${t('Não bateu a meta do trimestre')}</span>`}</td></tr>`;
+      const totQ = sum(c.meses.slice(mm.mes - 3, mm.mes).map(z => z.total));
+      h += `<tr class="mt-sub"><td>${t('{q}º trimestre', { q: tq.q })}</td><td class="mt-num">${brlOuWait(tq.metaQ)}</td><td class="mt-num">${brlOuWait(tq.realQ)}</td>
+        <td class="mt-num">${tq.atingQ == null ? WAIT() : pct(tq.atingQ)}</td>
+        <td>${tq.recuperou ? `<span class="mt-pill ${classeMult(tq.multQ)}">${multTxt(tq.multQ)}</span>` : ''}</td>
+        <td colspan="2">${statusTri(tq, true)}</td>
+        <td class="mt-num ${tq.valor ? 'mt-pos' : ''}">${tq.valor ? brl(tq.valor) : ''}</td><td></td><td class="mt-num">${brl(totQ)}</td></tr>`;
     }
   });
   h += `</tbody><tfoot><tr><td>${t('Ano')}</td><td class="mt-num">${brlOuWait(c.ano.metaA)}</td><td class="mt-num">${brlOuWait(c.ano.realA)}</td><td class="mt-num">${c.ano.atingA == null ? WAIT() : pct(c.ano.atingA)}</td>
@@ -764,17 +835,30 @@ function comissaoHtml(m, x, mes) {
   const tb = byId(S.tabelas, m.tabela_id);
   const meta = x.metas[mes - 1], base = Number(x.premios[mes - 1]) || 0;
   if (meta == null) return `<div class="fi-alert fi-alert--info">${t('Meta do mês não lançada')} — ${WAIT()}</div>`;
-  const r = realDe(m.id, x.vendedor_id)[mes - 1] || 0;
+  const r = realPart(m, x)[mes - 1] || 0;
   return `<div class="mt-falta">${comissaoEquiv(tb, meta, base).map(e => `<div><span>${t('{p} da meta · paga {m}', { p: num(e.min, 0) + '%', m: multTxt(e.mult) })}</span>
       <b>${brl0(e.venda)}</b><div class="mt-small mt-muted">${t('prêmio {v} · comissão equiv. {p}', { v: brl(e.premio), p: '<b>' + pct(e.pct, 2) + '</b>' })}</div>
       ${r < e.venda ? `<div class="mt-small mt-warn">${t('faltam {v}', { v: brl0(e.venda - r) })}</div>` : `<div class="mt-small mt-pos">${t('✓ atingido')}</div>`}</div>`).join('')}</div>`;
+}
+/* Supervisão: desempenho de cada vendedor da equipe no mês */
+function equipeHtml(m, x, mes) {
+  if (!ehSup(m) || !x.baseMod) return '';
+  const linhas = (x.equipeV || []).map(z => {
+    const meta = z.metas[mes - 1], real = realDe(x.baseMod.id, z.vendedor_id)[mes - 1];
+    const acM = sum(z.metas.slice(0, mes).map(v => v || 0)), acR = sum(realDe(x.baseMod.id, z.vendedor_id).slice(0, mes).map(v => v || 0));
+    return `<tr><td class="mt-strong">${esc(z.v.nome)}</td><td class="mt-num">${brlOuWait(meta)}</td><td class="mt-num">${real == null ? '<span class="mt-muted">—</span>' : brl(real)}</td>
+      <td class="mt-num">${meta && real != null ? pct(real / meta) : '—'}</td><td class="mt-num">${acM ? pct(acR / acM) : '—'}</td></tr>`;
+  }).join('');
+  return `<div class="fi-eyebrow mt-mt2">${t('Equipe em {m}', { m: MESL(mes - 1) })}</div>
+    <div class="fi-table-wrap"><table class="fi-table"><thead><tr><th>${t('Vendedor')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th><th class="mt-num">${t('Atingido')}</th><th class="mt-num">${t('Acum. %')}</th></tr></thead>
+    <tbody>${linhas || `<tr><td colspan="5"><div class="fi-empty">${t('Nenhum vendedor na equipe.')}</div></td></tr>`}</tbody></table></div>`;
 }
 function modalVendedorAno(m, x, mes) {
   const c = calcVinc(m, x, Math.max(mes, ultimoFechado(m.id)));
   modal({ titulo: x.v.nome + ' — ' + m.nome, largura: 1040,
     corpo: `<div class="mt-small mt-muted">${t('Faixas de {m}: venda necessária, prêmio e o percentual de comissão que ele representa.', { m: MESL(mes - 1) })}</div>
-      ${comissaoHtml(m, x, mes)}${tabelaAnoHtml(m, x, c)}`,
-    botoes: [{ texto: t('Fechar'), primario: true }] });
+      ${comissaoHtml(m, x, mes)}${tabelaAnoHtml(m, x, c)}${equipeHtml(m, x, mes)}`,
+    botoes: [{ texto: t('Baixar PDF'), esquerda: true, acao: () => { pdfVendedor(m, x, Math.max(mes, ultimoFechado(m.id))); return false; } }, { texto: t('Fechar'), primario: true }] });
 }
 
 /* ============================== MEU PAINEL ============================== */
@@ -795,22 +879,27 @@ function vPainel() {
     const mes = Math.max(ultimoFechado(m.id), mesPadrao(m.ano));
     const c = calcVinc(m, x, mes), mm = c.meses[mes - 1];
     html += `<section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${esc(m.nome)}${String(m.nome).includes(String(m.ano)) ? '' : ' · ' + m.ano}</div>
-      <div class="fi-card__note">${esc((byId(S.tabelas, m.tabela_id) || {}).nome || '')}</div></div></div>
+      <div class="fi-card__note">${esc((byId(S.tabelas, m.tabela_id) || {}).nome || '')}</div></div>
+      <button class="fi-btn mt-noprint" data-pdfv="${m.id}|${x.vendedor_id}|${mes}">${t('Baixar PDF')}</button></div>
       <div class="fi-card__body">
       <div class="fi-grid fi-grid--4">
         <div class="fi-card fi-metric fi-metric--brand"><div class="fi-metric__top"><span>${MESL(mes - 1)}</span><span class="mt-pill ${classeMult(mm.mult)}">${mm.apurado ? multTxt(mm.mult) : '—'}</span></div>
           <div class="fi-metric__value">${mm.meta == null ? WAIT() : pct(mm.ating)}</div><div class="fi-metric__foot">${mm.meta == null ? '' : t('{a} de {b}', { a: brl0(mm.real || 0), b: brl0(mm.meta) })}</div></div>
         <div class="fi-card fi-metric"><div class="fi-metric__top"><span>${t('Prêmio do mês')}</span></div><div class="fi-metric__value">${brl(mm.total)}</div><div class="fi-metric__foot">${t('base {v}', { v: brl(mm.base) })}</div></div>
         <div class="fi-card fi-metric"><div class="fi-metric__top"><span>${t('Acumulado no ano')}</span></div><div class="fi-metric__value">${pct(c.atingAte)}</div><div class="fi-metric__foot">${t('{a} de {b}', { a: brl0(c.realAte), b: brl0(c.metaAte) })}</div></div>
-        <div class="fi-card fi-metric"><div class="fi-metric__top"><span>${t('Premiação acumulada')}</span></div><div class="fi-metric__value">${brl(c.totalAte)}</div><div class="fi-metric__foot">${t('potencial do ano (1×) {v}', { v: brl0(c.premioBaseAno) })}</div></div>
+        <div class="fi-card fi-metric"><div class="fi-metric__top"><span>${t('Premiação acumulada')}</span></div><div class="fi-metric__value">${brl(c.totalAte)}</div><div class="fi-metric__foot">${t('potencial do ano (100%) {v}', { v: brl0(c.premioBaseAno) })}</div></div>
       </div>
       <div class="fi-eyebrow mt-mt2">${t('Quanto falta em {m}', { m: MESL(mes - 1) })}</div>
       ${comissaoHtml(m, x, mes)}
-      <div class="mt-mt2">${tabelaAnoHtml(m, x, c)}</div>
+      <div class="mt-mt2">${tabelaAnoHtml(m, x, c)}</div>${equipeHtml(m, x, mes)}
       </div></section>`;
     html += regraHtml(byId(S.tabelas, m.tabela_id));
   });
   $('#view').innerHTML = html;
+  $$('[data-pdfv]').forEach(b => b.onclick = () => {
+    const [mid, vid, mes] = b.dataset.pdfv.split('|'), m = byId(S.modulos, mid);
+    pdfVendedor(m, vincDe(mid).find(z => z.vendedor_id === vid), Number(mes));
+  });
 }
 
 /* ============================== ESTRATÉGIA ============================== */
@@ -842,7 +931,7 @@ function vEstrategia() {
         <div class="es-node es-sup"><b>${t('Supervisão')}</b><small>${t('Premiação pela meta consolidada da equipe')}</small></div>
         <div class="es-link"></div>
         <div class="es-team">
-          ${['Vendedor A', 'Vendedor B', 'Vendedor C'].map((n, i) => `<div><div class="es-node"><b>${t(n)}</b><small>${t('Comissão pela própria carteira')}</small></div>${cart([6, 4, 5][i])}</div>`).join('')}
+          ${['Vendedor A', 'Vendedor B', 'Vendedor C'].map((n, i) => `<div><div class="es-node"><b>${t(n)}</b><small>${t('Comissão pela própria carteira + premiação individual menor')}</small></div>${cart([6, 4, 5][i])}</div>`).join('')}
         </div>
         <div class="es-band">${t('Meta da equipe = soma das metas dos vendedores')}</div>
       </div>
@@ -851,6 +940,8 @@ function vEstrategia() {
       <div class="fi-card__body" style="padding-top:4px">
       <table class="es-cmp"><thead><tr><th></th><th>${t('Vendedor')}</th><th>${t('Supervisão')}</th></tr></thead><tbody>
         <tr><th>${t('Recebe')}</th><td>${t('Comissão sobre as vendas da carteira individual')}</td><td>${t('Premiação pelo atingimento da meta consolidada')}</td></tr>
+        <tr><th>${t('Premiação por meta')}</th><td class="es-yes">✓ ${t('Sim — meta individual, valores menores (já recebe comissão)')}</td><td class="es-yes">✓ ${t('Sim — meta da equipe, tabela própria')}</td></tr>
+        <tr><th>${t('Tipo de meta no sistema')}</th><td>${t('Meta de vendedor')}</td><td>${t('Meta de supervisão')}</td></tr>
         <tr><th>${t('Base do cálculo')}</th><td>${t('Percentuais e critérios definidos pela empresa')}</td><td>${t('Tabela de premiação aprovada × % de atingimento')}</td></tr>
         <tr><th>${t('Carteira própria')}</th><td class="es-yes">✓ ${t('Sim')}</td><td class="es-no">✕ ${t('Não')}</td></tr>
         <tr><th>${t('Comissão por venda individual')}</th><td class="es-yes">✓ ${t('Sim')}</td><td class="es-no">✕ ${t('Não')}</td></tr>
@@ -859,6 +950,7 @@ function vEstrategia() {
       </tbody></table></div></section>
   </div>
 
+  <div class="fi-alert fi-alert--info mt-mt2"><div><b>${t('Premiação dos vendedores')}</b> — ${t('Além da comissão, o vendedor também tem premiação por meta individual, com valores menores que os da supervisão, porque já é remunerado pela comissão. Cada público usa sua própria tabela de premiação (Meta de vendedor × Meta de supervisão).')}</div></div>
   <div class="fi-eyebrow mt-mt2">${t('As 8 regras')}</div>
   <div class="es-rules">${regras.map((r, i) => `<article class="es-rule"><div class="mt-row"><span class="es-n">${i + 1}</span><span class="es-tag">${t(r[2]).trim()}</span></div>
     <h3>${t(r[0])}</h3><p>${t(r[1])}</p></article>`).join('')}</div>
@@ -886,16 +978,15 @@ function vEstrategia() {
 }
 
 /* ============================ ADMINISTRAÇÃO ============================ */
-const ADM_TABS = [['modulos', 'Módulos de metas'], ['metas', 'Metas mensais'], ['lancamentos', 'Lançamentos'], ['fechamentos', 'Fechamentos'],
-                  ['vendedores', 'Vendedores'], ['regioes', 'Regiões'], ['tabelas', 'Tabelas de premiação']];
+const ADM_TABS = [['modulos', 'Módulos de metas'], ['fechamento', 'Lançamentos e fechamento'],
+                  ['vendedores', 'Vendedores e supervisores'], ['regioes', 'Regiões'], ['tabelas', 'Tabelas de premiação']];
 function vAdm() {
   const tab = ADM_TABS.find(x => x[0] === S.admTab) || ADM_TABS[0];
   setHead(t('Administração'), t(tab[1]), t('Cadastros, metas, lançamentos e fechamentos. Somente administradores da ferramenta.'));
   $('#view').innerHTML = `<div class="mt-tabs" role="tablist">${ADM_TABS.map(([k, n]) =>
     `<button class="mt-tab" role="tab" aria-selected="${k === tab[0]}" data-tab="${k}">${t(n)}</button>`).join('')}</div><div id="adm-body"></div>`;
   $$('[data-tab]').forEach(b => b.addEventListener('click', () => { location.hash = '#/adm/' + b.dataset.tab; }));
-  ({ modulos: aModulos, metas: aMetas, lancamentos: aLancamentos, fechamentos: aFechamentos,
-     vendedores: aVendedores, regioes: aRegioes, tabelas: aTabelas }[tab[0]])();
+  ({ modulos: aModulos, fechamento: aFechamento, vendedores: aVendedores, regioes: aRegioes, tabelas: aTabelas }[tab[0]])();
 }
 async function recarregar(msg) { await carregar(); if (msg) notify(msg, 'success'); rota(); }
 const badgeAtivo = (a, fem) => a ? `<span class="fi-badge fi-badge--success">${t(fem ? 'Ativa' : 'Ativo')}</span>` : `<span class="fi-badge">${t(fem ? 'Inativa' : 'Inativo')}</span>`;
@@ -942,24 +1033,27 @@ function contaStatus(email) {
   return `<span class="fi-badge fi-badge--success" title="${esc(t('Nível {n}', { n: c.nivel }))}">${t('Conta ativa')}</span>`;
 }
 function aVendedores() {
-  $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Vendedores')}</div>
+  $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Vendedores e supervisores')}</div>
     <div class="fi-card__note">${t('O e-mail precisa ser o mesmo da conta na Central de Acesso — é por ele que cada vendedor vê só o próprio painel.')}</div></div>
-    <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Novo vendedor')}</button></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Nome')}</th><th>${t('E-mail')}</th><th>${t('Região')}</th><th>${t('Telefone')}</th><th>${t('Central')}</th><th class="mt-num">${t('Módulos')}</th><th>${t('Status')}</th><th></th></tr></thead><tbody>
-    ${S.vendedores.map(v => `<tr><td class="mt-strong">${esc(v.nome)}</td><td>${esc(v.email)}</td><td>${esc((byId(S.regioes, v.regiao_id) || {}).nome || '—')}</td>
+    <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Nova pessoa')}</button></div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Nome')}</th><th>${t('Função')}</th><th>${t('E-mail')}</th><th>${t('Região')}</th><th>${t('Telefone')}</th><th>${t('Central')}</th><th class="mt-num">${t('Módulos')}</th><th>${t('Status')}</th><th></th></tr></thead><tbody>
+    ${S.vendedores.map(v => `<tr><td class="mt-strong">${esc(v.nome)}</td><td>${v.funcao === 'supervisor' ? `<span class="fi-badge fi-badge--info">${t('Supervisor')}</span>` : `<span class="fi-badge">${t('Vendedor')}</span>`}</td><td>${esc(v.email)}</td><td>${esc((byId(S.regioes, v.regiao_id) || {}).nome || '—')}</td>
       <td>${esc(v.telefone || '')}</td><td>${contaStatus(v.email)}</td><td class="mt-num">${S.mv.filter(x => x.vendedor_id === v.id).length}</td>
       <td>${badgeAtivo(v.ativo)}</td><td class="mt-num"><button class="fi-btn" data-ed="${v.id}">${t('Editar')}</button></td></tr>`).join('') ||
-      `<tr><td colspan="8"><div class="fi-empty">${t('Nenhum vendedor cadastrado.')}</div></td></tr>`}
+      `<tr><td colspan="9"><div class="fi-empty">${t('Nenhum vendedor cadastrado.')}</div></td></tr>`}
     </tbody></table></div>
     <div class="fi-card__foot">${t('“Sem conta”: crie o acesso na Central (Gerenciar › Usuários) com o mesmo e-mail, nível usuário ou consulta. A ferramenta “Metas e Premiação” já está liberada para esses níveis em modo leitura.')}</div></section>`;
   $('#bt-novo').onclick = () => formVendedor();
   $$('[data-ed]').forEach(b => b.onclick = () => formVendedor(byId(S.vendedores, b.dataset.ed)));
 }
 function formVendedor(v) {
-  v = v || { nome: '', email: '', regiao_id: null, telefone: '', ativo: true };
-  modal({ titulo: v.id ? t('Editar vendedor') : t('Novo vendedor'),
+  v = v || { nome: '', email: '', regiao_id: null, telefone: '', ativo: true, funcao: 'vendedor' };
+  modal({ titulo: v.id ? t('Editar pessoa') : t('Nova pessoa'),
     corpo: `<div class="mt-form">
-      <label class="fi-field mt-full"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="v-nome" value="${esc(v.nome)}"></label>
+      <label class="fi-field"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="v-nome" value="${esc(v.nome)}"></label>
+      <label class="fi-field"><span class="fi-label">${t('Função *')}</span><select class="fi-select" id="v-funcao">
+        <option value="vendedor" ${v.funcao !== 'supervisor' ? 'selected' : ''}>${t('Vendedor — comissão + premiação individual')}</option>
+        <option value="supervisor" ${v.funcao === 'supervisor' ? 'selected' : ''}>${t('Supervisor — premiação pela meta da equipe')}</option></select></label>
       <label class="fi-field"><span class="fi-label">${t('E-mail (login da Central) *')}</span><input class="fi-input" id="v-email" type="email" value="${esc(v.email)}" placeholder="nome@fiorella.ind.br"></label>
       <label class="fi-field"><span class="fi-label">${t('Telefone')}</span><input class="fi-input" id="v-tel" value="${esc(v.telefone || '')}"></label>
       <label class="fi-field"><span class="fi-label">${t('Região de atendimento')}</span><select class="fi-select" id="v-reg"><option value="">—</option>
@@ -972,7 +1066,7 @@ function formVendedor(v) {
       { texto: t('Cancelar') },
       { texto: t('Salvar'), primario: true, acao: async () => {
         const d = { nome: $('#v-nome').value.trim(), email: $('#v-email').value.trim().toLowerCase(),
-                    telefone: $('#v-tel').value.trim() || null, regiao_id: $('#v-reg').value || null, ativo: $('#v-ativo').checked };
+                    telefone: $('#v-tel').value.trim() || null, regiao_id: $('#v-reg').value || null, ativo: $('#v-ativo').checked, funcao: $('#v-funcao').value };
         if (!d.nome) { notify(t('Informe o nome.'), 'warning'); return false; }
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) { notify(t('Informe um e-mail válido — ele é o login do vendedor.'), 'warning'); return false; }
         if (v.id) await q(S.sb.from('met_vendedores').update(d).eq('id', v.id)); else await q(S.sb.from('met_vendedores').insert(d));
@@ -983,21 +1077,21 @@ function formVendedor(v) {
 /* --------------------------- Tabelas de premiação --------------------------- */
 function aTabelas() {
   $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Tabelas de graduação de premiação')}</div>
-    <div class="fi-card__note">${t('Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago.')}</div></div>
+    <div class="fi-card__note">${t('Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago. Crie tabelas próprias para vendedores (premiação menor, pois já recebem comissão) e para a supervisão.')}</div></div>
     <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Nova tabela')}</button></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Tabela')}</th><th>${t('Faixas')}</th><th>${t('Recupera trimestre')}</th><th>${t('Recupera ano')}</th><th class="mt-num">${t('Módulos')}</th><th></th></tr></thead><tbody>
-    ${S.tabelas.map(tb => `<tr><td class="mt-strong">${esc(tb.nome)}</td>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Tabela')}</th><th>${t('Para')}</th><th>${t('Faixas')}</th><th>${t('Recupera trimestre')}</th><th>${t('Recupera ano')}</th><th class="mt-num">${t('Módulos')}</th><th></th></tr></thead><tbody>
+    ${S.tabelas.map(tb => `<tr><td class="mt-strong">${esc(tb.nome)}</td><td><span class="fi-badge ${tb.tipo === 'supervisao' ? 'fi-badge--info' : ''}">${t(tipoTabela(tb))}</span></td>
       <td>${faixasOrd(tb).map(f => `<span class="mt-pill ${classeMult(f.mult)}">≥${num(f.min, f.min % 1 ? 1 : 0)}% → ${multTxt(f.mult)}</span>`).join(' ')}</td>
       <td>${tb.recup_tri ? t('Sim') : t('Não')}</td><td>${tb.recup_anual ? t('Sim') : t('Não')}</td>
       <td class="mt-num">${S.modulos.filter(m => m.tabela_id === tb.id).length}</td>
       <td class="mt-num"><button class="fi-btn" data-ed="${tb.id}">${t('Editar')}</button></td></tr>`).join('') ||
-      `<tr><td colspan="6"><div class="fi-empty">${t('Nenhuma tabela.')}</div></td></tr>`}
+      `<tr><td colspan="7"><div class="fi-empty">${t('Nenhuma tabela.')}</div></td></tr>`}
     </tbody></table></div></section>`;
   $('#bt-novo').onclick = () => formTabela();
   $$('[data-ed]').forEach(b => b.onclick = () => formTabela(byId(S.tabelas, b.dataset.ed)));
 }
 function formTabela(tb) {
-  tb = tb || { nome: '', faixas: [{ min: 90, mult: 0.5 }, { min: 100, mult: 1 }, { min: 105, mult: 2 }], recup_tri: true, recup_anual: true, observacao: '' };
+  tb = tb || { nome: '', tipo: 'ambos', faixas: [{ min: 90, mult: 0.5 }, { min: 100, mult: 1 }, { min: 105, mult: 2 }], recup_tri: true, recup_anual: true, observacao: '' };
   const emUso = tb.id && S.modulos.some(m => m.tabela_id === tb.id);
   const linhaFaixa = f => `<div class="mt-faixa" data-faixa>
       <label class="fi-field"><span class="fi-label">${t('Atingimento mínimo (%)')}</span><input class="fi-input" data-min value="${num(f.min, f.min % 1 ? 1 : 0)}"></label>
@@ -1005,7 +1099,9 @@ function formTabela(tb) {
       <div class="fi-field"><span class="fi-label">${t('Equivale a')}</span><div class="mt-small mt-muted" data-eq style="min-height:38px;display:flex;align-items:center"></div></div>
       <button class="fi-icon-btn" data-rm title="${t('Remover faixa')}">✕</button></div>`;
   const el = modal({ titulo: tb.id ? t('Editar tabela de premiação') : t('Nova tabela de premiação'), largura: 720,
-    corpo: `<label class="fi-field"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="t-nome" value="${esc(tb.nome)}"></label>
+    corpo: `<div class="mt-form"><label class="fi-field"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="t-nome" value="${esc(tb.nome)}" placeholder="${t('Ex.: Vendedores — premiação reduzida')}"></label>
+      <label class="fi-field"><span class="fi-label">${t('Para quem')}</span><select class="fi-select" id="t-tipo">
+        ${['vendedor', 'supervisao', 'ambos'].map(k => `<option value="${k}" ${(tb.tipo || 'ambos') === k ? 'selected' : ''}>${t(tipoTabela({ tipo: k }))}</option>`).join('')}</select></label></div>
       ${emUso ? `<div class="fi-alert fi-alert--warning">${t('Tabela em uso: mudanças valem para os meses ainda não fechados dos módulos que a usam.')}</div>` : ''}
       <div id="t-faixas" style="display:grid;gap:8px">${faixasOrd(tb).map(linhaFaixa).join('')}</div>
       <div><button class="fi-btn" id="t-add">${t('+ Faixa')}</button></div>
@@ -1021,7 +1117,7 @@ function formTabela(tb) {
       { texto: t('Salvar'), primario: true, acao: async () => {
         const faixas = $$('[data-faixa]', el).map(r => ({ min: parseNum($('[data-min]', r).value), mult: (parseNum($('[data-mult]', r).value) || 0) / 100 }))
           .filter(f => f.min != null).sort((a, b) => a.min - b.min);
-        const d = { nome: $('#t-nome').value.trim(), faixas, recup_tri: $('#t-tri').checked, recup_anual: $('#t-ano').checked, observacao: $('#t-obs').value.trim() || null };
+        const d = { nome: $('#t-nome').value.trim(), tipo: $('#t-tipo').value, faixas, recup_tri: $('#t-tri').checked, recup_anual: $('#t-ano').checked, observacao: $('#t-obs').value.trim() || null };
         if (!d.nome) { notify(t('Informe o nome da tabela.'), 'warning'); return false; }
         if (!faixas.length) { notify(t('Inclua ao menos uma faixa.'), 'warning'); return false; }
         if (tb.id) await q(S.sb.from('met_tabelas').update(d).eq('id', tb.id)); else await q(S.sb.from('met_tabelas').insert(d));
@@ -1036,201 +1132,96 @@ function formTabela(tb) {
   liga();
 }
 
-/* ---------------------------- Módulos de metas ---------------------------- */
+/* ---------------------------- Módulos de metas (lista → configuração com metas mensais) ---------------------------- */
 function aModulos() {
+  if (S.modEdit) { const m = byId(S.modulos, S.modEdit); if (m) return aModuloEditor(m); }
   $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Módulos de metas')}</div>
-    <div class="fi-card__note">${t('Cada módulo tem ano, tabela de premiação e os vendedores atrelados com meta e prêmio-base de cada mês. “Liberado” = os vendedores veem o próprio painel.')}</div></div>
+    <div class="fi-card__note">${t('Abra um módulo para configurar participantes, metas e prêmios de cada mês. Meta de vendedor = individual; meta de supervisão = soma da equipe.')}</div></div>
     <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Novo módulo')}</button></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Módulo')}</th><th class="mt-num">${t('Ano')}</th><th>${t('Tabela')}</th><th>${t('Região')}</th>
-      <th class="mt-num">${t('Vendedores')}</th><th class="mt-num">${t('Meta anual')}</th><th class="mt-num">${t('Prêmio-base anual')}</th><th class="mt-num">${t('Comissão equiv. (100%)')}</th><th>${t('Fechado até {m}', { m: '' }).trim()}</th><th>${t('Visualização')}</th><th></th></tr></thead><tbody>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Módulo')}</th><th>${t('Tipo')}</th><th class="mt-num">${t('Ano')}</th><th>${t('Tabela')}</th>
+      <th class="mt-num">${t('Participantes')}</th><th class="mt-num">${t('Meta anual')}</th><th class="mt-num">${t('Prêmio-base anual')}</th><th class="mt-num">${t('Comissão equiv. (100%)')}</th><th>${t('Fechado até')}</th><th>${t('Visualização')}</th><th></th></tr></thead><tbody>
     ${S.modulos.map(m => {
-      const v = vincDe(m.id);
-      const metasAno = v.map(x => somaMetas(x.metas, 1, 12));
+      const v = vincDe(m.id), metasAno = v.map(x => somaMetas(x.metas, 1, 12));
       const meta = v.length && metasAno.every(z => z != null) ? sum(metasAno) : null;
       const pr = sum(v.map(x => sum(x.premios))), uf = ultimoFechado(m.id);
-      return `<tr><td class="mt-strong">${esc(m.nome)}${m.ativo ? '' : ` <span class="fi-badge fi-badge--warning">${t('Inativo')}</span>`}</td><td class="mt-num">${m.ano}</td>
-      <td>${esc((byId(S.tabelas, m.tabela_id) || {}).nome || '—')}</td><td>${esc((byId(S.regioes, m.regiao_id) || {}).nome || t('Todas'))}</td>
+      return `<tr data-abrir="${m.id}" style="cursor:pointer"><td class="mt-strong">${esc(m.nome)}${m.ativo ? '' : ` <span class="fi-badge fi-badge--warning">${t('Inativo')}</span>`}</td>
+      <td>${tipoBadge(m)}</td><td class="mt-num">${m.ano}</td><td>${esc((byId(S.tabelas, m.tabela_id) || {}).nome || '—')}</td>
       <td class="mt-num">${v.length}</td><td class="mt-num">${meta == null ? WAIT() : brl0(meta)}</td><td class="mt-num">${brl0(pr)}</td><td class="mt-num">${pct(meta ? pr / meta : null, 2)}</td>
-      <td>${uf ? MES(uf - 1) : '—'}</td>
-      <td><label class="mt-check"><input type="checkbox" data-vis="${m.id}" ${m.visivel ? 'checked' : ''}> ${m.visivel ? t('Liberado') : t('Oculto')}</label></td>
-      <td class="mt-num" style="white-space:nowrap"><button class="fi-btn" data-metas="${m.id}">${t('Metas mensais')}</button> <button class="fi-btn" data-vend="${m.id}">${t('Vendedores e metas')}</button> <button class="fi-btn" data-ed="${m.id}">${t('Editar')}</button></td></tr>`; }).join('') ||
+      <td>${uf ? MES(uf - 1) : '—'}</td><td>${m.visivel ? `<span class="fi-badge fi-badge--success">${t('Liberado')}</span>` : `<span class="fi-badge">${t('Oculto')}</span>`}</td>
+      <td class="mt-num"><button class="fi-btn" data-abrir-bt="${m.id}">${t('Abrir')}</button></td></tr>`; }).join('') ||
       `<tr><td colspan="11"><div class="fi-empty">${t('Nenhum módulo criado.')}</div></td></tr>`}
     </tbody></table></div></section>`;
   $('#bt-novo').onclick = () => formModulo();
-  $$('[data-ed]').forEach(b => b.onclick = () => formModulo(byId(S.modulos, b.dataset.ed)));
-  $$('[data-vend]').forEach(b => b.onclick = () => editorVinculos(byId(S.modulos, b.dataset.vend)));
-  $$('[data-metas]').forEach(b => b.onclick = () => { S.metaModulo = b.dataset.metas; location.hash = '#/adm/metas'; });
-  $$('[data-vis]').forEach(c => c.onchange = async () => {
-    try { await q(S.sb.from('met_modulos').update({ visivel: c.checked }).eq('id', c.dataset.vis)); await recarregar(c.checked ? t('Visualização liberada aos vendedores') : t('Módulo ocultado dos vendedores')); }
-    catch (e) { notify(erroMsg(e), 'danger'); c.checked = !c.checked; }
-  });
-}
-function formModulo(m) {
-  if (!S.tabelas.length) { notify(t('Cadastre antes uma tabela de premiação.'), 'warning'); return; }
-  m = m || { nome: '', ano: HOJE.getFullYear(), tabela_id: S.tabelas[0].id, regiao_id: null, descricao: '', visivel: false, ativo: true };
-  modal({ titulo: m.id ? t('Editar módulo de metas') : t('Novo módulo de metas'),
-    corpo: `<div class="mt-form">
-      <label class="fi-field mt-full"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="m-nome" value="${esc(m.nome)}" placeholder="${esc(t('Ex.: Metas de Faturamento {a}', { a: HOJE.getFullYear() }))}"></label>
-      <label class="fi-field"><span class="fi-label">${t('Ano *')}</span><input class="fi-input" id="m-ano" type="number" min="2020" max="2100" value="${m.ano}"></label>
-      <label class="fi-field"><span class="fi-label">${t('Tabela de premiação *')}</span><select class="fi-select" id="m-tab">
-        ${S.tabelas.map(tb => `<option value="${tb.id}" ${tb.id === m.tabela_id ? 'selected' : ''}>${esc(tb.nome)}</option>`).join('')}</select></label>
-      <label class="fi-field"><span class="fi-label">${t('Região (opcional)')}</span><select class="fi-select" id="m-reg"><option value="">${t('Todas')}</option>
-        ${S.regioes.map(r => `<option value="${r.id}" ${r.id === m.regiao_id ? 'selected' : ''}>${esc(r.nome)}</option>`).join('')}</select></label>
-      <div style="display:grid;gap:8px;align-content:end">
-        <label class="mt-check"><input type="checkbox" id="m-vis" ${m.visivel ? 'checked' : ''}> ${t('Liberar visualização aos vendedores')}</label>
-        <label class="mt-check"><input type="checkbox" id="m-ativo" ${m.ativo ? 'checked' : ''}> ${t('Ativo')}</label></div>
-      <label class="fi-field mt-full"><span class="fi-label">${t('Descrição')}</span><textarea class="fi-textarea" id="m-desc" placeholder="${t('Ex.: base = faturamento líquido de devoluções')}">${esc(m.descricao || '')}</textarea></label></div>`,
-    botoes: [
-      ...(m.id ? [{ texto: t('Excluir'), perigo: true, esquerda: true, acao: async () => {
-        if (!await confirmar({ title: t('Excluir módulo'), message: t('Apaga o módulo com todas as metas, lançamentos e fechamentos. Não pode ser desfeito.'), confirmText: t('Excluir'), danger: true })) return false;
-        await q(S.sb.from('met_modulos').delete().eq('id', m.id)); await recarregar(t('Módulo excluído')); } }] : []),
-      { texto: t('Cancelar') },
-      { texto: t('Salvar'), primario: true, acao: async () => {
-        const d = { nome: $('#m-nome').value.trim(), ano: Number($('#m-ano').value), tabela_id: $('#m-tab').value, regiao_id: $('#m-reg').value || null,
-                    descricao: $('#m-desc').value.trim() || null, visivel: $('#m-vis').checked, ativo: $('#m-ativo').checked };
-        if (!d.nome) { notify(t('Informe o nome do módulo.'), 'warning'); return false; }
-        if (!(d.ano >= 2020 && d.ano <= 2100)) { notify(t('Ano inválido.'), 'warning'); return false; }
-        if (m.id) { await q(S.sb.from('met_modulos').update(d).eq('id', m.id)); await recarregar(t('Módulo salvo')); }
-        else {
-          const novo = await q(S.sb.from('met_modulos').insert(d).select());
-          await recarregar(t('Módulo criado — agora atrele os vendedores'));
-          if (novo && novo[0]) editorVinculos(byId(S.modulos, novo[0].id));
-        }
-      } }] });
+  $$('[data-abrir]').forEach(tr => tr.onclick = () => { location.hash = '#/adm/modulos/' + tr.dataset.abrir; });
 }
 
-function editorVinculos(m) {
-  const tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), atuais = vincDe(m.id);
-  const candidatos = S.vendedores.filter(v => v.ativo && !atuais.some(x => x.vendedor_id === v.id) && (!m.regiao_id || v.regiao_id === m.regiao_id));
-  const outros = S.vendedores.filter(v => v.ativo && !atuais.some(x => x.vendedor_id === v.id) && m.regiao_id && v.regiao_id !== m.regiao_id);
-  const linha = x => {
-    const metaA = somaMetas(x.metas, 1, 12);
-    const eq100 = comissaoEquiv(tb, metaA, sum(x.premios)).find(e => e.mult === 1);
-    return `<tr><td class="mt-strong">${esc(x.v.nome)}</td><td>${esc((byId(S.regioes, x.v.regiao_id) || {}).nome || '—')}</td>
-      <td class="mt-num">${metaA == null ? WAIT() : brl0(metaA)}</td><td class="mt-num">${brl0(sum(x.premios))}</td><td class="mt-num">${pct(eq100 ? eq100.pct : null, 2)}</td>
-      <td class="mt-num" style="white-space:nowrap"><button class="fi-btn" data-mm="${x.vendedor_id}">${t('Metas e prêmios')}</button>
-      <button class="fi-icon-btn" data-rmv="${x.vendedor_id}" title="${t('Remover do módulo')}">✕</button></td></tr>`;
-  };
-  const el = modal({ titulo: t('Vendedores e metas — {n} ({a})', { n: m.nome, a: m.ano }), largura: 900,
-    corpo: `<div class="mt-row"><select class="fi-select" id="vv-add" style="max-width:340px"><option value="">${t('Atrelar vendedor…')}</option>
-        ${candidatos.map(v => `<option value="${v.id}">${esc(v.nome)}</option>`).join('')}
-        ${outros.length ? `<optgroup label="${t('Outras regiões')}">${outros.map(v => `<option value="${v.id}">${esc(v.nome)}</option>`).join('')}</optgroup>` : ''}</select>
-        <button class="fi-btn fi-btn--primary" id="vv-bt">${t('Atrelar')}</button>
-        ${candidatos.length > 1 ? `<button class="fi-btn" id="vv-todos">${t(m.regiao_id ? 'Atrelar todos da região ({n})' : 'Atrelar todos ({n})', { n: candidatos.length })}</button>` : ''}</div>
-      <div class="fi-table-wrap"><table class="fi-table"><thead><tr><th>${t('Vendedor')}</th><th>${t('Região')}</th><th class="mt-num">${t('Meta anual')}</th><th class="mt-num">${t('Prêmio-base anual')}</th><th class="mt-num">${t('Comissão equiv. 100%')}</th><th></th></tr></thead>
-      <tbody>${atuais.map(linha).join('') || `<tr><td colspan="6"><div class="fi-empty">${t('Nenhum vendedor atrelado.')}</div></td></tr>`}</tbody></table></div>
-      ${fech.size ? `<div class="fi-alert fi-alert--warning">${t('Meses já fechados ({m}) ficam travados na edição de metas.', { m: [...fech].sort((a, b) => a - b).map(i => MES(i - 1)).join(', ') })}</div>` : ''}`,
-    botoes: [{ texto: t('Concluir'), primario: true }] });
-  const vincular = async ids => {
-    await q(S.sb.from('met_modulo_vendedores').insert(ids.map(id => ({ modulo_id: m.id, vendedor_id: id }))));
-    await carregar(); el.remove(); editorVinculos(byId(S.modulos, m.id));
-    notify(ids.length > 1 ? t('{n} vendedores atrelados', { n: ids.length }) : t('Vendedor atrelado — defina metas e prêmios'), 'success');
-  };
-  $('#vv-bt', el).onclick = async () => { const id = $('#vv-add', el).value; if (!id) return; try { await vincular([id]); } catch (e) { notify(erroMsg(e), 'danger'); } };
-  const bt = $('#vv-todos', el); if (bt) bt.onclick = async () => { try { await vincular(candidatos.map(v => v.id)); } catch (e) { notify(erroMsg(e), 'danger'); } };
-  $$('[data-mm]', el).forEach(b => b.onclick = () => editorMetas(m, atuais.find(x => x.vendedor_id === b.dataset.mm), el));
-  $$('[data-rmv]', el).forEach(b => b.onclick = async () => {
-    const x = atuais.find(z => z.vendedor_id === b.dataset.rmv);
-    if (!await confirmar({ title: t('Remover vendedor do módulo'), message: t('Remove {n} deste módulo, com as metas dele. Lançamentos e fechamentos já gravados permanecem no banco.', { n: x.v.nome }), confirmText: t('Remover'), danger: true })) return;
-    try { await q(S.sb.from('met_modulo_vendedores').delete().eq('modulo_id', m.id).eq('vendedor_id', x.vendedor_id)); await carregar(); el.remove(); editorVinculos(byId(S.modulos, m.id)); rota(); }
-    catch (e) { notify(erroMsg(e), 'danger'); }
-  });
-}
-function editorMetas(m, x, pai) {
-  const tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), fx = faixasOrd(tb);
-  const fmtIn = v => v == null ? '' : num(v);
-  let corpoLinhas = '';
-  for (let i = 0; i < 12; i++) {
-    corpoLinhas += `<tr><td>${MES(i)}${fech.has(i + 1) ? ' 🔒' : ''}</td>
-      <td class="mt-tight"><input class="mt-in" data-meta="${i}" value="${fmtIn(x.metas[i])}" ${fech.has(i + 1) ? 'disabled' : ''}></td>
-      <td class="mt-tight"><input class="mt-in" data-pr="${i}" value="${num(x.premios[i])}" ${fech.has(i + 1) ? 'disabled' : ''}></td>
-      ${fx.map((f, k) => `<td class="mt-num" data-eq="${i}-${k}"></td>`).join('')}</tr>`;
-    if ((i + 1) % 3 === 0) corpoLinhas += `<tr class="mt-sub"><td>${t('{q}º tri', { q: (i + 1) / 3 })}</td><td class="mt-num" data-qm="${(i + 1) / 3}"></td><td class="mt-num" data-qp="${(i + 1) / 3}"></td><td colspan="${fx.length}"></td></tr>`;
-  }
-  const el = modal({ titulo: t('Metas e prêmios — {n} · {a}', { n: x.v.nome, a: m.ano }), largura: 860,
-    corpo: `<div class="mt-help">${t('Meta em branco = ainda não lançada. Trimestre e ano são somados automaticamente quando todos os meses do período têm meta.')}</div>
-      <div class="mt-row">
-        <label class="fi-field" style="min-width:170px"><span class="fi-label">${t('Meta para todos os meses')}</span><input class="fi-input" id="em-meta" placeholder="R$"></label>
-        <label class="fi-field" style="min-width:170px"><span class="fi-label">${t('Prêmio-base para todos')}</span><input class="fi-input" id="em-pr" placeholder="R$"></label>
-        <button class="fi-btn" id="em-apl" style="align-self:end">${t('Aplicar aos meses abertos')}</button>
-        <label class="fi-field" style="min-width:150px"><span class="fi-label">${t('ou prêmio = % da meta')}</span><input class="fi-input" id="em-pct" placeholder="${t('ex.: 1')}"></label>
-        <button class="fi-btn" id="em-aplp" style="align-self:end">${t('Calcular prêmios')}</button></div>
-      <div class="fi-table-wrap"><table class="fi-table"><thead><tr><th>${t('Mês')}</th><th class="mt-num">${t('Meta (R$)')}</th><th class="mt-num">${t('Prêmio-base (R$)')}</th>
-        ${fx.map(f => `<th class="mt-num">${t('Comissão {p}', { p: num(f.min, 0) + '%' })}</th>`).join('')}</tr></thead><tbody>${corpoLinhas}</tbody>
-        <tfoot><tr><td>${t('Ano')}</td><td class="mt-num" id="em-tm"></td><td class="mt-num" id="em-tp"></td>${fx.map((f, k) => `<td class="mt-num" id="em-te-${k}"></td>`).join('')}</tr></tfoot></table></div>
-      <div class="mt-help">${t('Comissão equivalente = prêmio pago na faixa ÷ venda necessária para atingir a faixa. Use para comparar a premiação com a política de comissão.')}</div>`,
-    botoes: [{ texto: t('Cancelar') }, { texto: t('Salvar'), primario: true, acao: async () => {
-      const { metas, premios } = ler();
-      await q(S.sb.from('met_modulo_vendedores').update({ metas, premios }).eq('modulo_id', m.id).eq('vendedor_id', x.vendedor_id));
-      await carregar(); if (pai) { pai.remove(); editorVinculos(byId(S.modulos, m.id)); } rota(); notify(t('Metas salvas'), 'success');
-    } }] });
-  const ler = () => ({
-    metas: Array.from({ length: 12 }, (_, i) => parseNum($(`[data-meta="${i}"]`, el).value)),
-    premios: Array.from({ length: 12 }, (_, i) => parseNum($(`[data-pr="${i}"]`, el).value) || 0)
-  });
-  const recalc = () => {
-    const { metas, premios } = ler();
-    for (let i = 0; i < 12; i++) comissaoEquiv(tb, metas[i], premios[i]).forEach((e, k) => { $(`[data-eq="${i}-${k}"]`, el).textContent = pct(e.pct, 2); });
-    for (let qd = 1; qd <= 4; qd++) {
-      const mq = somaMetas(metas, qd * 3 - 2, qd * 3);
-      $(`[data-qm="${qd}"]`, el).innerHTML = brlOuWait(mq);
-      $(`[data-qp="${qd}"]`, el).textContent = brl(sum(premios.slice(qd * 3 - 3, qd * 3)));
-    }
-    const ma = somaMetas(metas, 1, 12);
-    $('#em-tm', el).innerHTML = brlOuWait(ma); $('#em-tp', el).textContent = brl(sum(premios));
-    comissaoEquiv(tb, ma, sum(premios)).forEach((e, k) => { $('#em-te-' + k, el).textContent = pct(e.pct, 2); });
-  };
-  $$('.mt-in', el).forEach(i => { i.addEventListener('input', recalc); i.addEventListener('blur', () => { const v = parseNum(i.value); if (v != null) i.value = num(v); }); });
-  $('#em-apl', el).onclick = () => {
-    const vm = parseNum($('#em-meta', el).value), vp = parseNum($('#em-pr', el).value);
-    for (let i = 0; i < 12; i++) { if (fech.has(i + 1)) continue;
-      if (vm != null) $(`[data-meta="${i}"]`, el).value = num(vm);
-      if (vp != null) $(`[data-pr="${i}"]`, el).value = num(vp); }
-    recalc();
-  };
-  $('#em-aplp', el).onclick = () => {
-    const p = parseNum($('#em-pct', el).value); if (p == null) return;
-    for (let i = 0; i < 12; i++) { if (fech.has(i + 1)) continue;
-      const mt = parseNum($(`[data-meta="${i}"]`, el).value); if (mt != null) $(`[data-pr="${i}"]`, el).value = num(mt * p / 100); }
-    recalc();
-  };
-  recalc();
-}
-
-/* ------------------------------ Metas mensais (grade) ------------------------------ */
-function seletorModulo(atual, idSel) {
-  return `<select class="fi-select" id="${idSel}" style="max-width:340px">${S.modulos.map(m => `<option value="${m.id}" ${m.id === atual ? 'selected' : ''}>${esc(m.nome)} · ${m.ano}</option>`).join('')}</select>`;
-}
 const COLS = [1, 2, 3, 'T1', 4, 5, 6, 'T2', 7, 8, 9, 'T3', 10, 11, 12, 'T4', 'A'];
-function aMetas() {
-  if (!S.modulos.length) { $('#adm-body').innerHTML = `<div class="fi-card"><div class="fi-empty">${t('Crie um módulo de metas primeiro.')}</div></div>`; return; }
-  if (!byId(S.modulos, S.metaModulo)) S.metaModulo = S.modulos[0].id;
-  const m = byId(S.modulos, S.metaModulo), fech = fechadosDe(m.id), vinc = vincDe(m.id), campo = S.metaCampo;
+function aModuloEditor(m) {
+  const tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), vinc = vincDe(m.id), sup = ehSup(m), campo = S.metaCampo;
+  const base = sup ? byId(S.modulos, m.base_modulo_id) : null, uf = ultimoFechado(m.id);
+  setHead(t('Módulos de metas'), m.nome, (sup ? t('Meta de supervisão') : t('Meta de vendedor')) + ' · ' + m.ano + (tb ? ' · ' + tb.nome : ''));
+  const jaDentro = new Set(vinc.map(x => x.vendedor_id));
+  const funcaoAlvo = sup ? 'supervisor' : 'vendedor';
+  const candidatos = S.vendedores.filter(v => v.ativo && !jaDentro.has(v.id) && (v.funcao || 'vendedor') === funcaoAlvo && (sup || !m.regiao_id || v.regiao_id === m.regiao_id));
+  const outros = S.vendedores.filter(v => v.ativo && !jaDentro.has(v.id) && !candidatos.includes(v));
+  const editavel = !(sup && campo === 'metas');
   const head = COLS.map(c => typeof c === 'number' ? `<th class="mt-num">${MES(c - 1)}${fech.has(c) ? ' 🔒' : ''}</th>`
     : `<th class="mt-num mt-qcol">${c === 'A' ? t('Ano') : t('{q}º tri', { q: c.slice(1) })}</th>`).join('');
-  let html = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Metas mensais')}</div>
-      <div class="fi-card__note">${t('Lance a meta de cada mês por vendedor. Trimestres e ano são calculados sozinhos com os meses já lançados; enquanto faltar algum mês, aparece “Aguardando dados”.')}</div></div>
-      <div class="mt-row">${seletorModulo(m.id, 'mm-mod')}
-        <div class="mt-tabs" style="margin:0"><button class="mt-tab" data-campo="metas" aria-selected="${campo === 'metas'}">${t('Meta')}</button><button class="mt-tab" data-campo="premios" aria-selected="${campo === 'premios'}">${t('Prêmio-base')}</button></div>
-        <button class="fi-btn fi-btn--primary" id="mm-salvar" disabled>${t('Salvar alterações')}</button></div></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-metas"><thead><tr><th>${t('Vendedor')}</th>${head}</tr></thead><tbody>`;
-  if (!vinc.length) html += `<tr><td colspan="${COLS.length + 1}"><div class="fi-empty">${t('Nenhum vendedor atrelado a este módulo.')}</div></td></tr>`;
+  let linhas = '';
   vinc.forEach(x => {
     const arr = campo === 'metas' ? x.metas : x.premios.map(Number);
-    html += `<tr data-row="${x.vendedor_id}"><td class="mt-strong">${esc(x.v.nome)}</td>${COLS.map(c => typeof c === 'number'
-      ? `<td class="mt-tight"><input class="mt-in" data-v="${x.vendedor_id}" data-m="${c}" value="${arr[c - 1] == null ? '' : num(arr[c - 1])}" data-orig="${arr[c - 1] == null ? '' : arr[c - 1]}" ${fech.has(c) ? 'disabled' : ''}></td>`
-      : `<td class="mt-num mt-qcol" data-calc="${x.vendedor_id}|${c}"></td>`).join('')}</tr>`;
+    linhas += `<tr><td class="mt-strong"><a href="#" data-det="${x.vendedor_id}" title="${t('Detalhes e comissão equivalente')}">${esc(x.v.nome)}</a>
+        ${sup ? `<div class="mt-small mt-muted">${t((x.equipe || []).length === 1 ? '{n} vendedor' : '{n} vendedores', { n: (x.equipe || []).length })}</div>` : ''}</td>
+      ${COLS.map(c => typeof c === 'number'
+        ? (editavel ? `<td class="mt-tight"><input class="mt-in" data-v="${x.vendedor_id}" data-m="${c}" value="${arr[c - 1] == null ? '' : num(arr[c - 1])}" data-orig="${arr[c - 1] == null ? '' : arr[c - 1]}" ${fech.has(c) ? 'disabled' : ''}></td>`
+                    : `<td class="mt-num" data-ro="${x.vendedor_id}|${c}">${brlOuWait(arr[c - 1])}</td>`)
+        : `<td class="mt-num mt-qcol" data-calc="${x.vendedor_id}|${c}"></td>`).join('')}
+      <td class="mt-num" style="white-space:nowrap">${sup ? `<button class="fi-btn" data-eqp="${x.vendedor_id}">${t('Equipe')}</button> ` : ''}<button class="fi-icon-btn" data-rmv="${x.vendedor_id}" title="${t('Remover do módulo')}">✕</button></td></tr>`;
   });
-  html += `</tbody>${vinc.length ? `<tfoot><tr><td>${t('Total da equipe')}</td>${COLS.map(c => `<td class="mt-num ${typeof c === 'number' ? '' : 'mt-qcol'}" data-tot="${c}"></td>`).join('')}</tr></tfoot>` : ''}</table></div>
-    <div class="fi-card__foot">${t('Meta em branco = ainda não lançada. Trimestre e ano são somados automaticamente quando todos os meses do período têm meta.')}</div></section>`;
-  $('#adm-body').innerHTML = html;
+  $('#adm-body').innerHTML = `
+  <div class="mt-row mt-noprint" style="margin-bottom:12px"><a class="fi-btn" href="#/adm/modulos">${t('← Todos os módulos')}</a><span class="mt-sp"></span>
+    <button class="fi-btn" id="me-dados">${t('Editar dados do módulo')}</button>
+    <button class="fi-btn fi-btn--primary" id="me-fech">${t('Lançamentos e fechamento')}</button></div>
+  <section class="fi-card"><div class="fi-card__body"><div class="mt-kv" style="grid-template-columns:repeat(5,minmax(0,1fr))">
+    <div><span>${t('Tipo')}</span><b>${tipoBadge(m)}</b></div>
+    <div><span>${t('Tabela de premiação')}</span><b title="${esc(tb ? tb.nome : '')}">${esc(tb ? tb.nome : '—')}</b><div class="mt-small">${faixasOrd(tb).map(f => `<span class="mt-pill ${classeMult(f.mult)}">≥${num(f.min, 0)}% → ${multTxt(f.mult)}</span>`).join(' ')}</div></div>
+    <div><span>${sup ? t('Módulo base (vendedores)') : t('Região')}</span><b>${esc(sup ? (base ? base.nome + ' · ' + base.ano : '—') : ((byId(S.regioes, m.regiao_id) || {}).nome || t('Todas')))}</b></div>
+    <div><span>${t('Fechado até')}</span><b>${uf ? MESL(uf - 1) : '—'}</b></div>
+    <div><span>${t('Visualização')}</span><label class="mt-check"><input type="checkbox" id="me-vis" ${m.visivel ? 'checked' : ''}> ${m.visivel ? t('Liberado') : t('Oculto')}</label></div>
+  </div>
+  ${sup ? `<div class="fi-alert fi-alert--info mt-mt">${esc(t('Meta e realizado de cada supervisor = soma da equipe no módulo “{b}”. Aqui você define a equipe e o prêmio-base da supervisão.', { b: base ? base.nome : '—' }))}</div>` : ''}
+  ${sup && !base ? `<div class="fi-alert fi-alert--warning mt-mt">${t('Escolha o módulo base (vendedores) em “Editar dados do módulo”.')}</div>` : ''}
+  </div></section>
 
+  <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Participantes e metas mensais')}</div>
+      <div class="fi-card__note">${sup ? (campo === 'metas' ? t('Metas calculadas a partir da equipe — somente leitura. Para mudar, ajuste as metas dos vendedores no módulo base.') : t('Prêmio-base mensal da supervisão.'))
+        : t('Lance a meta de cada mês por vendedor. Trimestres e ano são calculados sozinhos com os meses já lançados; enquanto faltar algum mês, aparece “Aguardando dados”.')}</div></div>
+      <div class="mt-row">
+        <div class="mt-tabs" style="margin:0"><button class="mt-tab" data-campo="metas" aria-selected="${campo === 'metas'}">${t('Meta')}</button><button class="mt-tab" data-campo="premios" aria-selected="${campo === 'premios'}">${t('Prêmio-base')}</button></div>
+        <button class="fi-btn fi-btn--primary" id="mm-salvar" disabled>${t('Salvar alterações')}</button></div></div>
+    <div class="fi-card__body mt-row" style="border-bottom:1px solid var(--fi-line)">
+      <select class="fi-select" id="vv-add" style="max-width:320px"><option value="">${sup ? t('Atrelar supervisor…') : t('Atrelar vendedor…')}</option>
+        ${candidatos.map(v => `<option value="${v.id}">${esc(v.nome)}</option>`).join('')}
+        ${outros.length ? `<optgroup label="${t('Outros')}">${outros.map(v => `<option value="${v.id}">${esc(v.nome)} (${t(v.funcao === 'supervisor' ? 'Supervisor' : 'Vendedor')})</option>`).join('')}</optgroup>` : ''}</select>
+      <button class="fi-btn" id="vv-bt">${t('Atrelar')}</button>
+      ${candidatos.length > 1 ? `<button class="fi-btn" id="vv-todos">${t('Atrelar todos ({n})', { n: candidatos.length })}</button>` : ''}
+      <span class="mt-sp"></span><span class="mt-small mt-muted">${t('Clique no nome para ver detalhes e a comissão equivalente.')}</span></div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-metas"><thead><tr><th>${sup ? t('Supervisor') : t('Vendedor')}</th>${head}<th></th></tr></thead><tbody>
+      ${linhas || `<tr><td colspan="${COLS.length + 2}"><div class="fi-empty">${sup ? t('Nenhum supervisor atrelado.') : t('Nenhum vendedor atrelado a este módulo.')}</div></td></tr>`}</tbody>
+      ${vinc.length ? `<tfoot><tr><td>${t('Total')}</td>${COLS.map(c => `<td class="mt-num ${typeof c === 'number' ? '' : 'mt-qcol'}" data-tot="${c}"></td>`).join('')}<td></td></tr></tfoot>` : ''}</table></div>
+    <div class="fi-card__foot">${t('Meta em branco = ainda não lançada. Trimestre e ano são somados automaticamente quando todos os meses do período têm meta.')}</div></section>
+  ${regraHtml(tb)}`;
+
+  // grade
   const sujos = new Map(), btS = $('#mm-salvar');
-  const valoresDe = vid => Array.from({ length: 12 }, (_, i) => { const inp = $(`#tb-metas .mt-in[data-v="${vid}"][data-m="${i + 1}"]`); return parseNum(inp.value); });
+  const valoresDe = x => Array.from({ length: 12 }, (_, i) => {
+    if (!editavel) return (campo === 'metas' ? x.metas : x.premios)[i];
+    return parseNum($(`#tb-metas .mt-in[data-v="${x.vendedor_id}"][data-m="${i + 1}"]`).value);
+  });
   const somaPer = (arr, de, ate) => campo === 'metas' ? somaMetas(arr, de, ate) : sum(arr.slice(de - 1, ate));
   const per = c => c === 'A' ? [1, 12] : [Number(c.slice(1)) * 3 - 2, Number(c.slice(1)) * 3];
   const recalc = () => {
-    const todos = vinc.map(x => valoresDe(x.vendedor_id));
+    const todos = vinc.map(valoresDe);
     vinc.forEach((x, k) => COLS.filter(c => typeof c !== 'number').forEach(c => {
       const [a, b] = per(c); $(`[data-calc="${x.vendedor_id}|${c}"]`).innerHTML = brlOuWait(somaPer(todos[k], a, b));
     }));
@@ -1253,69 +1244,347 @@ function aMetas() {
     i.addEventListener('keydown', e => { if (e.key === 'Enter') { const all = $$('#tb-metas .mt-in:not(:disabled)'); const n = all[all.indexOf(i) + 1]; if (n) n.focus(); } });
   });
   const descartaOk = () => !sujos.size || window.confirm(t('Há alterações não salvas. Descartar?'));
-  $('#mm-mod').onchange = e => { if (!descartaOk()) { e.target.value = m.id; return; } S.metaModulo = e.target.value; aMetas(); };
-  $$('[data-campo]').forEach(b => b.onclick = () => { if (b.dataset.campo === campo || !descartaOk()) return; S.metaCampo = b.dataset.campo; aMetas(); });
+  $$('[data-campo]').forEach(b => b.onclick = () => { if (b.dataset.campo === campo || !descartaOk()) return; S.metaCampo = b.dataset.campo; aModuloEditor(m); });
   btS.onclick = async () => {
     btS.disabled = true;
     try {
-      const porVend = new Map();
-      sujos.forEach((_, k) => porVend.set(k.split('|')[0], true));
-      for (const vid of porVend.keys()) {
-        const x = vinc.find(z => z.vendedor_id === vid);
-        let arr = valoresDe(vid);
+      const ids = new Set([...sujos.keys()].map(k => k.split('|')[0]));
+      for (const vid of ids) {
+        let arr = valoresDe(vinc.find(z => z.vendedor_id === vid));
         if (campo === 'premios') arr = arr.map(v => v || 0);
-        await q(S.sb.from('met_modulo_vendedores').update({ [campo]: arr }).eq('modulo_id', m.id).eq('vendedor_id', x.vendedor_id));
+        await q(S.sb.from('met_modulo_vendedores').update({ [campo]: arr }).eq('modulo_id', m.id).eq('vendedor_id', vid));
       }
       await recarregar(t('Metas salvas'));
     } catch (e) { notify(erroMsg(e), 'danger'); btS.disabled = false; }
   };
   recalc();
+
+  // participantes
+  const vincular = async ids => {
+    if (!descartaOk()) return;
+    try {
+      await q(S.sb.from('met_modulo_vendedores').insert(ids.map(id => ({ modulo_id: m.id, vendedor_id: id }))));
+      await recarregar(ids.length > 1 ? t('{n} participantes atrelados', { n: ids.length }) : t('Participante atrelado'));
+      if (sup && ids.length === 1) { const x = vincDe(m.id).find(z => z.vendedor_id === ids[0]); if (x) editorEquipe(m, x); }
+    } catch (e) { notify(erroMsg(e), 'danger'); }
+  };
+  $('#vv-bt').onclick = () => { const id = $('#vv-add').value; if (id) vincular([id]); };
+  const bt = $('#vv-todos'); if (bt) bt.onclick = () => vincular(candidatos.map(v => v.id));
+  $$('[data-rmv]').forEach(b => b.onclick = async () => {
+    const x = vinc.find(z => z.vendedor_id === b.dataset.rmv);
+    if (!await confirmar({ title: t('Remover do módulo'), message: t('Remove {n} deste módulo, com as metas dele. Lançamentos e fechamentos já gravados permanecem no banco.', { n: x.v.nome }), confirmText: t('Remover'), danger: true })) return;
+    try { await q(S.sb.from('met_modulo_vendedores').delete().eq('modulo_id', m.id).eq('vendedor_id', x.vendedor_id)); await recarregar(); }
+    catch (e) { notify(erroMsg(e), 'danger'); }
+  });
+  $$('[data-det]').forEach(a => a.onclick = e => { e.preventDefault(); editorMetas(m, vinc.find(z => z.vendedor_id === a.dataset.det)); });
+  $$('[data-eqp]').forEach(b => b.onclick = () => editorEquipe(m, vinc.find(z => z.vendedor_id === b.dataset.eqp)));
+  $('#me-dados').onclick = () => formModulo(m);
+  $('#me-fech').onclick = () => { S.fechModulo = m.id; S.fechMes = null; location.hash = '#/adm/fechamento'; };
+  $('#me-vis').onchange = async e => {
+    try { await q(S.sb.from('met_modulos').update({ visivel: e.target.checked }).eq('id', m.id)); await recarregar(e.target.checked ? t('Visualização liberada aos vendedores') : t('Módulo ocultado dos vendedores')); }
+    catch (er) { notify(erroMsg(er), 'danger'); e.target.checked = !e.target.checked; }
+  };
 }
 
-/* ------------------------------ Lançamentos ------------------------------ */
-function aLancamentos() {
+/* Equipe do supervisor (vendedores do módulo base) */
+function editorEquipe(m, x) {
+  const base = byId(S.modulos, m.base_modulo_id);
+  if (!base) { notify(t('Escolha o módulo base (vendedores) em “Editar dados do módulo”.'), 'warning'); return; }
+  const doBase = vincDe(base.id), atual = new Set(x.equipe || []);
+  const deOutro = {};
+  vincDe(m.id).forEach(o => { if (o.vendedor_id !== x.vendedor_id) (o.equipe || []).forEach(id => { deOutro[id] = o.v.nome; }); });
+  const regs = [...new Set(doBase.map(z => z.v.regiao_id).filter(Boolean))];
+  const el = modal({ titulo: t('Equipe de {n}', { n: x.v.nome }), largura: 640,
+    corpo: `<div class="mt-help">${esc(t('Vendedores do módulo “{b}” sob responsabilidade deste supervisor. A meta e o realizado da supervisão são a soma deles.', { b: base.nome }))}</div>
+      ${regs.length ? `<div class="mt-row">${regs.map(r => `<button class="fi-btn" data-reg="${r}">+ ${esc((byId(S.regioes, r) || {}).nome)}</button>`).join('')}<button class="fi-btn" data-reg="*">${t('Marcar todos')}</button><button class="fi-btn" data-reg="-">${t('Limpar')}</button></div>` : ''}
+      <div style="display:grid;gap:6px">${doBase.map(z => `<label class="mt-check"><input type="checkbox" value="${z.vendedor_id}" data-r="${z.v.regiao_id || ''}" ${atual.has(z.vendedor_id) ? 'checked' : ''}>
+        <b>${esc(z.v.nome)}</b> <span class="mt-muted mt-small">${esc((byId(S.regioes, z.v.regiao_id) || {}).nome || '')}${deOutro[z.vendedor_id] ? ' · ' + esc(t('também na equipe de {n}', { n: deOutro[z.vendedor_id] })) : ''}</span></label>`).join('') ||
+        `<div class="fi-empty">${t('O módulo base ainda não tem vendedores.')}</div>`}</div>`,
+    botoes: [{ texto: t('Cancelar') }, { texto: t('Salvar'), primario: true, acao: async () => {
+      const equipe = $$('input[type=checkbox]', el).filter(c => c.checked).map(c => c.value);
+      await q(S.sb.from('met_modulo_vendedores').update({ equipe }).eq('modulo_id', m.id).eq('vendedor_id', x.vendedor_id));
+      await recarregar(t('Equipe salva'));
+    } }] });
+  $$('[data-reg]', el).forEach(b => b.onclick = () => $$('input[type=checkbox]', el).forEach(c => {
+    if (b.dataset.reg === '*') c.checked = true; else if (b.dataset.reg === '-') c.checked = false; else if (c.dataset.r === b.dataset.reg) c.checked = true;
+  }));
+}
+
+/* ------------------------------ Lançamentos e fechamento ------------------------------ */
+function seletorModulo(atual, idSel) {
+  return `<select class="fi-select" id="${idSel}" style="max-width:380px">${S.modulos.map(m => `<option value="${m.id}" ${m.id === atual ? 'selected' : ''}>${esc(m.nome)} · ${m.ano} · ${ehSup(m) ? t('Supervisão') : t('Vendedores')}</option>`).join('')}</select>`;
+}
+const PEND = new Map();     // `${modulo}|${mes}|${vendedor}` -> valor (null = apagar)
+function aFechamento() {
   if (!S.modulos.length) { $('#adm-body').innerHTML = `<div class="fi-card"><div class="fi-empty">${t('Crie um módulo de metas primeiro.')}</div></div>`; return; }
-  if (!byId(S.modulos, S.lancModulo)) S.lancModulo = S.modulos[0].id;
-  const m = byId(S.modulos, S.lancModulo), fech = fechadosDe(m.id), vinc = vincDe(m.id);
-  let html = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Realizado por vendedor e mês')}</div>
-      <div class="fi-card__note">${t('Digite os valores (R$) e salve. Meses fechados 🔒 não podem ser alterados — reabra o mês em Fechamentos se precisar corrigir.')}</div></div>
-      <div class="mt-row">${seletorModulo(m.id, 'l-mod')}
-      <button class="fi-btn" id="l-modelo">${t('Modelo Excel')}</button>
-      <label class="fi-btn" style="cursor:pointer">${t('Importar Excel')}<input type="file" id="l-file" accept=".xlsx,.xls,.csv" hidden></label>
-      <button class="fi-btn fi-btn--primary" id="l-salvar" disabled>${t('Salvar alterações')}</button></div></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-lanc"><thead><tr><th>${t('Vendedor')}</th>
-      ${Array.from({ length: 12 }, (_, i) => `<th class="mt-num">${MES(i)}${fech.has(i + 1) ? ' 🔒' : ''}</th>`).join('')}<th class="mt-num">${t('Total')}</th></tr></thead><tbody>`;
-  if (!vinc.length) html += `<tr><td colspan="14"><div class="fi-empty">${t('Nenhum vendedor atrelado a este módulo.')}</div></td></tr>`;
-  vinc.forEach(x => {
-    const r = realDe(m.id, x.vendedor_id);
-    html += `<tr><td class="mt-strong">${esc(x.v.nome)}</td>${r.map((v, i) => `<td class="mt-tight"><input class="mt-in" data-v="${x.vendedor_id}" data-m="${i + 1}"
-      value="${v == null ? '' : num(v)}" data-orig="${v == null ? '' : v}" ${fech.has(i + 1) ? 'disabled' : ''} title="${t('Meta')} ${x.metas[i] == null ? t('Aguardando dados') : brl(x.metas[i])}"></td>`).join('')}
-      <td class="mt-num mt-strong" data-tot="${x.vendedor_id}">${brl(sum(r))}</td></tr>`;
+  if (!byId(S.modulos, S.fechModulo)) S.fechModulo = S.modulos[0].id;
+  const m = byId(S.modulos, S.fechModulo), tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), uf = ultimoFechado(m.id);
+  if (!S.fechMes) S.fechMes = Math.min(12, uf + 1);
+  const mes = S.fechMes, fechado = fech.has(mes), ehTri = mes % 3 === 0, sup = ehSup(m);
+  const base = sup ? byId(S.modulos, m.base_modulo_id) : null;
+  const baseOk = !sup || (base && fechadosDe(base.id).has(mes));
+  const vinc = vincDe(m.id);
+  const chave = vid => m.id + '|' + mes + '|' + vid;
+  const pendDoModulo = () => [...PEND.keys()].filter(k => k.startsWith(m.id + '|'));
+  const calcLinhas = () => vinc.map(x => {
+    if (fechado) { const f = S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id); return { x, d: f ? f.dados : null, f }; }
+    const bruto = realPart(m, x).slice();
+    if (!sup && PEND.has(chave(x.vendedor_id))) bruto[mes - 1] = PEND.get(chave(x.vendedor_id));
+    const semLanc = bruto[mes - 1] == null;
+    const real = bruto.map((v, i) => (i + 1 <= mes && v == null ? 0 : v));
+    const c = calcular(tb, x.metas, x.premios, real, mes);
+    return { x, semLanc, real: bruto[mes - 1], d: snapshot(m, tb, x, c, c.meses[mes - 1]) };
   });
-  html += `</tbody></table></div><div class="fi-card__foot">${t('Importação: colunas email (ou vendedor), mes (1–12, “jan” ou data) e valor. Antes de gravar, o sistema mostra a prévia.')}</div></section>`;
-  $('#adm-body').innerHTML = html;
-  const sujos = new Map(), btS = $('#l-salvar');
-  $$('#tb-lanc .mt-in').forEach(i => {
+  let linhas = calcLinhas();
+  const pctW = v => v == null ? WAIT() : pct(v);
+  const cols = [
+    ['ating', t('Atingido'), d => pct(d.atingimento)],
+    ['faixa', t('Faixa'), d => `<span class="mt-pill ${classeMult(d.multiplicador)}">${multTxt(d.multiplicador)}</span>`],
+    ['base', t('Prêmio-base'), d => brl(d.premio_base)],
+    ['premio', t('Prêmio mês'), d => brl(d.premio_mes)],
+    ...(ehTri ? [['tq', t('Trim. %'), d => pctW(d.trimestre_atingimento)], ['rt', t('Rec. trimestre'), d => `<span class="${d.recuperacao_tri ? 'mt-pos mt-strong' : ''}">${brl(d.recuperacao_tri)}</span>`]] : []),
+    ...(mes === 12 ? [['ta', t('Ano %'), d => pctW(d.ano_atingimento)], ['ra', t('Rec. ano'), d => `<span class="${d.recuperacao_ano ? 'mt-pos mt-strong' : ''}">${brl(d.recuperacao_ano)}</span>`]] : []),
+    ['total', t('Total a pagar'), d => `<b>${brl(d.total)}</b>`],
+    ['ce', t('Comissão efetiva'), d => pct(d.realizado ? d.total / d.realizado : null, 2)]
+  ];
+  const fe = linhas.find(l => l.f);
+  const quando = fe ? { d: new Date(fe.f.fechado_em).toLocaleString(LOC()), p: esc(fe.f.fechado_por || '') } : null;
+  const podeFechar = !fechado && mes === uf + 1 && vinc.length && baseOk;
+  const nPend = pendDoModulo().length;
+
+  $('#adm-body').innerHTML = `
+    <div class="mt-printhead"><img data-fi-logo style="width:120px"><h2 style="margin:6px 0 0">${esc(t('Fechamento {m}/{a} — {n}', { m: MESL(mes - 1), a: m.ano, n: m.nome }))}</h2>
+      <div class="mt-small">${esc(t('Tabela: {n}', { n: tb ? tb.nome : '' }))} · ${fechado && quando ? t('Fechado em {d} por {p}', quando) : t('PRÉVIA — mês não fechado')}</div></div>
+    <section class="fi-card mt-noprint"><div class="fi-card__body" style="display:grid;gap:10px">
+      <div class="mt-row">${seletorModulo(m.id, 'f-mod')} ${tipoBadge(m)}<span class="mt-sp"></span>
+        ${fechado ? `<button class="fi-btn fi-btn--primary" id="f-pdf">${t('PDF do fechamento')}</button><button class="fi-btn" id="f-xls">${t('Exportar Excel')}</button><button class="fi-btn" id="f-print">${t('Imprimir')}</button>
+                     <button class="fi-btn fi-btn--danger" id="f-reabrir" ${mes !== uf ? `disabled title="${t('Reabra primeiro os meses posteriores')}"` : ''}>${t('Reabrir {m}', { m: MES(mes - 1) })}</button>`
+          : `${!sup ? `<button class="fi-btn" id="l-modelo">${t('Modelo Excel')}</button><label class="fi-btn" style="cursor:pointer">${t('Importar Excel')}<input type="file" id="l-file" accept=".xlsx,.xls,.csv" hidden></label>
+             <button class="fi-btn" id="l-salvar" ${nPend ? '' : 'disabled'}>${nPend ? t('Salvar lançamentos ({n})', { n: nPend }) : t('Salvar lançamentos')}</button>` : ''}
+             <button class="fi-btn" id="f-xls">${t('Prévia em Excel')}</button>
+             <button class="fi-btn fi-btn--primary" id="f-fechar" ${podeFechar ? '' : 'disabled'}>🔒 ${t('Fechar {m} e gerar PDF', { m: MESL(mes - 1) })}</button>`}</div>
+      <div class="mt-tabs" style="margin:0">${Array.from({ length: 12 }, (_, i) => `<button class="mt-tab" data-fm="${i + 1}" aria-selected="${i + 1 === mes}">${MES(i)}${fech.has(i + 1) ? ' 🔒' : ''}</button>`).join('')}</div>
+      ${!fechado && mes !== uf + 1 ? `<div class="fi-alert fi-alert--info">${t('Os meses são fechados em sequência. Próximo a fechar: {m}.', { m: '<b>' + (uf < 12 ? MESL(uf) : '—') + '</b>' })} ${!sup ? t('Você pode lançar o realizado deste mês desde já.') : ''}</div>` : ''}
+      ${!fechado && sup && !baseOk ? `<div class="fi-alert fi-alert--warning">${esc(t('O realizado da supervisão vem da equipe: feche antes {m} no módulo “{b}”.', { m: MESL(mes - 1), b: base ? base.nome : '—' }))}</div>` : ''}
+      <div class="fi-alert fi-alert--warning" id="f-semlanc" style="display:none"></div>
+      ${ehTri ? `<div class="fi-alert fi-alert--info">${t(mes === 12 ? 'Fim do {q}º trimestre: este fechamento inclui a recuperação trimestral e a recuperação anual.' : 'Fim do {q}º trimestre: este fechamento inclui a recuperação trimestral.', { q: mes / 3 })}</div>` : ''}
+    </div></section>
+    <section class="fi-card mt-mt"><div class="fi-card__head"><div><div class="fi-card__title">${fechado ? t('Fechamento') : t('Lançamento e prévia')} — ${MESL(mes - 1)}/${m.ano}</div>
+      <div class="fi-card__note">${fechado && quando ? t('Fechado em {d} por {p} — valores congelados.', quando) : sup ? t('Realizado consolidado da equipe (somente leitura).') : t('Digite o realizado do mês; a premiação é recalculada na hora. Salve e, quando estiver tudo certo, feche o mês.')}</div></div>
+      ${fechado ? `<span class="fi-badge fi-badge--success">${t('Fechado')}</span>` : `<span class="fi-badge fi-badge--warning">${t('Aberto')}</span>`}</div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-fech"><thead><tr><th>${sup ? t('Supervisor') : t('Vendedor')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th>
+      ${cols.map(c => `<th class="${c[0] === 'faixa' ? '' : 'mt-num'}">${c[1]}</th>`).join('')}</tr></thead><tbody>
+      ${linhas.map(l => !l.d ? `<tr><td>${esc(l.x.v.nome)}</td><td colspan="${cols.length + 2}" class="mt-muted">${t('Sem registro neste fechamento (atrelado depois).')}</td></tr>` : `<tr>
+        <td class="mt-strong">${esc(l.d.vendedor || l.x.v.nome)} <span data-sl="${l.x.vendedor_id}"></span></td>
+        <td class="mt-num">${brlOuWait(l.d.meta)}</td>
+        <td class="mt-num ${!fechado && !sup ? 'mt-tight' : ''}">${!fechado && !sup
+          ? `<input class="mt-in" data-v="${l.x.vendedor_id}" value="${l.real == null ? '' : num(l.real)}" placeholder="R$" ${PEND.has(chave(l.x.vendedor_id)) ? 'data-pend="1"' : ''}>`
+          : brl(l.d.realizado)}</td>
+        ${cols.map(c => `<td class="${c[0] === 'faixa' ? '' : 'mt-num'}" data-c="${l.x.vendedor_id}|${c[0]}"></td>`).join('')}</tr>`).join('') ||
+        `<tr><td colspan="${cols.length + 3}"><div class="fi-empty">${t('Nenhum vendedor atrelado.')}</div></td></tr>`}
+      </tbody>${linhas.length ? `<tfoot><tr><td>${t('Total')}</td><td class="mt-num" data-tt="meta"></td><td class="mt-num" data-tt="realizado"></td>${cols.map(c => `<td class="mt-num" data-tt="${c[0]}"></td>`).join('')}</tr></tfoot>` : ''}</table></div>
+    <div class="fi-card__foot">${t('Comissão efetiva = total a pagar ÷ realizado do mês.')}</div></section>
+    ${regraHtml(tb)}`;
+  if (UI()) UI().init($('#adm-body'));
+
+  const atualizar = () => {
+    linhas = calcLinhas();
+    linhas.forEach(l => {
+      if (!l.d) return;
+      cols.forEach(c => { const cel = $(`[data-c="${l.x.vendedor_id}|${c[0]}"]`); if (cel) cel.innerHTML = c[2](l.d); });
+      const sl = $(`[data-sl="${l.x.vendedor_id}"]`); if (sl) sl.innerHTML = l.semLanc ? `<span class="fi-badge fi-badge--warning">${t('sem lançamento')}</span>` : '';
+    });
+    const ok = linhas.filter(l => l.d), tot = k => sum(ok.map(l => l.d[k] || 0));
+    const T = (k, v) => { const c = $(`[data-tt="${k}"]`); if (c) c.innerHTML = v; };
+    T('meta', ok.some(l => l.d.meta == null) ? WAIT() : brl(tot('meta'))); T('realizado', brl(tot('realizado')));
+    T('ating', pct(tot('meta') ? tot('realizado') / tot('meta') : null)); T('faixa', ''); T('base', brl(tot('premio_base'))); T('premio', brl(tot('premio_mes')));
+    T('tq', ''); T('rt', brl(tot('recuperacao_tri'))); T('ta', ''); T('ra', brl(tot('recuperacao_ano')));
+    T('total', `<b>${brl(tot('total'))}</b>`); T('ce', pct(tot('realizado') ? tot('total') / tot('realizado') : null, 2));
+    const sem = linhas.filter(l => l.semLanc).length, aviso = $('#f-semlanc');
+    aviso.style.display = !fechado && sem ? '' : 'none';
+    aviso.textContent = t('{n} vendedor(es) sem lançamento em {m} — no fechamento serão considerados R$ 0,00.', { n: sem, m: MES(mes - 1) });
+    const bs = $('#l-salvar'), n = pendDoModulo().length;
+    if (bs) { bs.disabled = !n; bs.textContent = n ? t('Salvar lançamentos ({n})', { n }) : t('Salvar lançamentos'); bs.classList.toggle('fi-btn--primary', !!n); }
+  };
+  $$('#tb-fech .mt-in').forEach(i => {
+    if (i.dataset.pend) i.classList.add('mt-dirty');
     i.addEventListener('input', () => {
-      const v = i.value.trim() === '' ? null : parseNum(i.value);
-      const k = i.dataset.v + '|' + i.dataset.m, o = i.dataset.orig === '' ? null : Number(i.dataset.orig);
-      if (v === o) { sujos.delete(k); i.classList.remove('mt-dirty'); } else { sujos.set(k, v); i.classList.add('mt-dirty'); }
-      btS.disabled = !sujos.size; btS.textContent = sujos.size ? t('Salvar alterações ({n})', { n: sujos.size }) : t('Salvar alterações');
-      $(`[data-tot="${i.dataset.v}"]`).textContent = brl(sum($$(`#tb-lanc .mt-in[data-v="${i.dataset.v}"]`).map(z => parseNum(z.value) || 0)));
+      const v = i.value.trim() === '' ? null : parseNum(i.value), vid = i.dataset.v;
+      const orig = realDe(m.id, vid)[mes - 1];
+      if (v === orig) { PEND.delete(chave(vid)); i.classList.remove('mt-dirty'); } else { PEND.set(chave(vid), v); i.classList.add('mt-dirty'); }
+      atualizar();
     });
     i.addEventListener('blur', () => { const v = parseNum(i.value); if (v != null) i.value = num(v); });
-    i.addEventListener('keydown', e => { if (e.key === 'Enter') { const all = $$('#tb-lanc .mt-in:not(:disabled)'); const n = all[all.indexOf(i) + 1]; if (n) n.focus(); } });
+    i.addEventListener('keydown', e => { if (e.key === 'Enter') { const all = $$('#tb-fech .mt-in'); const n = all[all.indexOf(i) + 1]; if (n) n.focus(); } });
   });
-  $('#l-mod').onchange = e => { if (sujos.size && !window.confirm(t('Há alterações não salvas. Descartar?'))) { e.target.value = m.id; return; } S.lancModulo = e.target.value; aLancamentos(); };
-  btS.onclick = async () => {
-    btS.disabled = true;
-    try { await gravarRealizado(m, [...sujos].map(([k, v]) => { const [vid, mes] = k.split('|'); return { vendedor_id: vid, mes: Number(mes), valor: v }; }));
-          await recarregar(t('Lançamentos salvos')); }
-    catch (e) { notify(erroMsg(e), 'danger'); btS.disabled = false; }
+  atualizar();
+
+  const salvarPendentes = async () => {
+    const ks = pendDoModulo(); if (!ks.length) return;
+    await gravarRealizado(m, ks.map(k => { const [, ms, vid] = k.split('|'); return { vendedor_id: vid, mes: Number(ms), valor: PEND.get(k) }; }));
+    ks.forEach(k => PEND.delete(k));
   };
-  $('#l-modelo').onclick = () => modeloExcel(m);
-  $('#l-file').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) importarExcel(m, f); };
+  $('#f-mod').onchange = e => {
+    if (pendDoModulo().length && !window.confirm(t('Há alterações não salvas. Descartar?'))) { e.target.value = m.id; return; }
+    pendDoModulo().forEach(k => PEND.delete(k));
+    S.fechModulo = e.target.value; S.fechMes = null; aFechamento();
+  };
+  $$('[data-fm]').forEach(b => b.onclick = () => { S.fechMes = Number(b.dataset.fm); aFechamento(); });
+  const bS = $('#l-salvar'); if (bS) bS.onclick = async () => { bS.disabled = true; try { await salvarPendentes(); await recarregar(t('Lançamentos salvos')); } catch (e) { notify(erroMsg(e), 'danger'); bS.disabled = false; } };
+  const bM = $('#l-modelo'); if (bM) bM.onclick = () => modeloExcel(m);
+  const bF = $('#l-file'); if (bF) bF.onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) importarExcel(m, f); };
+  const bP = $('#f-print'); if (bP) bP.onclick = () => window.print();
+  $('#f-xls').onclick = () => exportarFechamento(m, mes, linhas, fechado, ehTri);
+  const bPdf = $('#f-pdf'); if (bPdf) bPdf.onclick = () => pdfFechamento(m, mes, linhas, true, ehTri, quando);
+  const bf = $('#f-fechar');
+  if (bf) bf.onclick = async () => {
+    bf.disabled = true;
+    try {
+      await salvarPendentes(); await carregar();
+      const atuais = calcLinhasDe(m, mes);
+      const total = sum(atuais.map(l => l.d.total));
+      if (!await confirmar({ title: t('Fechar {m}/{a}', { m: MESL(mes - 1), a: m.ano }), message: t('Congela os valores de {n} participante(s) — total a pagar {v}. Os lançamentos deste mês ficam travados e o PDF do fechamento é gerado em seguida.', { n: atuais.length, v: brl(total) }), confirmText: t('Fechar mês') })) { await recarregar(); return; }
+      const quem = S.nome || S.email;
+      await q(S.sb.from('met_fechamentos').insert(atuais.map(l => ({ modulo_id: m.id, mes, vendedor_id: l.x.vendedor_id, dados: l.d, fechado_por: quem }))));
+      await carregar(); rota();
+      const fechadas = vincDe(m.id).map(x => ({ x, d: (S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id) || {}).dados, f: S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id) }));
+      const f0 = fechadas.find(l => l.f);
+      pdfFechamento(m, mes, fechadas, true, ehTri, f0 ? { d: new Date(f0.f.fechado_em).toLocaleString(LOC()), p: esc(f0.f.fechado_por || '') } : null);
+      notify(t('{m} fechado — PDF gerado', { m: MESL(mes - 1) }), 'success');
+    } catch (e) { notify(erroMsg(e), 'danger'); bf.disabled = false; }
+  };
+  const br = $('#f-reabrir');
+  if (br) br.onclick = async () => {
+    if (!await confirmar({ title: t('Reabrir {m}', { m: MESL(mes - 1) }), message: t('Apaga o fechamento congelado deste mês e libera os lançamentos para correção.'), confirmText: t('Reabrir'), danger: true })) return;
+    try { await q(S.sb.from('met_fechamentos').delete().eq('modulo_id', m.id).eq('mes', mes)); await recarregar(t('{m} reaberto', { m: MESL(mes - 1) })); }
+    catch (e) { notify(erroMsg(e), 'danger'); }
+  };
 }
+/* prévia de fechamento a partir dos dados gravados (sem lançamento = 0) */
+function calcLinhasDe(m, mes) {
+  const tb = byId(S.tabelas, m.tabela_id);
+  return vincDe(m.id).map(x => {
+    const real = realPart(m, x).map((v, i) => (i + 1 <= mes && v == null ? 0 : v));
+    const c = calcular(tb, x.metas, x.premios, real, mes);
+    return { x, d: snapshot(m, tb, x, c, c.meses[mes - 1]) };
+  });
+}
+
+function formModulo(m) {
+  if (!S.tabelas.length) { notify(t('Cadastre antes uma tabela de premiação.'), 'warning'); return; }
+  m = m || { nome: '', ano: HOJE.getFullYear(), tipo: 'vendedor', base_modulo_id: null, tabela_id: S.tabelas[0].id, regiao_id: null, descricao: '', visivel: false, ativo: true };
+  const bases = S.modulos.filter(z => !ehSup(z) && z.id !== m.id);
+  const el = modal({ titulo: m.id ? t('Editar módulo de metas') : t('Novo módulo de metas'),
+    corpo: `<div class="mt-form">
+      <label class="fi-field mt-full"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="m-nome" value="${esc(m.nome)}" placeholder="${esc(t('Ex.: Metas de Faturamento {a}', { a: HOJE.getFullYear() }))}"></label>
+      <label class="fi-field"><span class="fi-label">${t('Tipo de meta *')}</span><select class="fi-select" id="m-tipo" ${m.id && S.mv.some(x => x.modulo_id === m.id) ? 'disabled' : ''}>
+        <option value="vendedor" ${!ehSup(m) ? 'selected' : ''}>${t('Meta de vendedor (individual)')}</option>
+        <option value="supervisao" ${ehSup(m) ? 'selected' : ''}>${t('Meta de supervisão (soma da equipe)')}</option></select></label>
+      <label class="fi-field"><span class="fi-label">${t('Ano *')}</span><input class="fi-input" id="m-ano" type="number" min="2020" max="2100" value="${m.ano}"></label>
+      <label class="fi-field mt-full" id="m-base-w"><span class="fi-label">${t('Módulo base (vendedores) *')}</span><select class="fi-select" id="m-base"><option value="">—</option>
+        ${bases.map(z => `<option value="${z.id}" ${z.id === m.base_modulo_id ? 'selected' : ''}>${esc(z.nome)} · ${z.ano}</option>`).join('')}</select>
+        <span class="fi-field__help">${t('De onde vêm as metas e o realizado da equipe de cada supervisor.')}</span></label>
+      <label class="fi-field"><span class="fi-label">${t('Tabela de premiação *')}</span><select class="fi-select" id="m-tab"></select></label>
+      <label class="fi-field" id="m-reg-w"><span class="fi-label">${t('Região (opcional)')}</span><select class="fi-select" id="m-reg"><option value="">${t('Todas')}</option>
+        ${S.regioes.map(r => `<option value="${r.id}" ${r.id === m.regiao_id ? 'selected' : ''}>${esc(r.nome)}</option>`).join('')}</select></label>
+      <div style="display:grid;gap:8px;align-content:end" class="mt-full">
+        <label class="mt-check"><input type="checkbox" id="m-vis" ${m.visivel ? 'checked' : ''}> ${t('Liberar visualização aos vendedores')}</label>
+        <label class="mt-check"><input type="checkbox" id="m-ativo" ${m.ativo ? 'checked' : ''}> ${t('Ativo')}</label></div>
+      <label class="fi-field mt-full"><span class="fi-label">${t('Descrição')}</span><textarea class="fi-textarea" id="m-desc" placeholder="${t('Ex.: base = faturamento líquido de devoluções')}">${esc(m.descricao || '')}</textarea></label></div>`,
+    botoes: [
+      ...(m.id ? [{ texto: t('Excluir'), perigo: true, esquerda: true, acao: async () => {
+        if (!await confirmar({ title: t('Excluir módulo'), message: t('Apaga o módulo com todas as metas, lançamentos e fechamentos. Não pode ser desfeito.'), confirmText: t('Excluir'), danger: true })) return false;
+        await q(S.sb.from('met_modulos').delete().eq('id', m.id)); await recarregar(t('Módulo excluído')); } }] : []),
+      { texto: t('Cancelar') },
+      { texto: t('Salvar'), primario: true, acao: async () => {
+        const tipo = $('#m-tipo').value;
+        const d = { nome: $('#m-nome').value.trim(), ano: Number($('#m-ano').value), tipo, tabela_id: $('#m-tab').value,
+                    regiao_id: tipo === 'vendedor' ? ($('#m-reg').value || null) : null, base_modulo_id: tipo === 'supervisao' ? ($('#m-base').value || null) : null,
+                    descricao: $('#m-desc').value.trim() || null, visivel: $('#m-vis').checked, ativo: $('#m-ativo').checked };
+        if (!d.nome) { notify(t('Informe o nome do módulo.'), 'warning'); return false; }
+        if (tipo === 'supervisao' && !d.base_modulo_id) { notify(t('Escolha o módulo base (vendedores).'), 'warning'); return false; }
+        if (!d.tabela_id) { notify(t('Cadastre antes uma tabela de premiação.'), 'warning'); return false; }
+        if (!(d.ano >= 2020 && d.ano <= 2100)) { notify(t('Ano inválido.'), 'warning'); return false; }
+        if (m.id) { await q(S.sb.from('met_modulos').update(d).eq('id', m.id)); await recarregar(t('Módulo salvo')); }
+        else {
+          const novo = await q(S.sb.from('met_modulos').insert(d).select());
+          await carregar(); notify(t('Módulo criado — agora atrele os participantes'), 'success');
+          if (novo && novo[0]) location.hash = '#/adm/modulos/' + novo[0].id; else rota();
+        }
+      } }] });
+  const sincroniza = () => {
+    const tipo = $('#m-tipo', el).value, atual = $('#m-tab', el).value || m.tabela_id;
+    $('#m-base-w', el).style.display = tipo === 'supervisao' ? '' : 'none';
+    $('#m-reg-w', el).style.display = tipo === 'supervisao' ? 'none' : '';
+    const tabs = S.tabelas.filter(z => (z.tipo || 'ambos') === 'ambos' || (z.tipo === 'vendedor' && tipo === 'vendedor') || (z.tipo === 'supervisao' && tipo === 'supervisao'));
+    $('#m-tab', el).innerHTML = tabs.map(z => `<option value="${z.id}" ${z.id === atual ? 'selected' : ''}>${esc(z.nome)} — ${t(tipoTabela(z))}</option>`).join('') || `<option value="">${t('Nenhuma tabela para este tipo')}</option>`;
+  };
+  $('#m-tipo', el).onchange = sincroniza; sincroniza();
+}
+const tipoTabela = z => ({ vendedor: 'Vendedores', supervisao: 'Supervisão', ambos: 'Ambos' })[z.tipo || 'ambos'];
+
+function editorMetas(m, x, pai) {
+  const tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), fx = faixasOrd(tb), sup = ehSup(m);
+  const fmtIn = v => v == null ? '' : num(v);
+  let corpoLinhas = '';
+  for (let i = 0; i < 12; i++) {
+    corpoLinhas += `<tr><td>${MES(i)}${fech.has(i + 1) ? ' 🔒' : ''}</td>
+      <td class="mt-tight"><input class="mt-in" data-meta="${i}" value="${fmtIn(x.metas[i])}" ${fech.has(i + 1) || sup ? 'disabled' : ''}></td>
+      <td class="mt-tight"><input class="mt-in" data-pr="${i}" value="${num(x.premios[i])}" ${fech.has(i + 1) ? 'disabled' : ''}></td>
+      ${fx.map((f, k) => `<td class="mt-num" data-eq="${i}-${k}"></td>`).join('')}</tr>`;
+    if ((i + 1) % 3 === 0) corpoLinhas += `<tr class="mt-sub"><td>${t('{q}º tri', { q: (i + 1) / 3 })}</td><td class="mt-num" data-qm="${(i + 1) / 3}"></td><td class="mt-num" data-qp="${(i + 1) / 3}"></td><td colspan="${fx.length}"></td></tr>`;
+  }
+  const el = modal({ titulo: t('Metas e prêmios — {n} · {a}', { n: x.v.nome, a: m.ano }), largura: 860,
+    corpo: `<div class="mt-help">${t('Meta em branco = ainda não lançada. Trimestre e ano são somados automaticamente quando todos os meses do período têm meta.')}</div>
+      <div class="mt-row">
+        <label class="fi-field" style="min-width:170px;${sup ? 'display:none' : ''}"><span class="fi-label">${t('Meta para todos os meses')}</span><input class="fi-input" id="em-meta" placeholder="R$"></label>
+        <label class="fi-field" style="min-width:170px"><span class="fi-label">${t('Prêmio-base para todos')}</span><input class="fi-input" id="em-pr" placeholder="R$"></label>
+        <button class="fi-btn" id="em-apl" style="align-self:end">${t('Aplicar aos meses abertos')}</button>
+        <label class="fi-field" style="min-width:150px"><span class="fi-label">${t('ou prêmio = % da meta')}</span><input class="fi-input" id="em-pct" placeholder="${t('ex.: 1')}"></label>
+        <button class="fi-btn" id="em-aplp" style="align-self:end">${t('Calcular prêmios')}</button></div>
+      <div class="fi-table-wrap"><table class="fi-table"><thead><tr><th>${t('Mês')}</th><th class="mt-num">${t('Meta (R$)')}</th><th class="mt-num">${t('Prêmio-base (R$)')}</th>
+        ${fx.map(f => `<th class="mt-num">${t('Comissão {p}', { p: num(f.min, 0) + '%' })}</th>`).join('')}</tr></thead><tbody>${corpoLinhas}</tbody>
+        <tfoot><tr><td>${t('Ano')}</td><td class="mt-num" id="em-tm"></td><td class="mt-num" id="em-tp"></td>${fx.map((f, k) => `<td class="mt-num" id="em-te-${k}"></td>`).join('')}</tr></tfoot></table></div>
+      <div class="mt-help">${t('Comissão equivalente = prêmio pago na faixa ÷ venda necessária para atingir a faixa. Use para comparar a premiação com a política de comissão.')}</div>`,
+    botoes: [{ texto: t('Cancelar') }, { texto: t('Salvar'), primario: true, acao: async () => {
+      const { metas, premios } = ler();
+      await q(S.sb.from('met_modulo_vendedores').update(sup ? { premios } : { metas, premios }).eq('modulo_id', m.id).eq('vendedor_id', x.vendedor_id));
+      await carregar(); rota(); notify(t('Metas salvas'), 'success');
+    } }] });
+  const ler = () => ({
+    metas: Array.from({ length: 12 }, (_, i) => parseNum($(`[data-meta="${i}"]`, el).value)),
+    premios: Array.from({ length: 12 }, (_, i) => parseNum($(`[data-pr="${i}"]`, el).value) || 0)
+  });
+  const recalc = () => {
+    const { metas, premios } = ler();
+    for (let i = 0; i < 12; i++) comissaoEquiv(tb, metas[i], premios[i]).forEach((e, k) => { $(`[data-eq="${i}-${k}"]`, el).textContent = pct(e.pct, 2); });
+    for (let qd = 1; qd <= 4; qd++) {
+      const mq = somaMetas(metas, qd * 3 - 2, qd * 3);
+      $(`[data-qm="${qd}"]`, el).innerHTML = brlOuWait(mq);
+      $(`[data-qp="${qd}"]`, el).textContent = brl(sum(premios.slice(qd * 3 - 3, qd * 3)));
+    }
+    const ma = somaMetas(metas, 1, 12);
+    $('#em-tm', el).innerHTML = brlOuWait(ma); $('#em-tp', el).textContent = brl(sum(premios));
+    comissaoEquiv(tb, ma, sum(premios)).forEach((e, k) => { $('#em-te-' + k, el).textContent = pct(e.pct, 2); });
+  };
+  $$('.mt-in', el).forEach(i => { i.addEventListener('input', recalc); i.addEventListener('blur', () => { const v = parseNum(i.value); if (v != null) i.value = num(v); }); });
+  $('#em-apl', el).onclick = () => {
+    const vm = parseNum($('#em-meta', el).value), vp = parseNum($('#em-pr', el).value);
+    for (let i = 0; i < 12; i++) { if (fech.has(i + 1)) continue;
+      if (vm != null && !sup) $(`[data-meta="${i}"]`, el).value = num(vm);
+      if (vp != null) $(`[data-pr="${i}"]`, el).value = num(vp); }
+    recalc();
+  };
+  $('#em-aplp', el).onclick = () => {
+    const p = parseNum($('#em-pct', el).value); if (p == null) return;
+    for (let i = 0; i < 12; i++) { if (fech.has(i + 1)) continue;
+      const mt = parseNum($(`[data-meta="${i}"]`, el).value); if (mt != null) $(`[data-pr="${i}"]`, el).value = num(mt * p / 100); }
+    recalc();
+  };
+  recalc();
+}
+
+/* ------------------------------ Realizado: gravação e Excel ------------------------------ */
 async function gravarRealizado(m, itens) {
   const quem = S.nome || S.email;
   const ups = itens.filter(i => i.valor != null).map(i => ({ modulo_id: m.id, vendedor_id: i.vendedor_id, mes: i.mes, valor: i.valor, atualizado_em: new Date().toISOString(), atualizado_por: quem }));
@@ -1382,81 +1651,6 @@ async function importarExcel(m, file) {
     botoes: [{ texto: t('Cancelar') }, ...(ok.length ? [{ texto: t('Gravar {n} lançamento(s)', { n: ok.length }), primario: true, acao: async () => { await gravarRealizado(m, ok); await recarregar(t('Importação gravada')); } }] : [])] });
 }
 
-/* ------------------------------ Fechamentos ------------------------------ */
-function aFechamentos() {
-  if (!S.modulos.length) { $('#adm-body').innerHTML = `<div class="fi-card"><div class="fi-empty">${t('Crie um módulo de metas primeiro.')}</div></div>`; return; }
-  if (!byId(S.modulos, S.fechModulo)) S.fechModulo = S.modulos[0].id;
-  const m = byId(S.modulos, S.fechModulo), tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), uf = ultimoFechado(m.id);
-  if (!S.fechMes) S.fechMes = Math.min(12, uf + 1);
-  const mes = S.fechMes, fechado = fech.has(mes), vinc = vincDe(m.id), ehTri = mes % 3 === 0;
-  const linhas = vinc.map(x => {
-    if (fechado) { const f = S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id); return { x, d: f ? f.dados : null, f }; }
-    const real = realDe(m.id, x.vendedor_id).map((v, i) => (i + 1 <= mes && v == null ? 0 : v));
-    const c = calcular(tb, x.metas, x.premios, real, mes), mm = c.meses[mes - 1];
-    return { x, semLanc: realDe(m.id, x.vendedor_id)[mes - 1] == null, d: snapshot(m, tb, x, c, mm) };
-  });
-  const tot = k => sum(linhas.map(l => l.d ? l.d[k] : 0));
-  const semLanc = linhas.filter(l => l.semLanc).length;
-  const fe = linhas.find(l => l.f);
-  const quando = fe ? { d: new Date(fe.f.fechado_em).toLocaleString(LOC()), p: esc(fe.f.fechado_por || '') } : null;
-  const pctOuWait = v => v == null ? WAIT() : pct(v);
-  let html = `<div class="mt-printhead"><img data-fi-logo style="width:120px"><h2 style="margin:6px 0 0">${esc(t('Fechamento {m}/{a} — {n}', { m: MESL(mes - 1), a: m.ano, n: m.nome }))}</h2>
-      <div class="mt-small">${esc(t('Tabela: {n}', { n: tb ? tb.nome : '' }))} · ${fechado && quando ? t('Fechado em {d} por {p}', quando) : t('PRÉVIA — mês não fechado')}</div></div>
-    <section class="fi-card mt-noprint"><div class="fi-card__body" style="display:grid;gap:10px">
-      <div class="mt-row">${seletorModulo(m.id, 'f-mod')}<span class="mt-sp"></span>
-        <button class="fi-btn" id="f-print">${t('Imprimir / PDF')}</button><button class="fi-btn" id="f-xls">${t('Exportar Excel')}</button>
-        ${fechado ? `<button class="fi-btn fi-btn--danger" id="f-reabrir" ${mes !== uf ? `disabled title="${t('Reabra primeiro os meses posteriores')}"` : ''}>${t('Reabrir {m}', { m: MES(mes - 1) })}</button>`
-                  : `<button class="fi-btn fi-btn--primary" id="f-fechar" ${mes !== uf + 1 || !vinc.length ? 'disabled' : ''}>${t('Fechar {m}', { m: MESL(mes - 1) })}</button>`}</div>
-      <div class="mt-tabs" style="margin:0">${Array.from({ length: 12 }, (_, i) => `<button class="mt-tab" data-fm="${i + 1}" aria-selected="${i + 1 === mes}">${MES(i)}${fech.has(i + 1) ? ' 🔒' : ''}</button>`).join('')}</div>
-      ${!fechado && mes !== uf + 1 ? `<div class="fi-alert fi-alert--info">${t('Os meses são fechados em sequência. Próximo a fechar: {m}.', { m: '<b>' + (uf < 12 ? MESL(uf) : '—') + '</b>' })}</div>` : ''}
-      ${!fechado && semLanc ? `<div class="fi-alert fi-alert--warning">${t('{n} vendedor(es) sem lançamento em {m} — no fechamento serão considerados R$ 0,00.', { n: semLanc, m: MES(mes - 1) })}</div>` : ''}
-      ${ehTri ? `<div class="fi-alert fi-alert--info">${t(mes === 12 ? 'Fim do {q}º trimestre: este fechamento inclui a recuperação trimestral e a recuperação anual.' : 'Fim do {q}º trimestre: este fechamento inclui a recuperação trimestral.', { q: mes / 3 })}</div>` : ''}
-    </div></section>
-    <section class="fi-card mt-mt"><div class="fi-card__head"><div><div class="fi-card__title">${fechado ? t('Fechamento') : t('Prévia do fechamento')} — ${MESL(mes - 1)}/${m.ano}</div>
-      <div class="fi-card__note">${fechado && quando ? t('Fechado em {d} por {p} — valores congelados.', quando) : t('Valores calculados com os lançamentos atuais.')}</div></div>
-      ${fechado ? `<span class="fi-badge fi-badge--success">${t('Fechado')}</span>` : `<span class="fi-badge fi-badge--warning">${t('Aberto')}</span>`}</div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-fech"><thead><tr><th>${t('Vendedor')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th><th class="mt-num">${t('Atingido')}</th>
-      <th>${t('Faixa')}</th><th class="mt-num">${t('Prêmio-base')}</th><th class="mt-num">${t('Prêmio mês')}</th>${ehTri ? `<th class="mt-num">${t('Trim. %')}</th><th class="mt-num">${t('Rec. trimestre')}</th>` : ''}
-      ${mes === 12 ? `<th class="mt-num">${t('Ano %')}</th><th class="mt-num">${t('Rec. ano')}</th>` : ''}<th class="mt-num">${t('Total a pagar')}</th><th class="mt-num">${t('Comissão efetiva')}</th></tr></thead><tbody>
-      ${linhas.map(({ x, d, semLanc: sl }) => !d ? `<tr><td>${esc(x.v.nome)}</td><td colspan="12" class="mt-muted">${t('Sem registro neste fechamento (atrelado depois).')}</td></tr>` :
-        `<tr><td class="mt-strong">${esc(d.vendedor || x.v.nome)}${sl ? ` <span class="fi-badge fi-badge--warning">${t('sem lançamento')}</span>` : ''}</td>
-        <td class="mt-num">${brlOuWait(d.meta)}</td><td class="mt-num">${brl(d.realizado)}</td><td class="mt-num">${pct(d.atingimento)}</td>
-        <td><span class="mt-pill ${classeMult(d.multiplicador)}">${multTxt(d.multiplicador)}</span></td><td class="mt-num">${brl(d.premio_base)}</td>
-        <td class="mt-num">${brl(d.premio_mes)}</td>
-        ${ehTri ? `<td class="mt-num">${pctOuWait(d.trimestre_atingimento)}</td><td class="mt-num ${d.recuperacao_tri ? 'mt-pos mt-strong' : ''}">${brl(d.recuperacao_tri)}</td>` : ''}
-        ${mes === 12 ? `<td class="mt-num">${pctOuWait(d.ano_atingimento)}</td><td class="mt-num ${d.recuperacao_ano ? 'mt-pos mt-strong' : ''}">${brl(d.recuperacao_ano)}</td>` : ''}
-        <td class="mt-num mt-strong">${brl(d.total)}</td><td class="mt-num">${pct(d.realizado ? d.total / d.realizado : null, 2)}</td></tr>`).join('') ||
-        `<tr><td colspan="13"><div class="fi-empty">${t('Nenhum vendedor atrelado.')}</div></td></tr>`}
-      </tbody>${linhas.length ? `<tfoot><tr><td>${t('Total')}</td><td class="mt-num">${linhas.some(l => l.d && l.d.meta == null) ? WAIT() : brl(tot('meta'))}</td><td class="mt-num">${brl(tot('realizado'))}</td>
-        <td class="mt-num">${pct(tot('meta') ? tot('realizado') / tot('meta') : null)}</td><td></td><td class="mt-num">${brl(tot('premio_base'))}</td><td class="mt-num">${brl(tot('premio_mes'))}</td>
-        ${ehTri ? `<td></td><td class="mt-num">${brl(tot('recuperacao_tri'))}</td>` : ''}${mes === 12 ? `<td></td><td class="mt-num">${brl(tot('recuperacao_ano'))}</td>` : ''}
-        <td class="mt-num">${brl(tot('total'))}</td><td class="mt-num">${pct(tot('realizado') ? tot('total') / tot('realizado') : null, 2)}</td></tr></tfoot>` : ''}</table></div>
-    <div class="fi-card__foot">${t('Comissão efetiva = total a pagar ÷ realizado do mês.')}</div></section>
-    ${regraHtml(tb)}`;
-  $('#adm-body').innerHTML = html;
-  if (UI()) UI().init($('#adm-body'));
-  $('#f-mod').onchange = e => { S.fechModulo = e.target.value; S.fechMes = null; aFechamentos(); };
-  $$('[data-fm]').forEach(b => b.onclick = () => { S.fechMes = Number(b.dataset.fm); aFechamentos(); });
-  $('#f-print').onclick = () => window.print();
-  $('#f-xls').onclick = () => exportarFechamento(m, mes, linhas, fechado, ehTri);
-  const bf = $('#f-fechar');
-  if (bf) bf.onclick = async () => {
-    if (!await confirmar({ title: t('Fechar {m}/{a}', { m: MESL(mes - 1), a: m.ano }), message: t('Congela os valores de {n} vendedor(es) — total a pagar {v}. Os lançamentos deste mês ficam travados.', { n: linhas.length, v: brl(tot('total')) }), confirmText: t('Fechar mês') })) return;
-    bf.disabled = true;
-    try {
-      const quem = S.nome || S.email;
-      await q(S.sb.from('met_fechamentos').insert(linhas.filter(l => l.d).map(l => ({ modulo_id: m.id, mes, vendedor_id: l.x.vendedor_id, dados: l.d, fechado_por: quem }))));
-      S.fechMes = Math.min(12, mes + 1);
-      await recarregar(t('{m} fechado', { m: MESL(mes - 1) }));
-    } catch (e) { notify(erroMsg(e), 'danger'); bf.disabled = false; }
-  };
-  const br = $('#f-reabrir');
-  if (br) br.onclick = async () => {
-    if (!await confirmar({ title: t('Reabrir {m}', { m: MESL(mes - 1) }), message: t('Apaga o fechamento congelado deste mês e libera os lançamentos para correção.'), confirmText: t('Reabrir'), danger: true })) return;
-    try { await q(S.sb.from('met_fechamentos').delete().eq('modulo_id', m.id).eq('mes', mes)); await recarregar(t('{m} reaberto', { m: MESL(mes - 1) })); }
-    catch (e) { notify(erroMsg(e), 'danger'); }
-  };
-}
 function snapshot(m, tb, x, c, mm) {
   const tq = c.tri[Math.ceil(mm.mes / 3) - 1];
   return {
@@ -1467,7 +1661,8 @@ function snapshot(m, tb, x, c, mm) {
     meses_recuperados_tri: mm.mes % 3 === 0 ? c.meses.slice(mm.mes - 3, mm.mes).filter(z => z.recTri).map(z => z.mes) : [],
     ano_meta: mm.mes === 12 ? c.ano.metaA : null, ano_faixa: mm.mes === 12 ? c.ano.multA : null, ano_atingimento: mm.mes === 12 ? c.ano.atingA : null, recuperacao_ano: mm.pagoAno,
     meses_recuperados_ano: mm.mes === 12 ? c.meses.filter(z => z.recAno).map(z => z.mes) : [],
-    total: mm.total, acumulado_ano: c.totalAte,
+    total: mm.total, acumulado_ano: c.totalAte, tipo: ehSup(m) ? 'supervisao' : 'vendedor',
+    equipe: ehSup(m) ? (x.equipeV || []).map(z => ({ vendedor: z.v.nome, meta: z.metas[mm.mes - 1], realizado: realDe(x.baseMod.id, z.vendedor_id)[mm.mes - 1] })) : undefined,
     tabela: tb ? { nome: tb.nome, faixas: faixasOrd(tb), recup_tri: tb.recup_tri, recup_anual: tb.recup_anual } : null
   };
 }
@@ -1493,6 +1688,166 @@ function exportarModulo(m, mes, linhas) {
     [t('Rec. trimestre')]: mm.pagoTri, [t('Rec. ano')]: mm.pagoAno, [t('Total')]: mm.total })));
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), (t('Metas ') + m.ano).slice(0, 31));
   XLSX.writeFile(wb, `metas_${nomeArq(m.nome)}_${m.ano}_${MES_EN[mes - 1]}.xlsx`);
+}
+
+/* ============================== PDF ============================== */
+const pdfTxt = s => String(s == null ? '' : s).replace(/[—–]/g, '-').replace(/[“”]/g, '"').replace(/[‘’]/g, "'")
+  .replace(/≥/g, '>=').replace(/×/g, 'x').replace(/→/g, '->').replace(/…/g, '...').replace(/[  ]/g, ' ').replace(/🔒/g, '');
+const COR = { brand: [181, 18, 27], soft: [251, 228, 231], brandTxt: [141, 14, 21], cinza: [102, 112, 124], linha: [223, 228, 232], alt: [246, 248, 250], verde: [22, 115, 75] };
+function pdfPronto() {
+  const ok = !!(window.jspdf && window.jspdf.jsPDF && window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable);
+  if (!ok) notify(t('Biblioteca de PDF ainda carregando, tente de novo.'), 'warning');
+  return ok;
+}
+function pdfCabecalho(doc) {
+  const W = doc.internal.pageSize.getWidth();
+  try { const L = UI() && UI().LOGO_URL; if (L && String(L).startsWith('data:image')) doc.addImage(L, 'PNG', 12, 7, 33, 12); } catch (_) {}
+  doc.setDrawColor(...COR.brand); doc.setLineWidth(0.8); doc.line(12, 22, W - 12, 22);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(32, 36, 42);
+  doc.text(pdfTxt(doc.__titulo), W - 12, 12, { align: 'right' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...COR.cinza);
+  doc.text(pdfTxt(doc.__sub), W - 12, 17.5, { align: 'right' });
+  if (doc.__status) { doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...COR.brand); doc.text(pdfTxt(doc.__status), 12, 27); }
+}
+function pdfNovo(titulo, sub, status) {
+  const doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  Object.assign(doc, { __titulo: titulo, __sub: sub, __status: status });
+  pdfCabecalho(doc);
+  return doc;
+}
+function pdfRodapes(doc) {
+  const n = doc.getNumberOfPages(), W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+  const gerado = t('Gerado em {d} por {p}', { d: new Date().toLocaleString(LOC()), p: S.nome || S.email }) + ' · ' + t('Metas e Premiação') + ' · Fiorella';
+  for (let i = 1; i <= n; i++) {
+    doc.setPage(i); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...COR.cinza);
+    doc.text(pdfTxt(gerado), 12, H - 7);
+    doc.text(pdfTxt(t('Página {a} de {b}', { a: i, b: n })), W - 12, H - 7, { align: 'right' });
+  }
+}
+function pdfTabela(doc, opts) {
+  doc.autoTable(Object.assign({
+    theme: 'grid',
+    styles: { font: 'helvetica', fontSize: 7.6, cellPadding: 1.6, lineColor: COR.linha, lineWidth: 0.1, textColor: [32, 36, 42], overflow: 'linebreak' },
+    headStyles: { fillColor: COR.alt, textColor: COR.cinza, fontStyle: 'bold', fontSize: 7 },
+    footStyles: { fillColor: [235, 238, 241], textColor: [32, 36, 42], fontStyle: 'bold' },
+    margin: { left: 12, right: 12, top: 31, bottom: 14 },
+    didDrawPage: () => pdfCabecalho(doc)
+  }, opts));
+  return doc.lastAutoTable.finalY;
+}
+function pdfSecao(doc, y, txt) {
+  const H = doc.internal.pageSize.getHeight();
+  if (y > H - 30) { doc.addPage(); pdfCabecalho(doc); y = 34; }
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor(32, 36, 42); doc.text(pdfTxt(txt), 12, y);
+  return y + 3;
+}
+function pdfRegras(doc, y, tb) {
+  if (!tb) return y;
+  const tmp = document.createElement('div'); tmp.innerHTML = regraHtml(tb);
+  const linhas = $$('.mt-rule > div', tmp).map(d => pdfTxt(d.textContent.trim()));
+  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.8);
+  const partes = linhas.map(l => doc.splitTextToSize('• ' + l, W - 24));
+  const altura = 11 + sum(partes.map(p => p.length * 3.6 + 1));
+  if (y + 8 + altura > H - 14) { doc.addPage(); pdfCabecalho(doc); y = 26; }   // mantém o bloco de regras inteiro
+  y = pdfSecao(doc, y + 8, t('Regras aplicadas')) + 3;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.8); doc.setTextColor(60, 66, 74);
+  partes.forEach(p => { doc.text(p, 12, y); y += p.length * 3.6 + 1; });
+  return y;
+}
+/* Anexo do vendedor: 12 meses com as linhas de trimestre destacadas */
+function pdfAnexo(doc, m, x, c, mesRef, novaPagina) {
+  if (novaPagina) { doc.addPage(); pdfCabecalho(doc); }
+  const y0 = 35;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(32, 36, 42);
+  doc.text(pdfTxt(t('Anexo — {n}', { n: x.v.nome })), 12, y0);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...COR.cinza);
+  doc.text(pdfTxt([x.v.email, (byId(S.regioes, x.v.regiao_id) || {}).nome, m.nome + ' ' + m.ano, t('Demonstrativo até {m}', { m: MESL(mesRef - 1) })].filter(Boolean).join('  ·  ')), 12, y0 + 5);
+  const W = v => v == null ? t('Aguardando dados') : brl(v);
+  const body = [], tri = new Set();
+  c.meses.forEach(mm => {
+    const fut = mm.mes > mesRef;
+    body.push([MES(mm.mes - 1), W(mm.meta), mm.real == null || fut ? '-' : brl(mm.real), mm.ating == null || fut ? '-' : pct(mm.ating),
+      mm.apurado && !fut ? multTxt(mm.mult) : '-', brl(mm.base), fut ? '-' : brl(mm.premio),
+      mm.pagoTri && !fut ? brl(mm.pagoTri) : '', mm.pagoAno && !fut ? brl(mm.pagoAno) : '', fut ? '-' : brl(mm.total)]);
+    if (mm.mes % 3 === 0) {
+      const q = c.tri[mm.mes / 3 - 1];
+      tri.add(body.length);
+      body.push([t('{q}º trimestre', { q: q.q }).toUpperCase(), W(q.metaQ), W(q.realQ), q.atingQ == null ? t('Aguardando dados') : pct(q.atingQ),
+        q.recuperou ? multTxt(q.multQ) : '-', { content: pdfTxt(statusTri(q, false)), colSpan: 2 }, q.valor ? brl(q.valor) : '', '',
+        brl(sum(c.meses.slice(mm.mes - 3, mm.mes).map(z => z.total)))]);
+    }
+  });
+  const foot = [[t('Ano'), W(c.ano.metaA), W(c.ano.realA), c.ano.atingA == null ? t('Aguardando dados') : pct(c.ano.atingA),
+    c.ano.recuperou ? multTxt(c.ano.multA) : '-', '', brl(sum(c.meses.map(z => z.premio))), brl(sum(c.tri.map(z => z.valor))), brl(c.ano.valor), brl(sum(c.meses.map(z => z.total)))]];
+  const right = {}; for (let k = 1; k <= 9; k++) right[k] = { halign: k === 4 ? 'center' : 'right' };
+  let yFim = pdfTabela(doc, {
+    startY: y0 + 9,
+    head: [[t('Mês'), t('Meta'), t('Realizado'), t('Atingido'), t('Faixa'), t('Prêmio-base'), t('Prêmio'), t('Rec. trimestre'), t('Rec. ano'), t('Total pago')].map(pdfTxt)],
+    body: body.map(r => r.map(v => typeof v === 'object' && v ? v : pdfTxt(v))), foot: foot.map(r => r.map(pdfTxt)),
+    columnStyles: right,
+    didParseCell: d => {
+      if (d.section === 'body' && tri.has(d.row.index)) {
+        d.cell.styles.fillColor = COR.soft; d.cell.styles.textColor = COR.brandTxt; d.cell.styles.fontStyle = 'bold';
+        d.cell.styles.lineColor = COR.brand; d.cell.styles.lineWidth = { top: 0.5, bottom: 0.5, left: 0.1, right: 0.1 };
+      }
+      if (d.section === 'body' && tri.has(d.row.index) && d.column.index === 5) d.cell.styles.halign = 'left';
+    }
+  });
+  if (ehSup(m) && x.baseMod && (x.equipeV || []).length) {
+    yFim = pdfSecao(doc, yFim + 8, t('Equipe em {m}', { m: MESL(mesRef - 1) }));
+    yFim = pdfTabela(doc, { startY: yFim + 2,
+      head: [[t('Vendedor'), t('Meta'), t('Realizado'), t('Atingido'), t('Acum. %')].map(pdfTxt)],
+      body: x.equipeV.map(z => {
+        const meta = z.metas[mesRef - 1], rr = realDe(x.baseMod.id, z.vendedor_id), real = rr[mesRef - 1];
+        const acM = sum(z.metas.slice(0, mesRef).map(v => v || 0)), acR = sum(rr.slice(0, mesRef).map(v => v || 0));
+        return [z.v.nome, meta == null ? t('Aguardando dados') : brl(meta), real == null ? '-' : brl(real), meta && real != null ? pct(real / meta) : '-', acM ? pct(acR / acM) : '-'].map(pdfTxt);
+      }), columnStyles: { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' } } });
+  }
+  return yFim;
+}
+function pdfFechamento(m, mes, linhas, fechado, ehTri, quando) {
+  if (!pdfPronto()) return;
+  const tb = byId(S.tabelas, m.tabela_id);
+  const doc = pdfNovo(t('Fechamento {m}/{a} — {n}', { m: MESL(mes - 1), a: m.ano, n: m.nome }), (ehSup(m) ? t('Meta de supervisão') : t('Meta de vendedor')) + ' · ' + t('Tabela: {n}', { n: tb ? tb.nome : '' }),
+    fechado && quando ? t('Fechado em {d} por {p} — valores congelados.', quando) : t('PRÉVIA — mês não fechado'));
+  const ok = linhas.filter(l => l.d), tot = k => sum(ok.map(l => l.d[k] || 0));
+  const head = [ehSup(m) ? t('Supervisor') : t('Vendedor'), t('Meta'), t('Realizado'), t('Atingido'), t('Faixa'), t('Prêmio-base'), t('Prêmio mês')];
+  if (ehTri) head.push(t('Trim. %'), t('Rec. trimestre'));
+  if (mes === 12) head.push(t('Ano %'), t('Rec. ano'));
+  head.push(t('Total a pagar'), t('Comissão efetiva'));
+  const body = ok.map(({ d }) => {
+    const r = [d.vendedor, d.meta == null ? t('Aguardando dados') : brl(d.meta), brl(d.realizado), pct(d.atingimento), multTxt(d.multiplicador), brl(d.premio_base), brl(d.premio_mes)];
+    if (ehTri) r.push(d.trimestre_atingimento == null ? t('Aguardando dados') : pct(d.trimestre_atingimento), brl(d.recuperacao_tri));
+    if (mes === 12) r.push(d.ano_atingimento == null ? t('Aguardando dados') : pct(d.ano_atingimento), brl(d.recuperacao_ano));
+    r.push(brl(d.total), pct(d.realizado ? d.total / d.realizado : null, 2));
+    return r.map(pdfTxt);
+  });
+  const foot = [t('Total'), ok.some(l => l.d.meta == null) ? t('Aguardando dados') : brl(tot('meta')), brl(tot('realizado')), pct(tot('meta') ? tot('realizado') / tot('meta') : null), '', brl(tot('premio_base')), brl(tot('premio_mes'))];
+  if (ehTri) foot.push('', brl(tot('recuperacao_tri')));
+  if (mes === 12) foot.push('', brl(tot('recuperacao_ano')));
+  foot.push(brl(tot('total')), pct(tot('realizado') ? tot('total') / tot('realizado') : null, 2));
+  const cols = {}; for (let k = 1; k < head.length; k++) cols[k] = { halign: k === 4 ? 'center' : 'right' };
+  let y = pdfSecao(doc, 35, t('Resumo do fechamento'));
+  y = pdfTabela(doc, { startY: y + 2, head: [head.map(pdfTxt)], body, foot: [foot.map(pdfTxt)], columnStyles: cols,
+    didParseCell: d => { if (d.section === 'body' && d.column.index === head.length - 2) d.cell.styles.fontStyle = 'bold'; } });
+  pdfRegras(doc, y, tb);
+  ok.forEach(({ x }) => {
+    // o anexo mostra a posição na data do fechamento: meses posteriores ainda não existem
+    const real = realPart(m, x).map((v, i) => (i + 1 <= mes ? (v == null ? 0 : v) : null));
+    pdfAnexo(doc, m, x, calcular(tb, x.metas, x.premios, real, mes), mes, true);
+  });
+  pdfRodapes(doc);
+  doc.save(`fechamento_${nomeArq(m.nome)}_${m.ano}_${String(mes).padStart(2, '0')}${fechado ? '' : '_previa'}.pdf`);
+}
+function pdfVendedor(m, x, mes) {
+  if (!pdfPronto() || !x) return;
+  const tb = byId(S.tabelas, m.tabela_id);
+  const doc = pdfNovo(t('Demonstrativo de metas e premiação'), m.nome + ' · ' + m.ano, '');
+  const y = pdfAnexo(doc, m, x, calcVinc(m, x, mes), mes, false);
+  pdfRegras(doc, y, tb);
+  pdfRodapes(doc);
+  doc.save(`demonstrativo_${nomeArq(x.v.nome)}_${nomeArq(m.nome)}_${m.ano}.pdf`);
 }
 
 /* ------------------------------ início ------------------------------ */
