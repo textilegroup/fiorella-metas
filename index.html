@@ -16,6 +16,9 @@
   .mt-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
   .mt-tab{border:1px solid var(--fi-line);background:var(--fi-surface);color:var(--fi-muted);border-radius:999px;padding:6px 13px;font-size:.78rem;font-weight:700;cursor:pointer}
   .mt-tab[aria-selected="true"]{background:var(--fi-brand);border-color:var(--fi-brand);color:#fff}
+  .mt-lang{display:inline-flex;border:1px solid var(--fi-line);border-radius:7px;overflow:hidden;height:36px}
+  .mt-lang button{border:0;background:var(--fi-surface);color:var(--fi-muted);font-weight:750;font-size:.74rem;padding:0 10px;cursor:pointer;letter-spacing:.04em}
+  .mt-lang button[aria-pressed="true"]{background:var(--fi-brand);color:#fff}
   .mt-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .mt-sp{flex:1}
   .mt-mt{margin-top:12px}.mt-mt2,.fi-eyebrow.mt-mt2{margin-top:18px}
@@ -24,6 +27,7 @@
   .mt-small{font-size:.72rem}
   .mt-strong{font-weight:750}
   .mt-pos{color:var(--fi-success)}.mt-neg{color:var(--fi-danger)}.mt-warn{color:var(--fi-warning)}
+  .mt-wait{color:var(--fi-muted);font-style:italic;font-size:.7rem;font-weight:600;white-space:nowrap}
   .mt-modcard{cursor:pointer;transition:border-color .15s, transform .15s}
   .mt-modcard:hover{border-color:var(--fi-brand);transform:translateY(-1px)}
   .mt-modcard .fi-card__body{display:grid;gap:10px}
@@ -36,6 +40,9 @@
   .mt-in.mt-dirty{background:color-mix(in srgb,var(--fi-warning) 12%,var(--fi-surface))}
   .mt-in:disabled{opacity:.6;background:var(--fi-surface-alt)}
   .fi-table td.mt-tight,.fi-table th.mt-tight{padding:6px 6px}
+  .fi-table th.mt-qcol,.fi-table td.mt-qcol{background:color-mix(in srgb,var(--fi-brand) 5%,var(--fi-surface-alt));font-weight:750}
+  #tb-metas th:first-child,#tb-metas td:first-child,#tb-lanc th:first-child,#tb-lanc td:first-child{position:sticky;left:0;z-index:2;background:var(--fi-surface);box-shadow:1px 0 0 var(--fi-line)}
+  #tb-metas th:first-child,#tb-lanc th:first-child,#tb-metas tfoot td:first-child{background:var(--fi-surface-alt)}
   .fi-table tfoot td{font-weight:750;background:var(--fi-surface-alt);border-top:1px solid var(--fi-line-strong)}
   .fi-table tr.mt-sub td{background:color-mix(in srgb,var(--fi-surface-alt) 60%,transparent);font-size:.72rem}
   .mt-pill{display:inline-block;min-width:44px;text-align:center;padding:2px 7px;border-radius:999px;font-size:.68rem;font-weight:750}
@@ -65,7 +72,55 @@
   .mt-lock{font-size:.66rem;margin-left:4px}
   .mt-loading{padding:60px 0;text-align:center;color:var(--fi-muted)}
   .mt-printhead{display:none}
-  @media(max-width:700px){.mt-form{grid-template-columns:1fr}.mt-kv{grid-template-columns:1fr 1fr}.mt-falta{grid-template-columns:1fr}.mt-faixa{grid-template-columns:1fr 1fr}}
+  /* ---------- Estratégia ---------- */
+  .es-hero{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
+  .es-org{display:grid;gap:14px;justify-items:center;padding:18px 12px 8px}
+  .es-node{border:1px solid var(--fi-line);border-radius:10px;background:var(--fi-surface);padding:12px 14px;text-align:center;box-shadow:var(--fi-shadow)}
+  .es-node b{display:block;font-size:.9rem}
+  .es-node small{display:block;color:var(--fi-muted);font-size:.7rem;margin-top:3px;line-height:1.35}
+  .es-sup{border-color:var(--fi-brand);border-width:2px;min-width:240px}
+  .es-sup b{color:var(--fi-brand)}
+  .es-link{width:2px;height:18px;background:var(--fi-line-strong)}
+  .es-team{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%;padding-top:18px}
+  .es-team::before{content:"";position:absolute;top:0;left:16.6%;right:16.6%;height:2px;background:var(--fi-line-strong)}
+  .es-team>div{position:relative;display:grid;gap:8px}
+  .es-team>div::before{content:"";position:absolute;top:-18px;left:50%;width:2px;height:18px;background:var(--fi-line-strong)}
+  .es-cart{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;padding:8px;border:1px dashed var(--fi-line-strong);border-radius:8px;background:var(--fi-surface-alt)}
+  .es-cart i{width:16px;height:16px;border-radius:50%;background:color-mix(in srgb,var(--fi-info) 22%,var(--fi-surface));border:1px solid color-mix(in srgb,var(--fi-info) 45%,transparent)}
+  .es-cart span{width:100%;text-align:center;font-size:.64rem;color:var(--fi-muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+  .es-band{margin-top:4px;width:100%;text-align:center;font-size:.72rem;font-weight:700;color:var(--fi-brand);padding:8px;border-radius:8px;background:var(--fi-brand-soft,color-mix(in srgb,var(--fi-brand) 8%,transparent))}
+  .es-cmp{width:100%;border-collapse:collapse;font-size:.78rem}
+  .es-cmp th,.es-cmp td{padding:10px 12px;border-bottom:1px solid var(--fi-line);text-align:left;vertical-align:top}
+  .es-cmp thead th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--fi-muted)}
+  .es-cmp thead th:nth-child(3){color:var(--fi-brand)}
+  .es-cmp tbody th{color:var(--fi-muted);font-weight:700;width:30%}
+  .es-yes{color:var(--fi-success);font-weight:750}.es-no{color:var(--fi-danger);font-weight:750}
+  .es-rules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .es-rule{position:relative;padding:16px 14px 14px;border:1px solid var(--fi-line);border-radius:10px;background:var(--fi-surface);box-shadow:var(--fi-shadow);display:grid;gap:6px;align-content:start}
+  .es-rule .es-n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--fi-brand);color:#fff;font-weight:800;font-size:.8rem}
+  .es-rule h3{margin:2px 0 0;font-size:.86rem}
+  .es-rule p{margin:0;color:var(--fi-muted);font-size:.76rem;line-height:1.45}
+  .es-tag{justify-self:start;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:var(--fi-surface-alt);color:var(--fi-muted)}
+  .es-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;align-items:stretch}
+  .es-step{position:relative;padding:12px 18px 12px 14px;border:1px solid var(--fi-line);background:var(--fi-surface);font-size:.76rem;display:grid;gap:4px}
+  .es-step:not(:last-child)::after{content:"";position:absolute;right:-9px;top:50%;width:16px;height:16px;transform:translateY(-50%) rotate(45deg);background:var(--fi-surface);border-top:1px solid var(--fi-line);border-right:1px solid var(--fi-line);z-index:1}
+  .es-step:first-child{border-radius:8px 0 0 8px}.es-step:last-child{border-radius:0 8px 8px 0}
+  .es-step b{font-size:.8rem}.es-step span{color:var(--fi-muted)}
+  .es-step.es-hl{background:color-mix(in srgb,var(--fi-success) 8%,var(--fi-surface))}
+  .es-step.es-hl::after{background:color-mix(in srgb,var(--fi-success) 8%,var(--fi-surface))}
+  .es-tl{position:relative;display:grid;grid-template-columns:1fr 1fr;margin-top:26px}
+  .es-tl>div{padding:12px 14px;font-size:.76rem}
+  .es-tl>div:first-child{background:color-mix(in srgb,var(--fi-info) 10%,var(--fi-surface));border-radius:8px 0 0 8px}
+  .es-tl>div:last-child{background:color-mix(in srgb,var(--fi-success) 10%,var(--fi-surface));border-radius:0 8px 8px 0}
+  .es-tl::before{content:attr(data-vig);position:absolute;left:50%;top:-24px;transform:translateX(-50%);font-size:.66rem;font-weight:800;color:var(--fi-brand);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+  .es-tl::after{content:"";position:absolute;left:50%;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;background:var(--fi-brand);border-radius:2px}
+  .es-gauge{display:grid;gap:8px}
+  .es-g{display:grid;grid-template-columns:110px 1fr 120px;gap:10px;align-items:center;font-size:.76rem}
+  .es-g .mt-bar{height:12px}
+  @media(max-width:1040px){.es-rules{grid-template-columns:repeat(2,minmax(0,1fr))}.es-hero{grid-template-columns:1fr}}
+  @media(max-width:700px){.mt-form{grid-template-columns:1fr}.mt-kv{grid-template-columns:1fr 1fr}.mt-falta{grid-template-columns:1fr}.mt-faixa{grid-template-columns:1fr 1fr}
+    .es-rules{grid-template-columns:1fr}.es-flow{grid-template-columns:1fr}.es-step:not(:last-child)::after{display:none}.es-step{border-radius:8px!important;margin-bottom:6px}
+    .es-team{grid-template-columns:1fr}.es-team::before,.es-team>div::before{display:none}.es-g{grid-template-columns:80px 1fr;}.es-g>:last-child{grid-column:1/-1}.es-tl{grid-template-columns:1fr}.es-tl::after,.es-tl::before{display:none}}
   @media print{
     .fi-topbar,.mt-noprint,.fi-toast-region,.mt-tabs{display:none!important}
     body.fi-app{background:#fff}
@@ -81,11 +136,16 @@
 <header class="fi-topbar">
   <a class="fi-brand" href="#/inicio"><img data-fi-logo></a>
   <nav class="fi-nav" id="nav">
-    <a href="#/inicio" data-r="inicio">Início</a>
-    <a href="#/painel" data-r="painel" id="nav-painel">Meu painel</a>
-    <a href="#/adm" data-r="adm" id="nav-adm" class="mt-hidden">Administração</a>
+    <a href="#/inicio" data-r="inicio" data-t="Início">Início</a>
+    <a href="#/painel" data-r="painel" id="nav-painel" data-t="Meu painel">Meu painel</a>
+    <a href="#/estrategia" data-r="estrategia" data-t="Estratégia">Estratégia</a>
+    <a href="#/adm" data-r="adm" id="nav-adm" class="mt-hidden" data-t="Administração">Administração</a>
   </nav>
   <div class="fi-topbar__actions">
+    <div class="mt-lang" role="group" aria-label="Idioma / Language">
+      <button type="button" data-lang="pt" aria-pressed="true">PT</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
     <button class="fi-icon-btn" data-fi-theme-toggle data-fi-tooltip="Tema claro/escuro" aria-label="Alternar tema">◐</button>
     <button class="fi-icon-btn fi-mobile-menu" data-fi-menu-toggle="#nav" aria-label="Menu">☰</button>
   </div>
@@ -96,35 +156,210 @@
     <div>
       <div class="fi-eyebrow" id="eyebrow">Comercial</div>
       <h1 class="fi-title" data-fi-page-title id="titulo">Metas e Premiação</h1>
-      <p class="fi-subtitle" id="subtitulo">Acompanhamento de metas, graduação de premiação e fechamentos.</p>
+      <p class="fi-subtitle" id="subtitulo"></p>
     </div>
     <div class="mt-row mt-noprint" id="head-acoes"></div>
   </div>
-  <div id="view"><div class="mt-loading">Carregando…</div></div>
+  <div id="view"><div class="mt-loading">…</div></div>
 </main>
 
 <div id="modal-root"></div>
 
 <script>
 /* =====================================================================
-   Metas e Premiação — Fiorella
+   Metas e Premiação — Fiorella  ·  PT / EN
    Chave na Central de Acesso: "metas"  ·  Supabase: tabelas met_*
    Permissões (definidas na Central):
-     admin  -> Administração completa (cadastros, lançamentos, fechamentos)
+     admin  -> Administração completa (cadastros, metas, lançamentos, fechamentos)
      editar -> vê todos os vendedores e módulos (somente leitura)
      ver    -> vê apenas o próprio painel (vendedor ligado pelo e-mail)
    ===================================================================== */
 (function () {
 'use strict';
 
-const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-const MESES_LONGO = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+/* ============================ IDIOMA ============================ */
+const EN = {
+  'Início':'Home','Meu painel':'My dashboard','Estratégia':'Strategy','Administração':'Administration','Comercial':'Sales',
+  'Metas e Premiação':'Targets & Incentives','Aguardando dados':'Awaiting data',
+  'Todos os módulos de metas. Clique para ver o detalhamento por vendedor.':'All target modules. Click one to see the breakdown by sales rep.',
+  'Módulos de metas liberados para você.':'Target modules released to you.',
+  'Nenhum módulo de metas criado ainda.':'No target module created yet.','Nenhum módulo de metas liberado ainda.':'No target module released yet.',
+  'Crie o primeiro em Administração › Módulos de metas.':'Create the first one in Administration › Target modules.',
+  'Assim que a gestão liberar a visualização, ele aparece aqui.':'It will show up here as soon as management releases it.',
+  'Seu e-mail ({e}) ainda não está cadastrado como vendedor.':'Your e-mail ({e}) is not registered as a sales rep yet.',
+  'Liberado':'Released','Oculto':'Hidden','Inativo':'Inactive','Ativo':'Active','Ativa':'Active','Inativa':'Inactive',
+  'Meta até {m}':'Target to {m}','Realizado':'Actual','Atingido':'Achieved','Atingimento acumulado':'Year-to-date achievement',
+  '{n} vendedor':'{n} sales rep','{n} vendedores':'{n} sales reps','Premiação acumulada':'Accumulated incentive',
+  'Fechado até {m}':'Closed through {m}','Nenhum mês fechado':'No month closed',
+  '← Módulos':'← Modules','Exportar Excel':'Export to Excel','Fechamento':'Closing',
+  'Mês de referência':'Reference month','Região':'Region','Todas':'All','fechado':'closed',
+  '🔒 Mês fechado — valores congelados':'🔒 Month closed — values frozen','Mês aberto — valores ainda podem mudar':'Open month — values may still change',
+  'Meta {m}':'Target {m}','Realizado {v}':'Actual {v}','Atingido no mês':'Achieved this month','Acumulado até {m}':'Year to {m}',
+  '{a} de {b}':'{a} of {b}','Premiação do mês':'Monthly incentive','acumulado {v}':'accumulated {v}',
+  'Vendedores — {m}/{a}':'Sales reps — {m}/{a}',
+  'Prêmio = prêmio-base × % da faixa. Recuperações são pagas no fechamento de Mar/Jun/Set/Dez (trimestre) e Dez (ano).':'Incentive = base incentive × tier %. Recoveries are paid at the Mar/Jun/Sep/Dec closing (quarter) and Dec (year).',
+  'Vendedor':'Sales rep','Meta':'Target','Faixa':'Tier','Prêmio-base':'Base incentive','Prêmio mês':'Month incentive','Recuperação':'Recovery',
+  'Total mês':'Month total','Acum. %':'YTD %','Acum. prêmio':'YTD incentive','Comissão equiv.':'Equiv. commission',
+  'Nenhum vendedor atrelado.':'No sales rep assigned.','Nenhum vendedor atrelado nesta região.':'No sales rep assigned in this region.',
+  'Total':'Total','Clique num vendedor para ver os 12 meses, os trimestres e a faixa de comissão equivalente.':'Click a sales rep to see the 12 months, the quarters and the equivalent commission per tier.',
+  'Regras da tabela “{n}”':'Rules of table “{n}”',
+  'Atingiu {p} ou mais da meta do mês → recebe {m} do prêmio-base.':'Reached {p} or more of the monthly target → receives {m} of the base incentive.',
+  'Abaixo de {p} → sem premiação no mês.':'Below {p} → no incentive for the month.',
+  'Recuperação trimestral:':'Quarterly recovery:','Recuperação anual:':'Annual recovery:',
+  'o atingimento do trimestre (realizado ÷ meta do trimestre) é enquadrado nas mesmas faixas. Cada mês do trimestre passa a ter direito a prêmio-base × faixa do trimestre, e é paga só a diferença sobre o que o mês já recebeu (pago no fechamento do último mês do trimestre).':'the quarter achievement (quarter actual ÷ quarter target) is placed in the same tiers. Each month of the quarter becomes entitled to base incentive × the quarter tier, and only the difference over what that month already received is paid (paid at the closing of the last month of the quarter).',
+  'mesma lógica com o atingimento do ano — cada mês recebe a diferença entre prêmio-base × faixa do ano e o que já recebeu, inclusive na recuperação trimestral (pago no fechamento de dezembro).':'the same logic with the year achievement — each month receives the difference between base incentive × the year tier and what it already received, including the quarterly recovery (paid at the December closing).',
+  'Mês':'Month','Prêmio':'Incentive','Rec. trimestre':'Quarter recovery','Rec. ano':'Annual recovery','Total pago':'Total paid',
+  'Mês fechado':'Month closed','Recuperado no trimestre':'Recovered in the quarter','Recuperado no ano':'Recovered in the year',
+  '{q}º tri':'Q{q}','trimestre em andamento':'quarter in progress','Faixa do trimestre {f} — recuperou {v}':'Quarter tier {f} — recovered {v}',
+  'Faixa do trimestre {f} (nada a recuperar)':'Quarter tier {f} (nothing to recover)','Não bateu a meta do trimestre':'Quarter below the first tier',
+  'Ano':'Year','Faixa do ano {f}':'Year tier {f}','Não bateu o ano':'Year target not met','ano em andamento':'year in progress',
+  'Faixas de {m}: venda necessária, prêmio e o percentual de comissão que ele representa.':'Tiers for {m}: required sales, incentive and the commission rate it represents.',
+  '{p} da meta · paga {m}':'{p} of target · pays {m}','prêmio {v} · comissão equiv. {p}':'incentive {v} · equiv. commission {p}',
+  'faltam {v}':'{v} to go','✓ atingido':'✓ reached','Fechar':'Close',
+  'Suas metas, atingimento e premiação. Você vê apenas os seus dados.':'Your targets, achievement and incentives. You only see your own data.',
+  'Seu e-mail não está cadastrado como vendedor.':'Your e-mail is not registered as a sales rep.',
+  'Conta: {e}.':'Account: {e}.','Cadastre-se em Administração › Vendedores se também tiver metas.':'Register yourself in Administration › Sales reps if you also have targets.',
+  'Peça à gestão comercial para cadastrá-lo com este e-mail.':'Ask sales management to register you with this e-mail.',
+  'Nenhum módulo de metas liberado para você ainda.':'No target module released to you yet.',
+  'Prêmio do mês':'Month incentive','base {v}':'base {v}','Acumulado no ano':'Year to date','potencial do ano (1×) {v}':'full-year potential (1×) {v}',
+  'Quanto falta em {m}':'What is left in {m}','Meta do mês não lançada':'Monthly target not entered',
+  'Módulos de metas':'Target modules','Metas mensais':'Monthly targets','Lançamentos':'Actuals','Fechamentos':'Closings','Vendedores':'Sales reps','Regiões':'Regions','Tabelas de premiação':'Incentive tables',
+  'Cadastros, metas, lançamentos e fechamentos. Somente administradores da ferramenta.':'Registrations, targets, actuals and closings. Tool administrators only.',
+  'Regiões de atendimento':'Service regions','Nova região':'New region','Descrição':'Description','Status':'Status','Editar':'Edit',
+  'Nenhuma região cadastrada.':'No region registered.','Editar região':'Edit region','Nome *':'Name *','Ex.: SP Capital, Sul, Nordeste':'E.g.: São Paulo City, South, Northeast',
+  'Descrição / cidades / estados':'Description / cities / states','Excluir':'Delete','Excluir região':'Delete region',
+  'Os vendedores desta região ficarão sem região.':'Sales reps in this region will be left without a region.','Cancelar':'Cancel','Salvar':'Save',
+  'Informe o nome da região.':'Enter the region name.','Região salva':'Region saved','Região excluída':'Region deleted',
+  'Crie a conta deste e-mail na Central de Acesso':'Create an account for this e-mail in the Access Hub','Sem conta':'No account','Conta inativa':'Inactive account','Conta ativa':'Active account','Nível {n}':'Level {n}',
+  'O e-mail precisa ser o mesmo da conta na Central de Acesso — é por ele que cada vendedor vê só o próprio painel.':'The e-mail must match the Access Hub account — that is how each rep sees only their own dashboard.',
+  'Novo vendedor':'New sales rep','Nome':'Name','E-mail':'E-mail','Telefone':'Phone','Central':'Hub','Módulos':'Modules',
+  'Nenhum vendedor cadastrado.':'No sales rep registered.',
+  '“Sem conta”: crie o acesso na Central (Gerenciar › Usuários) com o mesmo e-mail, nível usuário ou consulta. A ferramenta “Metas e Premiação” já está liberada para esses níveis em modo leitura.':'“No account”: create the access in the Hub (Manage › Users) with the same e-mail, level user or viewer. The “Targets & Incentives” tool is already enabled read-only for those levels.',
+  'Editar vendedor':'Edit sales rep','E-mail (login da Central) *':'E-mail (Hub login) *','Região de atendimento':'Service region',
+  'Excluir vendedor':'Delete sales rep','Remove também as metas, lançamentos e fechamentos dele em todos os módulos. Prefira inativar.':'Also removes their targets, actuals and closings in every module. Prefer deactivating.',
+  'Vendedor excluído':'Sales rep deleted','Informe o nome.':'Enter the name.','Informe um e-mail válido — ele é o login do vendedor.':'Enter a valid e-mail — it is the rep’s login.','Vendedor salvo':'Sales rep saved',
+  'Tabelas de graduação de premiação':'Incentive tier tables','Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago.':'Each tier sets the minimum achievement % and how much of the base incentive is paid.',
+  'Nova tabela':'New table','Tabela':'Table','Faixas':'Tiers','Recupera trimestre':'Quarter recovery','Recupera ano':'Annual recovery','Sim':'Yes','Não':'No','Nenhuma tabela.':'No table.',
+  'Editar tabela de premiação':'Edit incentive table','Nova tabela de premiação':'New incentive table','Atingimento mínimo (%)':'Minimum achievement (%)','Paga do prêmio-base (%)':'Pays of base incentive (%)',
+  'Equivale a':'Equals','Remover faixa':'Remove tier','Tabela em uso: mudanças valem para os meses ainda não fechados dos módulos que a usam.':'Table in use: changes apply to the months not yet closed in the modules that use it.',
+  '+ Faixa':'+ Tier','Recuperação trimestral — a faixa atingida no trimestre vale para os 3 meses, descontando o que cada mês já recebeu':'Quarterly recovery — the tier reached in the quarter applies to all 3 months, minus what each month already received',
+  'Recuperação anual — a faixa atingida no ano vale para os 12 meses, descontando o que cada mês já recebeu':'Annual recovery — the tier reached in the year applies to all 12 months, minus what each month already received',
+  'Observação':'Note',
+  'Exemplo de leitura: meta R$ 100.000 e prêmio-base R$ 1.000 → a faixa de 100% (paga 100%) paga R$ 1.000 sobre R$ 100.000 vendidos = 1,00% de comissão; a de 90% (paga 50%) paga R$ 500 sobre R$ 90.000 = 0,56%; a de 105% (paga 200%) paga R$ 2.000 sobre R$ 105.000 = 1,90%.':'How to read it: target R$100,000 and base incentive R$1,000 → the 100% tier (pays 100%) pays R$1,000 on R$100,000 sold = 1.00% commission; the 90% tier (pays 50%) pays R$500 on R$90,000 = 0.56%; the 105% tier (pays 200%) pays R$2,000 on R$105,000 = 1.90%.',
+  'Excluir tabela':'Delete table','Excluir esta tabela de premiação?':'Delete this incentive table?','Tabela excluída':'Table deleted',
+  'Informe o nome da tabela.':'Enter the table name.','Inclua ao menos uma faixa.':'Add at least one tier.','Tabela salva':'Table saved',
+  'paga {m} do prêmio-base':'pays {m} of the base incentive',
+  'Cada módulo tem ano, tabela de premiação e os vendedores atrelados com meta e prêmio-base de cada mês. “Liberado” = os vendedores veem o próprio painel.':'Each module has a year, an incentive table and assigned reps with a target and base incentive for each month. “Released” = reps can see their own dashboard.',
+  'Novo módulo':'New module','Módulo':'Module','Meta anual':'Annual target','Prêmio-base anual':'Annual base incentive','Comissão equiv. (100%)':'Equiv. commission (100%)',
+  'Visualização':'Visibility','Vendedores e metas':'Reps & targets','Nenhum módulo criado.':'No module created.',
+  'Visualização liberada aos vendedores':'Visibility released to sales reps','Módulo ocultado dos vendedores':'Module hidden from sales reps',
+  'Cadastre antes uma tabela de premiação.':'Create an incentive table first.','Editar módulo de metas':'Edit target module','Novo módulo de metas':'New target module',
+  'Ex.: Metas de Faturamento {a}':'E.g.: Revenue Targets {a}','Ano *':'Year *','Tabela de premiação *':'Incentive table *','Região (opcional)':'Region (optional)',
+  'Liberar visualização aos vendedores':'Release visibility to sales reps','Ex.: base = faturamento líquido de devoluções':'E.g.: basis = revenue net of returns',
+  'Excluir módulo':'Delete module','Apaga o módulo com todas as metas, lançamentos e fechamentos. Não pode ser desfeito.':'Deletes the module with all targets, actuals and closings. Cannot be undone.',
+  'Módulo excluído':'Module deleted','Informe o nome do módulo.':'Enter the module name.','Ano inválido.':'Invalid year.','Módulo salvo':'Module saved',
+  'Módulo criado — agora atrele os vendedores':'Module created — now assign the sales reps',
+  'Vendedores e metas — {n} ({a})':'Reps & targets — {n} ({a})','Atrelar vendedor…':'Assign sales rep…','Outras regiões':'Other regions','Atrelar':'Assign',
+  'Atrelar todos ({n})':'Assign all ({n})','Atrelar todos da região ({n})':'Assign all in region ({n})','Comissão equiv. 100%':'Equiv. commission 100%',
+  'Metas e prêmios':'Targets & incentives','Remover do módulo':'Remove from module',
+  'Meses já fechados ({m}) ficam travados na edição de metas.':'Months already closed ({m}) are locked for target editing.','Concluir':'Done',
+  '{n} vendedores atrelados':'{n} sales reps assigned','Vendedor atrelado — defina metas e prêmios':'Sales rep assigned — set targets and incentives',
+  'Remover vendedor do módulo':'Remove sales rep from module',
+  'Remove {n} deste módulo, com as metas dele. Lançamentos e fechamentos já gravados permanecem no banco.':'Removes {n} from this module, with their targets. Saved actuals and closings remain in the database.',
+  'Remover':'Remove','Metas e prêmios — {n} · {a}':'Targets & incentives — {n} · {a}',
+  'Meta para todos os meses':'Target for all months','Prêmio-base para todos':'Base incentive for all','Aplicar aos meses abertos':'Apply to open months',
+  'ou prêmio = % da meta':'or incentive = % of target','ex.: 1':'e.g.: 1','Calcular prêmios':'Calculate incentives',
+  'Meta (R$)':'Target (R$)','Prêmio-base (R$)':'Base incentive (R$)','Comissão {p}':'Commission {p}',
+  'Comissão equivalente = prêmio pago na faixa ÷ venda necessária para atingir a faixa. Use para comparar a premiação com a política de comissão.':'Equivalent commission = incentive paid in the tier ÷ sales needed to reach the tier. Use it to compare incentives with the commission policy.',
+  'Metas salvas':'Targets saved','Meta em branco = ainda não lançada. Trimestre e ano são somados automaticamente quando todos os meses do período têm meta.':'Blank target = not entered yet. Quarter and year are summed automatically once every month in the period has a target.',
+  'Crie um módulo de metas primeiro.':'Create a target module first.',
+  'Lance a meta de cada mês por vendedor. Trimestres e ano são calculados sozinhos com os meses já lançados; enquanto faltar algum mês, aparece “Aguardando dados”.':'Enter each month’s target per rep. Quarters and year are calculated automatically from the months entered; while any month is missing, “Awaiting data” is shown.',
+  'Lançar':'Enter','Salvar alterações':'Save changes','Salvar alterações ({n})':'Save changes ({n})','Total da equipe':'Team total',
+  'Há alterações não salvas. Descartar?':'There are unsaved changes. Discard?',
+  'Realizado por vendedor e mês':'Actual sales by rep and month',
+  'Digite os valores (R$) e salve. Meses fechados 🔒 não podem ser alterados — reabra o mês em Fechamentos se precisar corrigir.':'Type the amounts (R$) and save. Closed months 🔒 cannot be changed — reopen the month in Closings to correct it.',
+  'Modelo Excel':'Excel template','Importar Excel':'Import Excel','Nenhum vendedor atrelado a este módulo.':'No sales rep assigned to this module.',
+  'Importação: colunas email (ou vendedor), mes (1–12, “jan” ou data) e valor. Antes de gravar, o sistema mostra a prévia.':'Import: columns email (or vendedor), mes (1–12, “jan” or a date) and valor. A preview is shown before saving.',
+  'Lançamentos salvos':'Actuals saved','Biblioteca de Excel ainda carregando, tente de novo.':'Excel library still loading, try again.',
+  'Não consegui ler a planilha: {e}':'Could not read the spreadsheet: {e}',
+  'Linha {l}: vendedor “{v}” não está neste módulo':'Row {l}: sales rep “{v}” is not in this module','Linha {l}: mês inválido':'Row {l}: invalid month',
+  'Linha {l}: valor vazio ou inválido':'Row {l}: empty or invalid amount','Linha {l}: {m} já está fechado':'Row {l}: {m} is already closed',
+  'Prévia da importação — {f}':'Import preview — {f}',
+  '{n} lançamento(s) válidos':'{n} valid entr(ies)','{n} linha(s) ignorada(s)':'{n} row(s) skipped',
+  'Linhas do mesmo vendedor e mês são somadas. Os valores importados substituem o que estiver lançado.':'Rows for the same rep and month are summed. Imported amounts replace what is already entered.',
+  'Atual':'Current','Importado':'Imported','Gravar {n} lançamento(s)':'Save {n} entr(ies)','Importação gravada':'Import saved',
+  'Fechamento {m}/{a} — {n}':'Closing {m}/{a} — {n}','Tabela: {n}':'Table: {n}','Fechado em {d} por {p}':'Closed on {d} by {p}','PRÉVIA — mês não fechado':'PREVIEW — month not closed',
+  'Imprimir / PDF':'Print / PDF','Reabrir {m}':'Reopen {m}','Reabra primeiro os meses posteriores':'Reopen later months first','Fechar {m}':'Close {m}',
+  'Os meses são fechados em sequência. Próximo a fechar: {m}.':'Months are closed in sequence. Next to close: {m}.',
+  '{n} vendedor(es) sem lançamento em {m} — no fechamento serão considerados R$ 0,00.':'{n} rep(s) without actuals in {m} — they will be counted as R$ 0.00 at closing.',
+  'Fim do {q}º trimestre: este fechamento inclui a recuperação trimestral.':'End of Q{q}: this closing includes the quarterly recovery.',
+  'Fim do {q}º trimestre: este fechamento inclui a recuperação trimestral e a recuperação anual.':'End of Q{q}: this closing includes the quarterly and the annual recovery.',
+  'Prévia do fechamento':'Closing preview','Fechado em {d} por {p} — valores congelados.':'Closed on {d} by {p} — values frozen.','Valores calculados com os lançamentos atuais.':'Values calculated from the current actuals.',
+  'Fechado':'Closed','Aberto':'Open','Trim. %':'Qtr %','Ano %':'Year %','Total a pagar':'Total payable','Comissão efetiva':'Effective commission',
+  'Sem registro neste fechamento (atrelado depois).':'No record in this closing (assigned later).','sem lançamento':'no actuals',
+  'Comissão efetiva = total a pagar ÷ realizado do mês.':'Effective commission = total payable ÷ actual sales of the month.',
+  'Fechar {m}/{a}':'Close {m}/{a}','Congela os valores de {n} vendedor(es) — total a pagar {v}. Os lançamentos deste mês ficam travados.':'Freezes the values of {n} rep(s) — total payable {v}. Actuals for this month become locked.',
+  'Fechar mês':'Close month','{m} fechado':'{m} closed','Reabrir':'Reopen',
+  'Apaga o fechamento congelado deste mês e libera os lançamentos para correção.':'Deletes this month’s frozen closing and unlocks the actuals for correction.','{m} reaberto':'{m} reopened',
+  'Não foi possível carregar os dados: {e}':'Could not load the data: {e}','Login da Central de Acesso não carregou.':'Access Hub login did not load.',
+  'Sem permissão para esta operação (ou o mês já está fechado).':'No permission for this operation (or the month is already closed).',
+  'Já existe um vendedor com este e-mail.':'A sales rep with this e-mail already exists.','Registro duplicado.':'Duplicate record.',
+  'Registro em uso por outro cadastro — não pode ser excluído.':'Record in use elsewhere — cannot be deleted.',
+  'Meses fechados não podem ser alterados.':'Closed months cannot be changed.',
+  'Vendedor':'Sales rep','E-mail':'E-mail','Mês ':'Month ','Faixa (% do prêmio)':'Tier (% of incentive)','Atingido %':'Achieved %','Trimestre %':'Quarter %','Recuperação trimestre':'Quarter recovery','Recuperação ano':'Annual recovery','Acumulado no ano':'Year to date',
+  'Fechamento ':'Closing ','Previa ':'Preview ','Metas ':'Targets ','sem meta':'no target',
+  /* Estratégia */
+  'Como funciona a remuneração comercial':'How sales compensation works',
+  'Vendedores × Supervisão: quem ganha o quê, e por quê.':'Sales reps × Supervision: who earns what, and why.',
+  'Supervisão':'Supervision','Premiação pela meta consolidada da equipe':'Incentive based on the team’s consolidated target',
+  'Comissão pela própria carteira':'Commission on their own portfolio','Carteira':'Portfolio','Clientes':'Clients',
+  'Meta da equipe = soma das metas dos vendedores':'Team target = sum of the reps’ targets',
+  'Lado a lado':'Side by side','Recebe':'Earns','Comissão sobre as vendas da carteira individual':'Commission on sales from their individual portfolio',
+  'Premiação pelo atingimento da meta consolidada':'Incentive for reaching the consolidated target','Base do cálculo':'Calculation basis',
+  'Percentuais e critérios definidos pela empresa':'Rates and criteria defined by the company','Tabela de premiação aprovada × % de atingimento':'Approved incentive table × achievement %',
+  'Carteira própria':'Own portfolio','Comissão por venda individual':'Commission per individual sale',
+  'Pode prospectar, visitar e ajudar a fechar':'May prospect, visit and help close deals','Ganha mais quando':'Earns more when',
+  'Vende mais para os clientes da sua carteira':'Sells more to clients in their portfolio','A equipe inteira performa melhor':'The whole team performs better',
+  'As 8 regras':'The 8 rules','Vendedor ':'Sales rep ','Ambos':'Both','Empresa':'Company',
+  'Comissão do vendedor':'Sales rep commission','Recebe comissão pelas vendas dos clientes da sua carteira individual, conforme os percentuais e critérios definidos pela empresa.':'Earns commission on sales to clients in their individual portfolio, according to the rates and criteria defined by the company.',
+  'Premiação da supervisão':'Supervision incentive','Recebe premiação pelo atingimento da meta de vendas consolidada de todos os vendedores sob sua responsabilidade.':'Earns an incentive for reaching the consolidated sales target of all reps under their responsibility.',
+  'Carteira de clientes':'Client portfolio','Todo cliente deve estar vinculado a um vendedor. A supervisão não possui carteira própria nem recebe comissão individual por venda.':'Every client must be linked to a sales rep. Supervision has no portfolio of its own and earns no individual commission per sale.',
+  'Participação nas negociações':'Involvement in deals','A supervisão pode prospectar, visitar clientes e ajudar a fechar negócios. A comissão permanece com o vendedor responsável pela carteira.':'Supervision may prospect, visit clients and help close deals. The commission stays with the rep who owns the portfolio.',
+  'Novos clientes':'New clients','Clientes captados pela supervisão são distribuídos aos vendedores conforme critérios definidos pela empresa.':'Clients won by supervision are distributed to the reps according to criteria defined by the company.',
+  'Transferência de clientes':'Client transfers','Mudanças de carteira exigem aprovação da direção e uma data de vigência, preservando a atribuição das vendas anteriores.':'Portfolio changes require approval from management and an effective date, preserving the attribution of earlier sales.',
+  'Cálculo da premiação':'Incentive calculation','O valor pago à supervisão depende do percentual de atingimento da meta, conforme uma tabela previamente aprovada.':'The amount paid to supervision depends on the target achievement %, according to a previously approved table.',
+  'Objetivo da supervisão':'Supervision’s goal','Desenvolver os vendedores e ampliar o resultado coletivo. Seu ganho aumenta com o desempenho da equipe.':'Develop the reps and grow the collective result. Their earnings rise with the team’s performance.',
+  'Cliente novo captado pela supervisão':'New client won by supervision','Supervisão capta':'Supervision wins the client','prospecção e visita':'prospecting and visiting',
+  'Empresa distribui':'Company assigns','conforme critérios definidos':'according to defined criteria','Entra na carteira':'Joins a portfolio','de um vendedor':'of a sales rep',
+  'Comissão do vendedor':'Rep earns commission','vendas futuras deste cliente':'future sales to this client',
+  'Transferência de carteira':'Portfolio transfer','Data de vigência (aprovada pela direção)':'Effective date (approved by management)',
+  'Vendas anteriores':'Earlier sales','continuam atribuídas ao vendedor de origem':'remain attributed to the original rep','Vendas a partir da vigência':'Sales from the effective date',
+  'passam para o novo vendedor':'go to the new rep',
+  'Exemplo: premiação da supervisão':'Example: supervision incentive','Conforme a tabela “{n}” — prêmio-base ilustrativo de {v}.':'Using table “{n}” — illustrative base incentive of {v}.',
+  'Atingimento da equipe':'Team achievement','Supervisão recebe':'Supervision receives','Sem premiação':'No incentive',
+  'O ganho da supervisão depende do resultado coletivo — quanto mais a equipe vende, maior a premiação.':'Supervision earnings depend on the collective result — the more the team sells, the higher the incentive.',
+  'Nenhuma tabela de premiação cadastrada ainda.':'No incentive table registered yet.','Vendedor A':'Rep A','Vendedor B':'Rep B','Vendedor C':'Rep C'
+};
+let LANG = 'pt';
+try { const s = localStorage.getItem('fiorella-metas-lang'); if (s === 'en' || s === 'pt') LANG = s; } catch (_) {}
+function t(s, o) {
+  let r = LANG === 'en' && EN[s] != null ? EN[s] : s;
+  if (o) Object.keys(o).forEach(k => { r = r.split('{' + k + '}').join(o[k]); });
+  return r;
+}
+const LOC = () => LANG === 'en' ? 'en-US' : 'pt-BR';
+const MES_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MES_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MESL_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MESL_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MES = i => (LANG === 'en' ? MES_EN : MES_PT)[i];
+const MESL = i => (LANG === 'en' ? MESL_EN : MESL_PT)[i];
 const HOJE = new Date();
 
-const S = {           // estado
+const S = {
   sb: null, perm: null, admin: false, veTudo: false, email: '', nome: '',
   regioes: [], vendedores: [], tabelas: [], modulos: [], mv: [], realizado: [], fechamentos: [],
-  contas: null, admTab: 'modulos', lancModulo: null, fechModulo: null, fechMes: null
+  contas: null, admTab: 'modulos', lancModulo: null, metaModulo: null, metaCampo: 'metas', fechModulo: null, fechMes: null
 };
 
 /* ------------------------------ util ------------------------------ */
@@ -132,105 +367,120 @@ const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const UI = () => window.FiorellaUI;
-const brl = v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(v) || 0);
-const brl0 = v => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(Number(v) || 0);
-const num = (v, d) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: d == null ? 2 : d, maximumFractionDigits: d == null ? 2 : d }).format(Number(v) || 0);
-const pct = (v, d) => v == null || !isFinite(v) ? '—' : new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: d == null ? 1 : d, maximumFractionDigits: d == null ? 1 : d }).format(v);
-const multTxt = m => (Number.isInteger(m) ? m : num(m, String(m).split('.')[1]?.length > 1 ? 2 : 1)) + '×';
-function parseBR(s) {
+const brl = v => new Intl.NumberFormat(LOC(), { style: 'currency', currency: 'BRL' }).format(Number(v) || 0);
+const brl0 = v => new Intl.NumberFormat(LOC(), { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(Number(v) || 0);
+const num = (v, d) => new Intl.NumberFormat(LOC(), { minimumFractionDigits: d == null ? 2 : d, maximumFractionDigits: d == null ? 2 : d }).format(Number(v) || 0);
+const pct = (v, d) => v == null || !isFinite(v) ? '—' : new Intl.NumberFormat(LOC(), { style: 'percent', minimumFractionDigits: d == null ? 1 : d, maximumFractionDigits: d == null ? 1 : d }).format(v);
+const multTxt = m => num((Number(m) || 0) * 100, 0) + '%';   // multiplicador exibido como % do prêmio-base
+const WAIT = () => `<span class="mt-wait">${t('Aguardando dados')}</span>`;
+const brlOuWait = v => v == null ? WAIT() : brl(v);
+function parseNum(s) {
   if (typeof s === 'number') return s;
   s = String(s == null ? '' : s).trim().replace(/R\$\s?/i, '').replace(/\s/g, '');
   if (!s) return null;
-  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
-  else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+  const temV = s.includes(','), temP = s.includes('.');
+  if (temV && temP) s = s.lastIndexOf(',') > s.lastIndexOf('.') ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, '');
+  else if (temV) s = (LANG === 'en' && /^\d{1,3}(,\d{3})+$/.test(s)) ? s.replace(/,/g, '') : s.replace(',', '.');
+  else if (/^\d{1,3}(\.\d{3})+$/.test(s) && LANG !== 'en') s = s.replace(/\./g, '');
   const n = Number(s);
   return isFinite(n) ? n : null;
 }
 function notify(msg, type) { UI() ? UI().notify(msg, { type: type || 'brand', duration: type === 'danger' ? 5000 : 2600 }) : alert(msg); }
-async function confirmar(o) { return UI() ? UI().confirm(o) : window.confirm(o.message); }
+async function confirmar(o) { return UI() ? UI().confirm(Object.assign({ cancelText: t('Cancelar') }, o)) : window.confirm(o.message); }
 function erroMsg(e) {
   const m = (e && (e.message || e.details || e.hint)) || String(e);
-  if (/row-level security|permission denied/i.test(m)) return 'Sem permissão para esta operação (ou o mês já está fechado).';
-  if (/duplicate key.*email/i.test(m)) return 'Já existe um vendedor com este e-mail.';
-  if (/duplicate key/i.test(m)) return 'Registro duplicado.';
-  if (/foreign key/i.test(m)) return 'Registro em uso por outro cadastro — não pode ser excluído.';
+  if (/row-level security|permission denied/i.test(m)) return t('Sem permissão para esta operação (ou o mês já está fechado).');
+  if (/duplicate key.*email/i.test(m)) return t('Já existe um vendedor com este e-mail.');
+  if (/duplicate key/i.test(m)) return t('Registro duplicado.');
+  if (/foreign key/i.test(m)) return t('Registro em uso por outro cadastro — não pode ser excluído.');
   return m;
 }
 async function q(p) { const r = await p; if (r.error) throw r.error; return r.data; }
 const byId = (arr, id) => arr.find(x => x.id === id);
 const sum = a => a.reduce((s, v) => s + (Number(v) || 0), 0);
 const mesPadrao = ano => ano === HOJE.getFullYear() ? HOJE.getMonth() + 1 : (ano < HOJE.getFullYear() ? 12 : 1);
+const valorMeta = v => v == null || v === '' ? null : Number(v);
 
 /* ======================= MOTOR DE CÁLCULO ======================= */
 /* Regras:
-   - Atingimento do mês = realizado ÷ meta. Prêmio do mês = prêmio-base × multiplicador da faixa atingida
-     (padrão: ≥90% → 0,5× · ≥100% → 1× · ≥105% → 2×).
-   - Recuperação trimestral: no fechamento do último mês do trimestre (mar/jun/set/dez), se a soma do realizado
-     do trimestre ≥ soma das metas do trimestre, cada mês do trimestre que ficou abaixo de 1× recebe a diferença
-     até 1× do prêmio-base.
-   - Recuperação anual: no fechamento de dezembro, se o realizado do ano ≥ meta do ano, os meses que ainda
-     estiverem abaixo de 1× (não recuperados no trimestre) recebem a diferença até 1×.
-   - O 2× (≥105%) é pago no próprio mês e não é afetado pelas recuperações. */
-function faixasOrd(t) {
-  return ((t && t.faixas) || []).map(f => ({ min: Number(f.min), mult: Number(f.mult) }))
+   - Meta em branco (nula) = ainda não lançada. A meta do trimestre só existe quando os 3 meses têm meta;
+     a meta do ano só existe quando os 12 meses têm meta. Antes disso: "Aguardando dados".
+   - Prêmio do mês = prêmio-base × multiplicador da faixa (padrão ≥90% 0,5× · ≥100% 1× · ≥105% 2×).
+   - Recuperação trimestral (mar/jun/set/dez): o atingimento do trimestre (realizado ÷ meta do trimestre) é enquadrado
+     nas mesmas faixas (90% / 100% / 105% ou as cadastradas). Cada mês do trimestre passa a ter direito a
+     prêmio-base × faixa do trimestre; paga-se só a diferença sobre o que o mês já recebeu (nunca negativo,
+     nada é estornado).
+   - Recuperação anual (dez): mesma lógica com o atingimento do ano, descontando o já pago no mês e na
+     recuperação trimestral. */
+function faixasOrd(tb) {
+  return ((tb && tb.faixas) || []).map(f => ({ min: Number(f.min), mult: Number(f.mult) }))
     .filter(f => isFinite(f.min) && isFinite(f.mult)).sort((a, b) => a.min - b.min);
 }
-function multDe(t, ating) {
+function multDe(tb, ating) {
   if (ating == null || !isFinite(ating)) return 0;
   let m = 0;
-  for (const f of faixasOrd(t)) if (ating * 100 >= f.min - 1e-9) m = f.mult;
+  for (const f of faixasOrd(tb)) if (ating * 100 >= f.min - 1e-9) m = f.mult;
   return m;
 }
-function calcular(t, metas, premios, real, ate) {
+function somaMetas(metas, de, ate) {          // soma de/ate (1..12); null se faltar algum mês
+  let s = 0;
+  for (let i = de; i <= ate; i++) { const v = valorMeta(metas && metas[i - 1]); if (v == null) return null; s += v; }
+  return s;
+}
+function calcular(tb, metas, premios, real, ate) {
   const meses = [];
   for (let i = 0; i < 12; i++) {
-    const meta = Number(metas && metas[i]) || 0, base = Number(premios && premios[i]) || 0;
+    const meta = valorMeta(metas && metas[i]), base = Number(premios && premios[i]) || 0;
     const r = real[i] == null ? null : Number(real[i]);
-    const apurado = i + 1 <= ate && r != null;
-    const ating = meta > 0 && r != null ? r / meta : null;
-    const mult = apurado ? multDe(t, ating) : 0;
+    const apurado = i + 1 <= ate && r != null && meta != null;
+    const ating = meta != null && meta > 0 && r != null ? r / meta : null;
+    const mult = apurado ? multDe(tb, ating) : 0;
     meses.push({ mes: i + 1, meta, base, real: r, apurado, ating, mult, premio: base * mult,
                  recTri: 0, recAno: 0, pagoTri: 0, pagoAno: 0, total: 0 });
   }
   const tri = [];
   for (let qd = 0; qd < 4; qd++) {
     const ms = meses.slice(qd * 3, qd * 3 + 3), fim = qd * 3 + 3;
-    const metaQ = sum(ms.map(m => m.meta)), realQ = sum(ms.map(m => m.real || 0));
-    const atingQ = metaQ > 0 ? realQ / metaQ : null;
-    const apurado = ate >= fim && ms.every(m => m.real != null);
-    const recuperou = !!(t && t.recup_tri) && apurado && atingQ != null && atingQ >= 1 - 1e-9;
-    if (recuperou) ms.forEach(m => { if (m.mult < 1) m.recTri = m.base * (1 - m.mult); });
+    const metaQ = somaMetas(metas, qd * 3 + 1, fim);
+    const realCompleto = ms.every(m => m.real != null);
+    const realQ = sum(ms.map(m => m.real || 0));
+    const atingQ = metaQ != null && metaQ > 0 && realCompleto ? realQ / metaQ : null;
+    const apurado = ate >= fim && realCompleto && metaQ != null;
+    // faixa atingida no trimestre: cada mês passa a valer prêmio-base × essa faixa, descontado o que já recebeu
+    const multQ = (tb && tb.recup_tri) && apurado ? multDe(tb, atingQ) : 0;
+    if (multQ > 0) ms.forEach(m => { m.recTri = Math.max(0, m.base * multQ - m.premio); });
     const valor = sum(ms.map(m => m.recTri));
     meses[fim - 1].pagoTri = valor;
-    tri.push({ q: qd + 1, metaQ, realQ, atingQ, apurado, recuperou, valor, premio: sum(ms.map(m => m.premio)) });
+    tri.push({ q: qd + 1, metaQ, realQ: realCompleto ? realQ : null, realParcial: realQ, atingQ, apurado, multQ, recuperou: multQ > 0, valor, premio: sum(ms.map(m => m.premio)) });
   }
-  const metaA = sum(meses.map(m => m.meta)), realA = sum(meses.map(m => m.real || 0));
-  const atingA = metaA > 0 ? realA / metaA : null;
-  const anoApurado = ate >= 12 && meses.every(m => m.real != null);
-  const recA = !!(t && t.recup_anual) && anoApurado && atingA != null && atingA >= 1 - 1e-9;
-  if (recA) meses.forEach(m => { if (m.mult < 1 && m.recTri === 0) m.recAno = m.base * (1 - m.mult); });
+  const metaA = somaMetas(metas, 1, 12);
+  const realCompA = meses.every(m => m.real != null);
+  const realA = sum(meses.map(m => m.real || 0));
+  const atingA = metaA != null && metaA > 0 && realCompA ? realA / metaA : null;
+  const anoApurado = ate >= 12 && realCompA && metaA != null;
+  const multA = (tb && tb.recup_anual) && anoApurado ? multDe(tb, atingA) : 0;
+  const recA = multA > 0;
+  if (recA) meses.forEach(m => { m.recAno = Math.max(0, m.base * multA - m.premio - m.recTri); });
   meses[11].pagoAno = sum(meses.map(m => m.recAno));
   meses.forEach(m => { m.total = m.premio + m.pagoTri + m.pagoAno; });
-  // acumulado: meses até o de referência; o próprio mês de referência só entra quando já tem lançamento
-  const noAcum = m => m.mes < ate || (m.mes === ate && m.real != null);
+  const noAcum = m => m.meta != null && (m.mes < ate || (m.mes === ate && m.real != null));
   const realAte = sum(meses.filter(noAcum).map(m => m.real || 0));
   const metaAte = sum(meses.filter(noAcum).map(m => m.meta));
   return {
     meses, tri,
-    ano: { metaA, realA, atingA, apurado: anoApurado, recuperou: recA, valor: meses[11].pagoAno },
+    ano: { metaA, realA: realCompA ? realA : null, realParcial: realA, atingA, apurado: anoApurado, multA, recuperou: recA, valor: meses[11].pagoAno },
     ate, metaAte, realAte, atingAte: metaAte > 0 ? realAte / metaAte : null,
     totalAte: sum(meses.filter(m => m.mes <= ate).map(m => m.total)),
     premioBaseAno: sum(meses.map(m => m.base))
   };
 }
-/* % de comissão equivalente: prêmio pago ÷ venda necessária para atingir a faixa */
-function comissaoEquiv(t, meta, base) {
-  return faixasOrd(t).map(f => ({ min: f.min, mult: f.mult,
-    venda: meta * f.min / 100, premio: base * f.mult,
-    pct: meta > 0 && f.min > 0 ? (base * f.mult) / (meta * f.min / 100) : null }));
+function comissaoEquiv(tb, meta, base) {
+  return faixasOrd(tb).map(f => ({ min: f.min, mult: f.mult,
+    venda: meta == null ? null : meta * f.min / 100, premio: base * f.mult,
+    pct: meta != null && meta > 0 && f.min > 0 ? (base * f.mult) / (meta * f.min / 100) : null }));
 }
 function classeMult(m) { return m >= 2 ? 'mt-m3' : m >= 1 ? 'mt-m2' : m > 0 ? 'mt-m1' : 'mt-m0'; }
-window.MetasCalc = { calcular, multDe, comissaoEquiv, parseBR };   // exposto para conferência/testes
+window.MetasCalc = { calcular, multDe, comissaoEquiv, somaMetas, parseNum };
 
 /* ------------------------- acesso aos dados ------------------------- */
 function realDe(moduloId, vendedorId) {
@@ -238,20 +488,15 @@ function realDe(moduloId, vendedorId) {
   S.realizado.forEach(r => { if (r.modulo_id === moduloId && r.vendedor_id === vendedorId) arr[r.mes - 1] = Number(r.valor); });
   return arr;
 }
-function fechadosDe(moduloId) {
-  const s = new Set(); S.fechamentos.forEach(f => { if (f.modulo_id === moduloId) s.add(f.mes); }); return s;
-}
-function ultimoFechado(moduloId) { const s = fechadosDe(moduloId); let u = 0; s.forEach(m => { if (m > u) u = m; }); return u; }
+function fechadosDe(moduloId) { const s = new Set(); S.fechamentos.forEach(f => { if (f.modulo_id === moduloId) s.add(f.mes); }); return s; }
+function ultimoFechado(moduloId) { let u = 0; fechadosDe(moduloId).forEach(m => { if (m > u) u = m; }); return u; }
 function vincDe(moduloId) {
   return S.mv.filter(x => x.modulo_id === moduloId)
-    .map(x => ({ ...x, v: byId(S.vendedores, x.vendedor_id) }))
+    .map(x => ({ ...x, metas: (x.metas || Array(12).fill(null)).map(valorMeta), premios: (x.premios || Array(12).fill(0)), v: byId(S.vendedores, x.vendedor_id) }))
     .filter(x => x.v)
     .sort((a, b) => a.v.nome.localeCompare(b.v.nome, 'pt-BR'));
 }
-function calcVinc(mod, x, ate) {
-  const t = byId(S.tabelas, mod.tabela_id);
-  return calcular(t, x.metas, x.premios, realDe(mod.id, x.vendedor_id), ate);
-}
+function calcVinc(mod, x, ate) { return calcular(byId(S.tabelas, mod.tabela_id), x.metas, x.premios, realDe(mod.id, x.vendedor_id), ate); }
 function meusVendedores() { return S.vendedores.filter(v => v.email === S.email); }
 
 async function carregar() {
@@ -267,19 +512,16 @@ async function carregar() {
   ]);
   Object.assign(S, { regioes: reg || [], vendedores: ven || [], tabelas: tab || [], modulos: mod || [],
                      mv: mv || [], realizado: rea || [], fechamentos: fec || [] });
-  if (S.admin) {
-    try { S.contas = await q(sb.rpc('met_contas_central')); } catch (_) { S.contas = null; }
-  }
+  if (S.admin) { try { S.contas = await q(sb.rpc('met_contas_central')); } catch (_) { S.contas = null; } }
 }
 
 /* ------------------------------ modal ------------------------------ */
 function modal({ titulo, corpo, botoes, largura }) {
-  const root = $('#modal-root');
   const el = document.createElement('div');
   el.className = 'mt-modal';
   el.innerHTML = `<section class="mt-modal__panel" role="dialog" aria-modal="true" style="${largura ? 'width:min(' + largura + 'px,100%)' : ''}">
     <div class="mt-modal__head"><span>${esc(titulo)}</span><span class="mt-sp"></span>
-      <button class="fi-icon-btn" data-x aria-label="Fechar">✕</button></div>
+      <button class="fi-icon-btn" data-x aria-label="${t('Fechar')}">✕</button></div>
     <div class="mt-modal__body">${corpo}</div>
     <div class="mt-modal__foot"></div></section>`;
   const foot = $('.mt-modal__foot', el);
@@ -300,7 +542,7 @@ function modal({ titulo, corpo, botoes, largura }) {
   });
   $('[data-x]', el).addEventListener('click', fechar);
   el.addEventListener('keydown', e => { if (e.key === 'Escape') fechar(); });
-  root.appendChild(el);
+  $('#modal-root').appendChild(el);
   const f = $('input,select,textarea', el); if (f) f.focus();
   return el;
 }
@@ -308,9 +550,8 @@ function modal({ titulo, corpo, botoes, largura }) {
 /* ------------------------------ rotas ------------------------------ */
 function setHead(eyebrow, titulo, sub, acoesHtml) {
   $('#eyebrow').textContent = eyebrow;
-  const t = $('#titulo');
-  const ver = t.querySelector('.fi-ui-version');
-  t.textContent = titulo; if (ver) t.appendChild(ver);
+  const tt = $('#titulo'), ver = tt.querySelector('.fi-ui-version');
+  tt.textContent = titulo; if (ver) tt.appendChild(ver);
   $('#subtitulo').textContent = sub || '';
   $('#head-acoes').innerHTML = acoesHtml || '';
 }
@@ -321,6 +562,20 @@ function navAtivo(r) {
     if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
 }
+function aplicarIdioma() {
+  document.documentElement.lang = LANG === 'en' ? 'en' : 'pt-BR';
+  document.title = t('Metas e Premiação') + ' · Fiorella';
+  $$('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
+  $$('[data-lang]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === LANG)));
+}
+function trocarIdioma(l) {
+  if (l === LANG) return;
+  if ($('.mt-in.mt-dirty') && !window.confirm(t('Há alterações não salvas. Descartar?'))) return;
+  LANG = l;
+  try { localStorage.setItem('fiorella-metas-lang', l); } catch (_) {}
+  $('#modal-root').innerHTML = '';
+  aplicarIdioma(); rota();
+}
 function rota() {
   const h = (location.hash || '#/inicio').replace(/^#\/?/, '').split('/');
   const nome = h[0] || 'inicio';
@@ -328,6 +583,7 @@ function rota() {
   try {
     if (nome === 'modulo' && h[1]) { navAtivo('inicio'); return vModulo(h[1]); }
     if (nome === 'painel') { navAtivo('painel'); return vPainel(); }
+    if (nome === 'estrategia') { navAtivo('estrategia'); return vEstrategia(); }
     if (nome === 'adm' && S.admin) { navAtivo('adm'); if (h[1]) S.admTab = h[1]; return vAdm(); }
     navAtivo('inicio'); return vInicio();
   } catch (e) { console.error(e); $('#view').innerHTML = `<div class="fi-alert fi-alert--danger">${esc(erroMsg(e))}</div>`; }
@@ -335,15 +591,13 @@ function rota() {
 
 /* ============================== INÍCIO ============================== */
 function vInicio() {
-  setHead('Comercial', 'Metas e Premiação',
-    S.veTudo ? 'Todos os módulos de metas. Clique para ver o detalhamento por vendedor.'
-             : 'Módulos de metas liberados para você.');
+  setHead(t('Comercial'), t('Metas e Premiação'),
+    S.veTudo ? t('Todos os módulos de metas. Clique para ver o detalhamento por vendedor.') : t('Módulos de metas liberados para você.'));
   const mods = S.modulos.filter(m => S.veTudo || (m.visivel && m.ativo));
   if (!mods.length) {
-    $('#view').innerHTML = `<div class="fi-card"><div class="fi-empty"><div><strong>Nenhum módulo de metas ${S.veTudo ? 'criado' : 'liberado'} ainda.</strong>
-      <p class="mt-small">${S.admin ? 'Crie o primeiro em Administração › Módulos de metas.' :
-        (meusVendedores().length ? 'Assim que a gestão liberar a visualização, ele aparece aqui.' :
-         'Seu e-mail (' + esc(S.email) + ') ainda não está cadastrado como vendedor.')}</p></div></div></div>`;
+    $('#view').innerHTML = `<div class="fi-card"><div class="fi-empty"><div><strong>${S.veTudo ? t('Nenhum módulo de metas criado ainda.') : t('Nenhum módulo de metas liberado ainda.')}</strong>
+      <p class="mt-small">${S.admin ? t('Crie o primeiro em Administração › Módulos de metas.') :
+        (meusVendedores().length ? t('Assim que a gestão liberar a visualização, ele aparece aqui.') : esc(t('Seu e-mail ({e}) ainda não está cadastrado como vendedor.', { e: S.email })))}</p></div></div></div>`;
     return;
   }
   const anos = [...new Set(mods.map(m => m.ano))].sort((a, b) => b - a);
@@ -356,23 +610,22 @@ function vInicio() {
       let meta = 0, real = 0, premio = 0;
       vinc.forEach(x => { const c = calcVinc(m, x, ate); meta += c.metaAte; real += c.realAte; premio += c.totalAte; });
       const at = meta > 0 ? real / meta : null;
-      const t = byId(S.tabelas, m.tabela_id), reg = byId(S.regioes, m.regiao_id);
-      const fech = ultimoFechado(m.id);
+      const tb = byId(S.tabelas, m.tabela_id), reg = byId(S.regioes, m.regiao_id), fech = ultimoFechado(m.id);
       html += `<article class="fi-card mt-modcard" data-mod="${m.id}" tabindex="0">
         <div class="fi-card__head"><div><div class="fi-card__title">${esc(m.nome)}</div>
-          <div class="fi-card__note">${esc(t ? t.nome : '—')}${reg ? ' · ' + esc(reg.nome) : ''}</div></div>
-          <div class="mt-row">${S.veTudo ? (m.visivel ? '<span class="fi-badge fi-badge--success">Liberado</span>' : '<span class="fi-badge">Oculto</span>') : ''}
-          ${!m.ativo ? '<span class="fi-badge fi-badge--warning">Inativo</span>' : ''}</div></div>
+          <div class="fi-card__note">${esc(tb ? tb.nome : '—')}${reg ? ' · ' + esc(reg.nome) : ''}</div></div>
+          <div class="mt-row">${S.veTudo ? (m.visivel ? `<span class="fi-badge fi-badge--success">${t('Liberado')}</span>` : `<span class="fi-badge">${t('Oculto')}</span>`) : ''}
+          ${!m.ativo ? `<span class="fi-badge fi-badge--warning">${t('Inativo')}</span>` : ''}</div></div>
         <div class="fi-card__body">
           <div class="mt-kv">
-            <div><span>Meta até ${MESES[ate - 1]}</span><b>${brl0(meta)}</b></div>
-            <div><span>Realizado</span><b>${brl0(real)}</b></div>
-            <div><span>Atingido</span><b>${pct(at)}</b></div>
+            <div><span>${t('Meta até {m}', { m: MES(ate - 1) })}</span><b>${meta ? brl0(meta) : WAIT()}</b></div>
+            <div><span>${t('Realizado')}</span><b>${brl0(real)}</b></div>
+            <div><span>${t('Atingido')}</span><b>${pct(at)}</b></div>
           </div>
-          <div class="mt-bar" title="Atingimento acumulado"><span style="width:${Math.min(100, (at || 0) / 1.1 * 100)}%"></span><i style="left:${90 / 1.1}%"></i><i style="left:${100 / 1.1}%"></i></div>
-          <div class="mt-row mt-small mt-muted"><span>${vinc.length} vendedor${vinc.length === 1 ? '' : 'es'}</span><span class="mt-sp"></span>
-            <span>Premiação acumulada <b class="mt-strong" style="color:var(--fi-text)">${brl(premio)}</b></span></div>
-          <div class="mt-small mt-muted">${fech ? 'Fechado até ' + MESES_LONGO[fech - 1] : 'Nenhum mês fechado'}</div>
+          <div class="mt-bar" title="${t('Atingimento acumulado')}"><span style="width:${Math.min(100, (at || 0) / 1.1 * 100)}%"></span><i style="left:${90 / 1.1}%"></i><i style="left:${100 / 1.1}%"></i></div>
+          <div class="mt-row mt-small mt-muted"><span>${t(vinc.length === 1 ? '{n} vendedor' : '{n} vendedores', { n: vinc.length })}</span><span class="mt-sp"></span>
+            <span>${t('Premiação acumulada')} <b class="mt-strong" style="color:var(--fi-text)">${brl(premio)}</b></span></div>
+          <div class="mt-small mt-muted">${fech ? t('Fechado até {m}', { m: MESL(fech - 1) }) : t('Nenhum mês fechado')}</div>
         </div></article>`;
     });
     html += `</div>`;
@@ -389,56 +642,57 @@ function vInicio() {
 function vModulo(id, mesSel, regSel) {
   const m = byId(S.modulos, id);
   if (!m) { location.hash = '#/inicio'; return; }
-  const t = byId(S.tabelas, m.tabela_id);
-  const fech = fechadosDe(m.id);
+  const tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id);
   const mes = mesSel || Math.max(ultimoFechado(m.id), mesPadrao(m.ano));
   let vinc = vincDe(m.id).filter(x => S.veTudo || x.v.email === S.email);
   if (regSel) vinc = vinc.filter(x => x.v.regiao_id === regSel);
   setHead(m.ano + (byId(S.regioes, m.regiao_id) ? ' · ' + byId(S.regioes, m.regiao_id).nome : ''), m.nome,
-    (t ? t.nome : '') + (m.descricao ? ' — ' + m.descricao : ''),
-    `<button class="fi-btn" id="bt-voltar">← Módulos</button>
-     <button class="fi-btn" id="bt-xls">Exportar Excel</button>
-     ${S.admin ? `<button class="fi-btn fi-btn--primary" id="bt-fechar">Fechamento</button>` : ''}`);
+    (tb ? tb.nome : '') + (m.descricao ? ' — ' + m.descricao : ''),
+    `<button class="fi-btn" id="bt-voltar">${t('← Módulos')}</button>
+     <button class="fi-btn" id="bt-xls">${t('Exportar Excel')}</button>
+     ${S.admin ? `<button class="fi-btn fi-btn--primary" id="bt-fechar">${t('Fechamento')}</button>` : ''}`);
 
   const linhas = vinc.map(x => ({ x, c: calcVinc(m, x, mes) }));
-  const tot = { meta: 0, real: 0, premio: 0, rec: 0, total: 0, metaAte: 0, realAte: 0, totalAte: 0 };
+  const tot = { meta: 0, metaOk: true, real: 0, premio: 0, rec: 0, total: 0, metaAte: 0, realAte: 0, totalAte: 0 };
   linhas.forEach(({ c }) => {
     const mm = c.meses[mes - 1];
-    tot.meta += mm.meta; tot.real += mm.real || 0; tot.premio += mm.premio; tot.rec += mm.pagoTri + mm.pagoAno; tot.total += mm.total;
+    if (mm.meta == null) tot.metaOk = false; else tot.meta += mm.meta;
+    tot.real += mm.real || 0; tot.premio += mm.premio; tot.rec += mm.pagoTri + mm.pagoAno; tot.total += mm.total;
     tot.metaAte += c.metaAte; tot.realAte += c.realAte; tot.totalAte += c.totalAte;
   });
+  const metaMes = tot.metaOk && linhas.length ? tot.meta : null;
   const regsDoMod = [...new Set(vincDe(m.id).map(x => x.v.regiao_id).filter(Boolean))];
-  const mesesOpt = MESES_LONGO.map((n, i) => `<option value="${i + 1}" ${i + 1 === mes ? 'selected' : ''}>${n}${fech.has(i + 1) ? ' · fechado' : ''}</option>`).join('');
+  const mesesOpt = Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}" ${i + 1 === mes ? 'selected' : ''}>${MESL(i)}${fech.has(i + 1) ? ' · ' + t('fechado') : ''}</option>`).join('');
 
   let html = `
   <div class="fi-card mt-noprint"><div class="fi-card__body fi-filters">
-    <label class="fi-field"><span class="fi-label">Mês de referência</span><select class="fi-select" id="f-mes">${mesesOpt}</select></label>
-    ${S.veTudo && regsDoMod.length > 1 ? `<label class="fi-field"><span class="fi-label">Região</span><select class="fi-select" id="f-reg">
-      <option value="">Todas</option>${regsDoMod.map(r => `<option value="${r}" ${r === regSel ? 'selected' : ''}>${esc((byId(S.regioes, r) || {}).nome)}</option>`).join('')}</select></label>` : ''}
+    <label class="fi-field"><span class="fi-label">${t('Mês de referência')}</span><select class="fi-select" id="f-mes">${mesesOpt}</select></label>
+    ${S.veTudo && regsDoMod.length > 1 ? `<label class="fi-field"><span class="fi-label">${t('Região')}</span><select class="fi-select" id="f-reg">
+      <option value="">${t('Todas')}</option>${regsDoMod.map(r => `<option value="${r}" ${r === regSel ? 'selected' : ''}>${esc((byId(S.regioes, r) || {}).nome)}</option>`).join('')}</select></label>` : ''}
     <div class="mt-sp"></div>
-    <div class="mt-small mt-muted">${fech.has(mes) ? '🔒 Mês fechado — valores congelados' : 'Mês aberto — valores ainda podem mudar'}</div>
+    <div class="mt-small mt-muted">${fech.has(mes) ? t('🔒 Mês fechado — valores congelados') : t('Mês aberto — valores ainda podem mudar')}</div>
   </div></div>
 
   <div class="fi-grid fi-grid--4 mt-mt">
-    <div class="fi-card fi-metric fi-metric--brand"><div class="fi-metric__top"><span>Meta ${MESES[mes - 1]}</span></div><div class="fi-metric__value">${brl0(tot.meta)}</div><div class="fi-metric__foot">Realizado ${brl0(tot.real)}</div></div>
-    <div class="fi-card fi-metric"><div class="fi-metric__top"><span>Atingido no mês</span></div><div class="fi-metric__value">${pct(tot.meta ? tot.real / tot.meta : null)}</div><div class="fi-progress"><span style="width:${Math.min(100, tot.meta ? tot.real / tot.meta * 100 : 0)}%"></span></div></div>
-    <div class="fi-card fi-metric"><div class="fi-metric__top"><span>Acumulado até ${MESES[mes - 1]}</span></div><div class="fi-metric__value">${pct(tot.metaAte ? tot.realAte / tot.metaAte : null)}</div><div class="fi-metric__foot">${brl0(tot.realAte)} de ${brl0(tot.metaAte)}</div></div>
-    <div class="fi-card fi-metric"><div class="fi-metric__top"><span>Premiação do mês</span></div><div class="fi-metric__value">${brl0(tot.total)}</div><div class="fi-metric__foot">acumulado ${brl0(tot.totalAte)}</div></div>
+    <div class="fi-card fi-metric fi-metric--brand"><div class="fi-metric__top"><span>${t('Meta {m}', { m: MES(mes - 1) })}</span></div><div class="fi-metric__value">${metaMes == null ? WAIT() : brl0(metaMes)}</div><div class="fi-metric__foot">${t('Realizado {v}', { v: brl0(tot.real) })}</div></div>
+    <div class="fi-card fi-metric"><div class="fi-metric__top"><span>${t('Atingido no mês')}</span></div><div class="fi-metric__value">${pct(metaMes ? tot.real / metaMes : null)}</div><div class="fi-progress"><span style="width:${Math.min(100, metaMes ? tot.real / metaMes * 100 : 0)}%"></span></div></div>
+    <div class="fi-card fi-metric"><div class="fi-metric__top"><span>${t('Acumulado até {m}', { m: MES(mes - 1) })}</span></div><div class="fi-metric__value">${pct(tot.metaAte ? tot.realAte / tot.metaAte : null)}</div><div class="fi-metric__foot">${t('{a} de {b}', { a: brl0(tot.realAte), b: brl0(tot.metaAte) })}</div></div>
+    <div class="fi-card fi-metric"><div class="fi-metric__top"><span>${t('Premiação do mês')}</span></div><div class="fi-metric__value">${brl0(tot.total)}</div><div class="fi-metric__foot">${t('acumulado {v}', { v: brl0(tot.totalAte) })}</div></div>
   </div>`;
 
-  html += `<section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">Vendedores — ${MESES_LONGO[mes - 1]}/${m.ano}</div>
-    <div class="fi-card__note">Prêmio = prêmio-base × multiplicador da faixa. Recuperações são pagas no fechamento de ${MESES[2]}/${MESES[5]}/${MESES[8]}/${MESES[11]} (trimestre) e ${MESES[11]} (ano).</div></div></div>
+  html += `<section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Vendedores — {m}/{a}', { m: MESL(mes - 1), a: m.ano })}</div>
+    <div class="fi-card__note">${t('Prêmio = prêmio-base × % da faixa. Recuperações são pagas no fechamento de Mar/Jun/Set/Dez (trimestre) e Dez (ano).')}</div></div></div>
     <div class="fi-table-wrap" style="border:0;border-radius:0"><table class="fi-table" id="tb-mod"><thead><tr>
-      <th>Vendedor</th><th>Região</th><th class="mt-num">Meta</th><th class="mt-num">Realizado</th><th class="mt-num">Atingido</th><th>Faixa</th>
-      <th class="mt-num">Prêmio-base</th><th class="mt-num">Prêmio mês</th><th class="mt-num">Recuperação</th><th class="mt-num">Total mês</th>
-      <th class="mt-num">Acum. %</th><th class="mt-num">Acum. prêmio</th><th class="mt-num">Comissão equiv.</th></tr></thead><tbody>`;
-  if (!linhas.length) html += `<tr><td colspan="13"><div class="fi-empty">Nenhum vendedor atrelado${regSel ? ' nesta região' : ''}.</div></td></tr>`;
+      <th>${t('Vendedor')}</th><th>${t('Região')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th><th class="mt-num">${t('Atingido')}</th><th>${t('Faixa')}</th>
+      <th class="mt-num">${t('Prêmio-base')}</th><th class="mt-num">${t('Prêmio mês')}</th><th class="mt-num">${t('Recuperação')}</th><th class="mt-num">${t('Total mês')}</th>
+      <th class="mt-num">${t('Acum. %')}</th><th class="mt-num">${t('Acum. prêmio')}</th><th class="mt-num">${t('Comissão equiv.')}</th></tr></thead><tbody>`;
+  if (!linhas.length) html += `<tr><td colspan="13"><div class="fi-empty">${regSel ? t('Nenhum vendedor atrelado nesta região.') : t('Nenhum vendedor atrelado.')}</div></td></tr>`;
   linhas.forEach(({ x, c }) => {
     const mm = c.meses[mes - 1];
     const eq = mm.real && mm.total ? mm.total / mm.real : null;
     html += `<tr data-vend="${x.vendedor_id}" style="cursor:pointer">
       <td class="mt-strong">${esc(x.v.nome)}</td><td>${esc((byId(S.regioes, x.v.regiao_id) || {}).nome || '—')}</td>
-      <td class="mt-num">${brl(mm.meta)}</td><td class="mt-num">${mm.real == null ? '<span class="mt-muted">—</span>' : brl(mm.real)}</td>
+      <td class="mt-num">${brlOuWait(mm.meta)}</td><td class="mt-num">${mm.real == null ? '<span class="mt-muted">—</span>' : brl(mm.real)}</td>
       <td class="mt-num">${pct(mm.ating)}</td><td><span class="mt-pill ${classeMult(mm.mult)}">${mm.apurado ? multTxt(mm.mult) : '—'}</span></td>
       <td class="mt-num">${brl(mm.base)}</td><td class="mt-num">${brl(mm.premio)}</td>
       <td class="mt-num ${mm.pagoTri + mm.pagoAno ? 'mt-pos mt-strong' : ''}">${brl(mm.pagoTri + mm.pagoAno)}</td>
@@ -446,13 +700,13 @@ function vModulo(id, mesSel, regSel) {
       <td class="mt-num">${pct(c.atingAte)}</td><td class="mt-num">${brl(c.totalAte)}</td>
       <td class="mt-num">${pct(eq, 2)}</td></tr>`;
   });
-  html += `</tbody>${linhas.length > 1 ? `<tfoot><tr><td colspan="2">Total</td><td class="mt-num">${brl(tot.meta)}</td><td class="mt-num">${brl(tot.real)}</td>
-    <td class="mt-num">${pct(tot.meta ? tot.real / tot.meta : null)}</td><td></td><td></td><td class="mt-num">${brl(tot.premio)}</td>
+  html += `</tbody>${linhas.length > 1 ? `<tfoot><tr><td colspan="2">${t('Total')}</td><td class="mt-num">${brlOuWait(metaMes)}</td><td class="mt-num">${brl(tot.real)}</td>
+    <td class="mt-num">${pct(metaMes ? tot.real / metaMes : null)}</td><td></td><td></td><td class="mt-num">${brl(tot.premio)}</td>
     <td class="mt-num">${brl(tot.rec)}</td><td class="mt-num">${brl(tot.total)}</td><td class="mt-num">${pct(tot.metaAte ? tot.realAte / tot.metaAte : null)}</td>
     <td class="mt-num">${brl(tot.totalAte)}</td><td></td></tr></tfoot>` : ''}</table></div>
-    <div class="fi-card__foot">Clique num vendedor para ver os 12 meses, os trimestres e a faixa de comissão equivalente.</div></section>`;
+    <div class="fi-card__foot">${t('Clique num vendedor para ver os 12 meses, os trimestres e a faixa de comissão equivalente.')}</div></section>`;
 
-  html += regraHtml(t);
+  html += regraHtml(tb);
   $('#view').innerHTML = html;
 
   $('#f-mes').addEventListener('change', e => vModulo(id, Number(e.target.value), regSel));
@@ -461,84 +715,80 @@ function vModulo(id, mesSel, regSel) {
   $('#bt-xls').addEventListener('click', () => exportarModulo(m, mes, linhas));
   const bf = $('#bt-fechar'); if (bf) bf.addEventListener('click', () => { S.fechModulo = m.id; S.fechMes = mes; location.hash = '#/adm/fechamentos'; });
   $$('#tb-mod tr[data-vend]').forEach(tr => tr.addEventListener('click', () => {
-    const x = vincDe(m.id).find(v => v.vendedor_id === tr.dataset.vend);
-    modalVendedorAno(m, x, mes);
+    modalVendedorAno(m, vincDe(m.id).find(v => v.vendedor_id === tr.dataset.vend), mes);
   }));
 }
 
-function regraHtml(t) {
-  if (!t) return '';
-  const f = faixasOrd(t);
-  return `<section class="fi-card mt-mt2"><div class="fi-card__head"><div class="fi-card__title">Regras da tabela “${esc(t.nome)}”</div></div>
+function multPct(x) { return multTxt(x.mult); }
+function regraHtml(tb) {
+  if (!tb) return '';
+  const f = faixasOrd(tb);
+  return `<section class="fi-card mt-mt2"><div class="fi-card__head"><div class="fi-card__title">${esc(t('Regras da tabela “{n}”', { n: tb.nome }))}</div></div>
     <div class="fi-card__body"><div class="mt-rule">
-    ${f.map(x => `<div>Atingiu <b>${num(x.min, x.min % 1 ? 1 : 0)}%</b> ou mais da meta do mês → recebe <b>${x.mult === 1 ? '100%' : x.mult > 1 ? multTxt(x.mult) + ' (' + pct(x.mult, 0) + ')' : pct(x.mult, 0)}</b> do prêmio-base.</div>`).join('')}
-    <div>Abaixo de ${f.length ? num(f[0].min, 0) + '%' : 'a primeira faixa'} → sem premiação no mês.</div>
-    ${t.recup_tri ? `<div><b>Recuperação trimestral:</b> se a soma do trimestre bater a soma das metas do trimestre, os meses que ficaram abaixo de 100% recebem a diferença até 1× do prêmio-base (pago no fechamento do último mês do trimestre).</div>` : ''}
-    ${t.recup_anual ? `<div><b>Recuperação anual:</b> se o ano bater a soma de todas as metas, os meses ainda não recuperados recebem a diferença até 1× (pago no fechamento de dezembro).</div>` : ''}
-    ${t.observacao ? `<div class="mt-muted">${esc(t.observacao)}</div>` : ''}
+    ${f.map(x => `<div>${t('Atingiu {p} ou mais da meta do mês → recebe {m} do prêmio-base.', { p: '<b>' + num(x.min, x.min % 1 ? 1 : 0) + '%</b>', m: '<b>' + multPct(x) + '</b>' })}</div>`).join('')}
+    <div>${t('Abaixo de {p} → sem premiação no mês.', { p: f.length ? num(f[0].min, 0) + '%' : '—' })}</div>
+    ${tb.recup_tri ? `<div><b>${t('Recuperação trimestral:')}</b> ${t('o atingimento do trimestre (realizado ÷ meta do trimestre) é enquadrado nas mesmas faixas. Cada mês do trimestre passa a ter direito a prêmio-base × faixa do trimestre, e é paga só a diferença sobre o que o mês já recebeu (pago no fechamento do último mês do trimestre).')}</div>` : ''}
+    ${tb.recup_anual ? `<div><b>${t('Recuperação anual:')}</b> ${t('mesma lógica com o atingimento do ano — cada mês recebe a diferença entre prêmio-base × faixa do ano e o que já recebeu, inclusive na recuperação trimestral (pago no fechamento de dezembro).')}</div>` : ''}
+    ${tb.observacao ? `<div class="mt-muted">${esc(tb.observacao)}</div>` : ''}
     </div></div></section>`;
 }
 
-/* Detalhe anual de um vendedor num módulo (usado no detalhe do módulo e no Meu painel) */
 function tabelaAnoHtml(m, x, c) {
   const fech = fechadosDe(m.id);
-  let h = `<div class="fi-table-wrap"><table class="fi-table"><thead><tr><th>Mês</th><th class="mt-num">Meta</th><th class="mt-num">Realizado</th>
-    <th class="mt-num">Atingido</th><th>Faixa</th><th class="mt-num">Prêmio-base</th><th class="mt-num">Prêmio</th>
-    <th class="mt-num">Rec. trimestre</th><th class="mt-num">Rec. ano</th><th class="mt-num">Total pago</th></tr></thead><tbody>`;
+  let h = `<div class="fi-table-wrap"><table class="fi-table"><thead><tr><th>${t('Mês')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th>
+    <th class="mt-num">${t('Atingido')}</th><th>${t('Faixa')}</th><th class="mt-num">${t('Prêmio-base')}</th><th class="mt-num">${t('Prêmio')}</th>
+    <th class="mt-num">${t('Rec. trimestre')}</th><th class="mt-num">${t('Rec. ano')}</th><th class="mt-num">${t('Total pago')}</th></tr></thead><tbody>`;
   c.meses.forEach(mm => {
-    h += `<tr><td>${MESES[mm.mes - 1]}${fech.has(mm.mes) ? '<span class="mt-lock" title="Mês fechado">🔒</span>' : ''}</td>
-      <td class="mt-num">${brl(mm.meta)}</td><td class="mt-num">${mm.real == null ? '<span class="mt-muted">—</span>' : brl(mm.real)}</td>
-      <td class="mt-num">${pct(mm.ating)}</td><td><span class="mt-pill ${classeMult(mm.mult)}">${mm.apurado ? multTxt(mm.mult) : '—'}</span>${mm.recTri ? ' <span class="mt-small mt-pos" title="Recuperado no trimestre">↺T</span>' : ''}${mm.recAno ? ' <span class="mt-small mt-pos" title="Recuperado no ano">↺A</span>' : ''}</td>
+    h += `<tr><td>${MES(mm.mes - 1)}${fech.has(mm.mes) ? `<span class="mt-lock" title="${t('Mês fechado')}">🔒</span>` : ''}</td>
+      <td class="mt-num">${brlOuWait(mm.meta)}</td><td class="mt-num">${mm.real == null ? '<span class="mt-muted">—</span>' : brl(mm.real)}</td>
+      <td class="mt-num">${pct(mm.ating)}</td><td><span class="mt-pill ${classeMult(mm.mult)}">${mm.apurado ? multTxt(mm.mult) : '—'}</span>${mm.recTri ? ` <span class="mt-small mt-pos" title="${t('Recuperado no trimestre')}">↺T</span>` : ''}${mm.recAno ? ` <span class="mt-small mt-pos" title="${t('Recuperado no ano')}">↺A</span>` : ''}</td>
       <td class="mt-num">${brl(mm.base)}</td><td class="mt-num">${brl(mm.premio)}</td>
       <td class="mt-num">${mm.pagoTri ? brl(mm.pagoTri) : ''}</td><td class="mt-num">${mm.pagoAno ? brl(mm.pagoAno) : ''}</td>
       <td class="mt-num mt-strong">${brl(mm.total)}</td></tr>`;
     if (mm.mes % 3 === 0) {
       const tq = c.tri[mm.mes / 3 - 1];
-      h += `<tr class="mt-sub"><td>${tq.q}º tri</td><td class="mt-num">${brl(tq.metaQ)}</td><td class="mt-num">${brl(tq.realQ)}</td>
-        <td class="mt-num">${pct(tq.atingQ)}</td><td colspan="6">${!tq.apurado ? '<span class="mt-muted">trimestre em andamento</span>' :
-          tq.recuperou ? (tq.valor ? `<span class="mt-pos">Bateu o trimestre — recuperou ${brl(tq.valor)}</span>` : '<span class="mt-pos">Bateu o trimestre (nada a recuperar)</span>')
-          : '<span class="mt-muted">Não bateu a meta do trimestre</span>'}</td></tr>`;
+      h += `<tr class="mt-sub"><td>${t('{q}º tri', { q: tq.q })}</td><td class="mt-num">${brlOuWait(tq.metaQ)}</td><td class="mt-num">${brlOuWait(tq.realQ)}</td>
+        <td class="mt-num">${tq.atingQ == null ? WAIT() : pct(tq.atingQ)}</td><td colspan="6">${tq.metaQ == null || tq.realQ == null ? WAIT() :
+          !tq.apurado ? `<span class="mt-muted">${t('trimestre em andamento')}</span>` :
+          tq.recuperou ? (tq.valor ? `<span class="mt-pos">${t('Faixa do trimestre {f} — recuperou {v}', { f: multTxt(tq.multQ), v: brl(tq.valor) })}</span>` : `<span class="mt-pos">${t('Faixa do trimestre {f} (nada a recuperar)', { f: multTxt(tq.multQ) })}</span>`)
+          : `<span class="mt-muted">${t('Não bateu a meta do trimestre')}</span>`}</td></tr>`;
     }
   });
-  h += `</tbody><tfoot><tr><td>Ano</td><td class="mt-num">${brl(c.ano.metaA)}</td><td class="mt-num">${brl(c.ano.realA)}</td><td class="mt-num">${pct(c.ano.atingA)}</td>
-    <td colspan="2">${c.ano.apurado ? (c.ano.recuperou ? '<span class="mt-pos">Bateu o ano</span>' : 'Não bateu o ano') : '<span class="mt-muted">ano em andamento</span>'}</td>
+  h += `</tbody><tfoot><tr><td>${t('Ano')}</td><td class="mt-num">${brlOuWait(c.ano.metaA)}</td><td class="mt-num">${brlOuWait(c.ano.realA)}</td><td class="mt-num">${c.ano.atingA == null ? WAIT() : pct(c.ano.atingA)}</td>
+    <td colspan="2">${c.ano.metaA == null || c.ano.realA == null ? WAIT() : c.ano.apurado ? (c.ano.recuperou ? `<span class="mt-pos">${t('Faixa do ano {f}', { f: multTxt(c.ano.multA) })}</span>` : t('Não bateu o ano')) : `<span class="mt-muted">${t('ano em andamento')}</span>`}</td>
     <td class="mt-num">${brl(sum(c.meses.map(z => z.premio)))}</td><td class="mt-num">${brl(sum(c.tri.map(z => z.valor)))}</td>
     <td class="mt-num">${brl(c.ano.valor)}</td><td class="mt-num">${brl(sum(c.meses.map(z => z.total)))}</td></tr></tfoot></table></div>`;
   return h;
 }
 function comissaoHtml(m, x, mes) {
-  const t = byId(S.tabelas, m.tabela_id);
-  const meta = Number(x.metas[mes - 1]) || 0, base = Number(x.premios[mes - 1]) || 0;
-  const eq = comissaoEquiv(t, meta, base);
+  const tb = byId(S.tabelas, m.tabela_id);
+  const meta = x.metas[mes - 1], base = Number(x.premios[mes - 1]) || 0;
+  if (meta == null) return `<div class="fi-alert fi-alert--info">${t('Meta do mês não lançada')} — ${WAIT()}</div>`;
   const r = realDe(m.id, x.vendedor_id)[mes - 1] || 0;
-  return `<div class="mt-falta">${eq.map(e => `<div><span>${num(e.min, 0)}% da meta · ${multTxt(e.mult)}</span>
-      <b>${brl0(e.venda)}</b><div class="mt-small mt-muted">prêmio ${brl(e.premio)} · comissão equiv. <b>${pct(e.pct, 2)}</b></div>
-      ${r < e.venda ? `<div class="mt-small mt-warn">faltam ${brl0(e.venda - r)}</div>` : `<div class="mt-small mt-pos">✓ atingido</div>`}</div>`).join('')}</div>`;
+  return `<div class="mt-falta">${comissaoEquiv(tb, meta, base).map(e => `<div><span>${t('{p} da meta · paga {m}', { p: num(e.min, 0) + '%', m: multTxt(e.mult) })}</span>
+      <b>${brl0(e.venda)}</b><div class="mt-small mt-muted">${t('prêmio {v} · comissão equiv. {p}', { v: brl(e.premio), p: '<b>' + pct(e.pct, 2) + '</b>' })}</div>
+      ${r < e.venda ? `<div class="mt-small mt-warn">${t('faltam {v}', { v: brl0(e.venda - r) })}</div>` : `<div class="mt-small mt-pos">${t('✓ atingido')}</div>`}</div>`).join('')}</div>`;
 }
 function modalVendedorAno(m, x, mes) {
   const c = calcVinc(m, x, Math.max(mes, ultimoFechado(m.id)));
   modal({ titulo: x.v.nome + ' — ' + m.nome, largura: 1040,
-    corpo: `<div class="mt-small mt-muted">Faixas de ${MESES_LONGO[mes - 1]}: venda necessária, prêmio e o percentual de comissão que ele representa.</div>
+    corpo: `<div class="mt-small mt-muted">${t('Faixas de {m}: venda necessária, prêmio e o percentual de comissão que ele representa.', { m: MESL(mes - 1) })}</div>
       ${comissaoHtml(m, x, mes)}${tabelaAnoHtml(m, x, c)}`,
-    botoes: [{ texto: 'Fechar', primario: true }] });
+    botoes: [{ texto: t('Fechar'), primario: true }] });
 }
 
 /* ============================== MEU PAINEL ============================== */
 function vPainel() {
   const meus = meusVendedores();
-  setHead('Meu painel', S.nome || 'Meu painel', 'Suas metas, atingimento e premiação. Você vê apenas os seus dados.');
+  setHead(t('Meu painel'), S.nome || t('Meu painel'), t('Suas metas, atingimento e premiação. Você vê apenas os seus dados.'));
   if (!meus.length) {
-    $('#view').innerHTML = `<div class="fi-card"><div class="fi-empty"><div><strong>Seu e-mail não está cadastrado como vendedor.</strong>
-      <p class="mt-small">Conta: ${esc(S.email)}. ${S.admin ? 'Cadastre-se em Administração › Vendedores se também tiver metas.' : 'Peça à gestão comercial para cadastrá-lo com este e-mail.'}</p></div></div></div>`;
+    $('#view').innerHTML = `<div class="fi-card"><div class="fi-empty"><div><strong>${t('Seu e-mail não está cadastrado como vendedor.')}</strong>
+      <p class="mt-small">${esc(t('Conta: {e}.', { e: S.email }))} ${S.admin ? t('Cadastre-se em Administração › Vendedores se também tiver metas.') : t('Peça à gestão comercial para cadastrá-lo com este e-mail.')}</p></div></div></div>`;
     return;
   }
   const ids = new Set(meus.map(v => v.id));
-  const mods = S.modulos.filter(m => (m.visivel && m.ativo) || S.veTudo)
-    .filter(m => S.mv.some(x => x.modulo_id === m.id && ids.has(x.vendedor_id)));
-  if (!mods.length) {
-    $('#view').innerHTML = `<div class="fi-card"><div class="fi-empty"><div><strong>Nenhum módulo de metas liberado para você ainda.</strong></div></div></div>`;
-    return;
-  }
+  const mods = S.modulos.filter(m => (m.visivel && m.ativo) || S.veTudo).filter(m => S.mv.some(x => x.modulo_id === m.id && ids.has(x.vendedor_id)));
+  if (!mods.length) { $('#view').innerHTML = `<div class="fi-card"><div class="fi-empty"><div><strong>${t('Nenhum módulo de metas liberado para você ainda.')}</strong></div></div></div>`; return; }
   let html = '';
   mods.forEach(m => {
     const x = vincDe(m.id).find(z => ids.has(z.vendedor_id));
@@ -548,13 +798,13 @@ function vPainel() {
       <div class="fi-card__note">${esc((byId(S.tabelas, m.tabela_id) || {}).nome || '')}</div></div></div>
       <div class="fi-card__body">
       <div class="fi-grid fi-grid--4">
-        <div class="fi-card fi-metric fi-metric--brand"><div class="fi-metric__top"><span>${MESES_LONGO[mes - 1]}</span><span class="mt-pill ${classeMult(mm.mult)}">${mm.apurado ? multTxt(mm.mult) : '—'}</span></div>
-          <div class="fi-metric__value">${pct(mm.ating)}</div><div class="fi-metric__foot">${brl0(mm.real || 0)} de ${brl0(mm.meta)}</div></div>
-        <div class="fi-card fi-metric"><div class="fi-metric__top"><span>Prêmio do mês</span></div><div class="fi-metric__value">${brl(mm.total)}</div><div class="fi-metric__foot">base ${brl(mm.base)}</div></div>
-        <div class="fi-card fi-metric"><div class="fi-metric__top"><span>Acumulado no ano</span></div><div class="fi-metric__value">${pct(c.atingAte)}</div><div class="fi-metric__foot">${brl0(c.realAte)} de ${brl0(c.metaAte)}</div></div>
-        <div class="fi-card fi-metric"><div class="fi-metric__top"><span>Premiação acumulada</span></div><div class="fi-metric__value">${brl(c.totalAte)}</div><div class="fi-metric__foot">potencial do ano (1×) ${brl0(c.premioBaseAno)}</div></div>
+        <div class="fi-card fi-metric fi-metric--brand"><div class="fi-metric__top"><span>${MESL(mes - 1)}</span><span class="mt-pill ${classeMult(mm.mult)}">${mm.apurado ? multTxt(mm.mult) : '—'}</span></div>
+          <div class="fi-metric__value">${mm.meta == null ? WAIT() : pct(mm.ating)}</div><div class="fi-metric__foot">${mm.meta == null ? '' : t('{a} de {b}', { a: brl0(mm.real || 0), b: brl0(mm.meta) })}</div></div>
+        <div class="fi-card fi-metric"><div class="fi-metric__top"><span>${t('Prêmio do mês')}</span></div><div class="fi-metric__value">${brl(mm.total)}</div><div class="fi-metric__foot">${t('base {v}', { v: brl(mm.base) })}</div></div>
+        <div class="fi-card fi-metric"><div class="fi-metric__top"><span>${t('Acumulado no ano')}</span></div><div class="fi-metric__value">${pct(c.atingAte)}</div><div class="fi-metric__foot">${t('{a} de {b}', { a: brl0(c.realAte), b: brl0(c.metaAte) })}</div></div>
+        <div class="fi-card fi-metric"><div class="fi-metric__top"><span>${t('Premiação acumulada')}</span></div><div class="fi-metric__value">${brl(c.totalAte)}</div><div class="fi-metric__foot">${t('potencial do ano (1×) {v}', { v: brl0(c.premioBaseAno) })}</div></div>
       </div>
-      <div class="fi-eyebrow mt-mt2">Quanto falta em ${MESES_LONGO[mes - 1]}</div>
+      <div class="fi-eyebrow mt-mt2">${t('Quanto falta em {m}', { m: MESL(mes - 1) })}</div>
       ${comissaoHtml(m, x, mes)}
       <div class="mt-mt2">${tabelaAnoHtml(m, x, c)}</div>
       </div></section>`;
@@ -563,53 +813,123 @@ function vPainel() {
   $('#view').innerHTML = html;
 }
 
+/* ============================== ESTRATÉGIA ============================== */
+function vEstrategia() {
+  setHead(t('Estratégia'), t('Como funciona a remuneração comercial'), t('Vendedores × Supervisão: quem ganha o quê, e por quê.'));
+  const cart = n => `<div class="es-cart"><span>${t('Carteira')}</span>${'<i></i>'.repeat(n)}</div>`;
+  const regras = [
+    ['Comissão do vendedor', 'Recebe comissão pelas vendas dos clientes da sua carteira individual, conforme os percentuais e critérios definidos pela empresa.', 'Vendedor '],
+    ['Premiação da supervisão', 'Recebe premiação pelo atingimento da meta de vendas consolidada de todos os vendedores sob sua responsabilidade.', 'Supervisão'],
+    ['Carteira de clientes', 'Todo cliente deve estar vinculado a um vendedor. A supervisão não possui carteira própria nem recebe comissão individual por venda.', 'Ambos'],
+    ['Participação nas negociações', 'A supervisão pode prospectar, visitar clientes e ajudar a fechar negócios. A comissão permanece com o vendedor responsável pela carteira.', 'Ambos'],
+    ['Novos clientes', 'Clientes captados pela supervisão são distribuídos aos vendedores conforme critérios definidos pela empresa.', 'Empresa'],
+    ['Transferência de clientes', 'Mudanças de carteira exigem aprovação da direção e uma data de vigência, preservando a atribuição das vendas anteriores.', 'Empresa'],
+    ['Cálculo da premiação', 'O valor pago à supervisão depende do percentual de atingimento da meta, conforme uma tabela previamente aprovada.', 'Supervisão'],
+    ['Objetivo da supervisão', 'Desenvolver os vendedores e ampliar o resultado coletivo. Seu ganho aumenta com o desempenho da equipe.', 'Supervisão']
+  ];
+  const tb = S.tabelas[0];
+  const baseEx = 5000;
+  const exemplo = tb ? [0.85, 0.92, 1.0, 1.06].map(a => {
+    const m = multDe(tb, a);
+    return `<div class="es-g"><b>${pct(a, 0)}</b><div class="mt-bar"><span style="width:${Math.min(100, a / 1.1 * 100)}%"></span>${faixasOrd(tb).map(f => `<i style="left:${Math.min(100, f.min / 1.1)}%"></i>`).join('')}</div>
+      <span class="mt-num">${m ? `<span class="mt-pill ${classeMult(m)}">${multTxt(m)}</span> <b>${brl0(baseEx * m)}</b>` : `<span class="mt-muted">${t('Sem premiação')}</span>`}</span></div>`;
+  }).join('') : `<div class="mt-muted">${t('Nenhuma tabela de premiação cadastrada ainda.')}</div>`;
+
+  $('#view').innerHTML = `
+  <div class="es-hero">
+    <section class="fi-card"><div class="fi-card__body">
+      <div class="es-org">
+        <div class="es-node es-sup"><b>${t('Supervisão')}</b><small>${t('Premiação pela meta consolidada da equipe')}</small></div>
+        <div class="es-link"></div>
+        <div class="es-team">
+          ${['Vendedor A', 'Vendedor B', 'Vendedor C'].map((n, i) => `<div><div class="es-node"><b>${t(n)}</b><small>${t('Comissão pela própria carteira')}</small></div>${cart([6, 4, 5][i])}</div>`).join('')}
+        </div>
+        <div class="es-band">${t('Meta da equipe = soma das metas dos vendedores')}</div>
+      </div>
+    </div></section>
+    <section class="fi-card"><div class="fi-card__head"><div class="fi-card__title">${t('Lado a lado')}</div></div>
+      <div class="fi-card__body" style="padding-top:4px">
+      <table class="es-cmp"><thead><tr><th></th><th>${t('Vendedor')}</th><th>${t('Supervisão')}</th></tr></thead><tbody>
+        <tr><th>${t('Recebe')}</th><td>${t('Comissão sobre as vendas da carteira individual')}</td><td>${t('Premiação pelo atingimento da meta consolidada')}</td></tr>
+        <tr><th>${t('Base do cálculo')}</th><td>${t('Percentuais e critérios definidos pela empresa')}</td><td>${t('Tabela de premiação aprovada × % de atingimento')}</td></tr>
+        <tr><th>${t('Carteira própria')}</th><td class="es-yes">✓ ${t('Sim')}</td><td class="es-no">✕ ${t('Não')}</td></tr>
+        <tr><th>${t('Comissão por venda individual')}</th><td class="es-yes">✓ ${t('Sim')}</td><td class="es-no">✕ ${t('Não')}</td></tr>
+        <tr><th>${t('Pode prospectar, visitar e ajudar a fechar')}</th><td class="es-yes">✓ ${t('Sim')}</td><td class="es-yes">✓ ${t('Sim')}</td></tr>
+        <tr><th>${t('Ganha mais quando')}</th><td>${t('Vende mais para os clientes da sua carteira')}</td><td>${t('A equipe inteira performa melhor')}</td></tr>
+      </tbody></table></div></section>
+  </div>
+
+  <div class="fi-eyebrow mt-mt2">${t('As 8 regras')}</div>
+  <div class="es-rules">${regras.map((r, i) => `<article class="es-rule"><div class="mt-row"><span class="es-n">${i + 1}</span><span class="es-tag">${t(r[2]).trim()}</span></div>
+    <h3>${t(r[0])}</h3><p>${t(r[1])}</p></article>`).join('')}</div>
+
+  <div class="fi-grid fi-grid--2 mt-mt2">
+    <section class="fi-card"><div class="fi-card__head"><div class="fi-card__title">${t('Cliente novo captado pela supervisão')}</div><span class="es-tag">5 · 4</span></div>
+      <div class="fi-card__body"><div class="es-flow">
+        <div class="es-step"><b>1. ${t('Supervisão capta')}</b><span>${t('prospecção e visita')}</span></div>
+        <div class="es-step"><b>2. ${t('Empresa distribui')}</b><span>${t('conforme critérios definidos')}</span></div>
+        <div class="es-step"><b>3. ${t('Entra na carteira')}</b><span>${t('de um vendedor')}</span></div>
+        <div class="es-step es-hl"><b>4. ${t('Comissão do vendedor')}</b><span>${t('vendas futuras deste cliente')}</span></div>
+      </div></div></section>
+    <section class="fi-card"><div class="fi-card__head"><div class="fi-card__title">${t('Transferência de carteira')}</div><span class="es-tag">6</span></div>
+      <div class="fi-card__body"><div class="es-tl" data-vig="${esc(t('Data de vigência (aprovada pela direção)'))}">
+        <div><b>${t('Vendas anteriores')}</b><div class="mt-muted">${t('continuam atribuídas ao vendedor de origem')} (${t('Vendedor A')})</div></div>
+        <div><b>${t('Vendas a partir da vigência')}</b><div class="mt-muted">${t('passam para o novo vendedor')} (${t('Vendedor B')})</div></div>
+      </div></div></section>
+  </div>
+
+  <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Exemplo: premiação da supervisão')}</div>
+    <div class="fi-card__note">${tb ? esc(t('Conforme a tabela “{n}” — prêmio-base ilustrativo de {v}.', { n: tb.nome, v: brl0(baseEx) })) : ''}</div></div><span class="es-tag">7 · 8</span></div>
+    <div class="fi-card__body"><div class="es-g mt-small mt-muted" style="font-weight:700;text-transform:uppercase"><span>${t('Atingimento da equipe')}</span><span></span><span class="mt-num">${t('Supervisão recebe')}</span></div>
+      <div class="es-gauge mt-mt">${exemplo}</div>
+      <p class="mt-help mt-mt">${t('O ganho da supervisão depende do resultado coletivo — quanto mais a equipe vende, maior a premiação.')}</p></div></section>`;
+}
+
 /* ============================ ADMINISTRAÇÃO ============================ */
-const ADM_TABS = [['modulos', 'Módulos de metas'], ['lancamentos', 'Lançamentos'], ['fechamentos', 'Fechamentos'],
+const ADM_TABS = [['modulos', 'Módulos de metas'], ['metas', 'Metas mensais'], ['lancamentos', 'Lançamentos'], ['fechamentos', 'Fechamentos'],
                   ['vendedores', 'Vendedores'], ['regioes', 'Regiões'], ['tabelas', 'Tabelas de premiação']];
 function vAdm() {
-  setHead('Administração', ADM_TABS.find(t => t[0] === S.admTab)?.[1] || 'Administração',
-    'Cadastros, metas, lançamentos e fechamentos. Somente administradores da ferramenta.');
-  const tabs = `<div class="mt-tabs" role="tablist">${ADM_TABS.map(([k, n]) =>
-    `<button class="mt-tab" role="tab" aria-selected="${k === S.admTab}" data-tab="${k}">${n}</button>`).join('')}</div><div id="adm-body"></div>`;
-  $('#view').innerHTML = tabs;
+  const tab = ADM_TABS.find(x => x[0] === S.admTab) || ADM_TABS[0];
+  setHead(t('Administração'), t(tab[1]), t('Cadastros, metas, lançamentos e fechamentos. Somente administradores da ferramenta.'));
+  $('#view').innerHTML = `<div class="mt-tabs" role="tablist">${ADM_TABS.map(([k, n]) =>
+    `<button class="mt-tab" role="tab" aria-selected="${k === tab[0]}" data-tab="${k}">${t(n)}</button>`).join('')}</div><div id="adm-body"></div>`;
   $$('[data-tab]').forEach(b => b.addEventListener('click', () => { location.hash = '#/adm/' + b.dataset.tab; }));
-  ({ modulos: aModulos, lancamentos: aLancamentos, fechamentos: aFechamentos,
-     vendedores: aVendedores, regioes: aRegioes, tabelas: aTabelas }[S.admTab] || aModulos)();
+  ({ modulos: aModulos, metas: aMetas, lancamentos: aLancamentos, fechamentos: aFechamentos,
+     vendedores: aVendedores, regioes: aRegioes, tabelas: aTabelas }[tab[0]])();
 }
 async function recarregar(msg) { await carregar(); if (msg) notify(msg, 'success'); rota(); }
+const badgeAtivo = (a, fem) => a ? `<span class="fi-badge fi-badge--success">${t(fem ? 'Ativa' : 'Ativo')}</span>` : `<span class="fi-badge">${t(fem ? 'Inativa' : 'Inativo')}</span>`;
 
 /* ------------------------------ Regiões ------------------------------ */
 function aRegioes() {
   const cont = r => S.vendedores.filter(v => v.regiao_id === r.id).length;
-  $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div class="fi-card__title">Regiões de atendimento</div>
-    <button class="fi-btn fi-btn--primary" id="bt-novo">Nova região</button></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>Região</th><th>Descrição</th><th class="mt-num">Vendedores</th><th>Status</th><th></th></tr></thead><tbody>
+  $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div class="fi-card__title">${t('Regiões de atendimento')}</div>
+    <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Nova região')}</button></div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Região')}</th><th>${t('Descrição')}</th><th class="mt-num">${t('Vendedores')}</th><th>${t('Status')}</th><th></th></tr></thead><tbody>
     ${S.regioes.map(r => `<tr><td class="mt-strong">${esc(r.nome)}</td><td>${esc(r.descricao || '')}</td><td class="mt-num">${cont(r)}</td>
-      <td>${r.ativo ? '<span class="fi-badge fi-badge--success">Ativa</span>' : '<span class="fi-badge">Inativa</span>'}</td>
-      <td class="mt-num"><button class="fi-btn" data-ed="${r.id}">Editar</button></td></tr>`).join('') ||
-      '<tr><td colspan="5"><div class="fi-empty">Nenhuma região cadastrada.</div></td></tr>'}
+      <td>${badgeAtivo(r.ativo, true)}</td><td class="mt-num"><button class="fi-btn" data-ed="${r.id}">${t('Editar')}</button></td></tr>`).join('') ||
+      `<tr><td colspan="5"><div class="fi-empty">${t('Nenhuma região cadastrada.')}</div></td></tr>`}
     </tbody></table></div></section>`;
   $('#bt-novo').onclick = () => formRegiao();
   $$('[data-ed]').forEach(b => b.onclick = () => formRegiao(byId(S.regioes, b.dataset.ed)));
 }
 function formRegiao(r) {
   r = r || { nome: '', descricao: '', ativo: true };
-  modal({ titulo: r.id ? 'Editar região' : 'Nova região',
+  modal({ titulo: r.id ? t('Editar região') : t('Nova região'),
     corpo: `<div class="mt-form">
-      <label class="fi-field mt-full"><span class="fi-label">Nome *</span><input class="fi-input" id="r-nome" value="${esc(r.nome)}" placeholder="Ex.: SP Capital, Sul, Nordeste"></label>
-      <label class="fi-field mt-full"><span class="fi-label">Descrição / cidades / estados</span><textarea class="fi-textarea" id="r-desc">${esc(r.descricao || '')}</textarea></label>
-      <label class="mt-check"><input type="checkbox" id="r-ativo" ${r.ativo ? 'checked' : ''}> Ativa</label></div>`,
+      <label class="fi-field mt-full"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="r-nome" value="${esc(r.nome)}" placeholder="${t('Ex.: SP Capital, Sul, Nordeste')}"></label>
+      <label class="fi-field mt-full"><span class="fi-label">${t('Descrição / cidades / estados')}</span><textarea class="fi-textarea" id="r-desc">${esc(r.descricao || '')}</textarea></label>
+      <label class="mt-check"><input type="checkbox" id="r-ativo" ${r.ativo ? 'checked' : ''}> ${t('Ativa')}</label></div>`,
     botoes: [
-      ...(r.id ? [{ texto: 'Excluir', perigo: true, esquerda: true, acao: async () => {
-        if (!await confirmar({ title: 'Excluir região', message: 'Os vendedores desta região ficarão sem região.', confirmText: 'Excluir', danger: true })) return false;
-        await q(S.sb.from('met_regioes').delete().eq('id', r.id)); await recarregar('Região excluída'); } }] : []),
-      { texto: 'Cancelar' },
-      { texto: 'Salvar', primario: true, acao: async () => {
+      ...(r.id ? [{ texto: t('Excluir'), perigo: true, esquerda: true, acao: async () => {
+        if (!await confirmar({ title: t('Excluir região'), message: t('Os vendedores desta região ficarão sem região.'), confirmText: t('Excluir'), danger: true })) return false;
+        await q(S.sb.from('met_regioes').delete().eq('id', r.id)); await recarregar(t('Região excluída')); } }] : []),
+      { texto: t('Cancelar') },
+      { texto: t('Salvar'), primario: true, acao: async () => {
         const d = { nome: $('#r-nome').value.trim(), descricao: $('#r-desc').value.trim() || null, ativo: $('#r-ativo').checked };
-        if (!d.nome) { notify('Informe o nome da região.', 'warning'); return false; }
-        if (r.id) await q(S.sb.from('met_regioes').update(d).eq('id', r.id));
-        else await q(S.sb.from('met_regioes').insert(d));
-        await recarregar('Região salva');
+        if (!d.nome) { notify(t('Informe o nome da região.'), 'warning'); return false; }
+        if (r.id) await q(S.sb.from('met_regioes').update(d).eq('id', r.id)); else await q(S.sb.from('met_regioes').insert(d));
+        await recarregar(t('Região salva'));
       } }] });
 }
 
@@ -617,102 +937,99 @@ function formRegiao(r) {
 function contaStatus(email) {
   if (!S.contas) return '<span class="mt-muted mt-small">—</span>';
   const c = S.contas.find(x => x.email === email);
-  if (!c) return '<span class="fi-badge fi-badge--warning" title="Crie a conta deste e-mail na Central de Acesso">Sem conta</span>';
-  if (!c.ativo) return '<span class="fi-badge fi-badge--warning">Conta inativa</span>';
-  return `<span class="fi-badge fi-badge--success" title="Nível ${esc(c.nivel)}">Conta ativa</span>`;
+  if (!c) return `<span class="fi-badge fi-badge--warning" title="${t('Crie a conta deste e-mail na Central de Acesso')}">${t('Sem conta')}</span>`;
+  if (!c.ativo) return `<span class="fi-badge fi-badge--warning">${t('Conta inativa')}</span>`;
+  return `<span class="fi-badge fi-badge--success" title="${esc(t('Nível {n}', { n: c.nivel }))}">${t('Conta ativa')}</span>`;
 }
 function aVendedores() {
-  $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">Vendedores</div>
-    <div class="fi-card__note">O e-mail precisa ser o mesmo da conta na Central de Acesso — é por ele que cada vendedor vê só o próprio painel.</div></div>
-    <button class="fi-btn fi-btn--primary" id="bt-novo">Novo vendedor</button></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>Nome</th><th>E-mail</th><th>Região</th><th>Telefone</th><th>Central</th><th class="mt-num">Módulos</th><th>Status</th><th></th></tr></thead><tbody>
+  $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Vendedores')}</div>
+    <div class="fi-card__note">${t('O e-mail precisa ser o mesmo da conta na Central de Acesso — é por ele que cada vendedor vê só o próprio painel.')}</div></div>
+    <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Novo vendedor')}</button></div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Nome')}</th><th>${t('E-mail')}</th><th>${t('Região')}</th><th>${t('Telefone')}</th><th>${t('Central')}</th><th class="mt-num">${t('Módulos')}</th><th>${t('Status')}</th><th></th></tr></thead><tbody>
     ${S.vendedores.map(v => `<tr><td class="mt-strong">${esc(v.nome)}</td><td>${esc(v.email)}</td><td>${esc((byId(S.regioes, v.regiao_id) || {}).nome || '—')}</td>
       <td>${esc(v.telefone || '')}</td><td>${contaStatus(v.email)}</td><td class="mt-num">${S.mv.filter(x => x.vendedor_id === v.id).length}</td>
-      <td>${v.ativo ? '<span class="fi-badge fi-badge--success">Ativo</span>' : '<span class="fi-badge">Inativo</span>'}</td>
-      <td class="mt-num"><button class="fi-btn" data-ed="${v.id}">Editar</button></td></tr>`).join('') ||
-      '<tr><td colspan="8"><div class="fi-empty">Nenhum vendedor cadastrado.</div></td></tr>'}
+      <td>${badgeAtivo(v.ativo)}</td><td class="mt-num"><button class="fi-btn" data-ed="${v.id}">${t('Editar')}</button></td></tr>`).join('') ||
+      `<tr><td colspan="8"><div class="fi-empty">${t('Nenhum vendedor cadastrado.')}</div></td></tr>`}
     </tbody></table></div>
-    <div class="fi-card__foot">“Sem conta”: crie o acesso na Central (Gerenciar › Usuários) com o mesmo e-mail, nível <b>usuário</b> ou <b>consulta</b>. A ferramenta “Metas e Premiação” já está liberada para esses níveis em modo leitura.</div></section>`;
+    <div class="fi-card__foot">${t('“Sem conta”: crie o acesso na Central (Gerenciar › Usuários) com o mesmo e-mail, nível usuário ou consulta. A ferramenta “Metas e Premiação” já está liberada para esses níveis em modo leitura.')}</div></section>`;
   $('#bt-novo').onclick = () => formVendedor();
   $$('[data-ed]').forEach(b => b.onclick = () => formVendedor(byId(S.vendedores, b.dataset.ed)));
 }
 function formVendedor(v) {
   v = v || { nome: '', email: '', regiao_id: null, telefone: '', ativo: true };
-  modal({ titulo: v.id ? 'Editar vendedor' : 'Novo vendedor',
+  modal({ titulo: v.id ? t('Editar vendedor') : t('Novo vendedor'),
     corpo: `<div class="mt-form">
-      <label class="fi-field mt-full"><span class="fi-label">Nome *</span><input class="fi-input" id="v-nome" value="${esc(v.nome)}"></label>
-      <label class="fi-field"><span class="fi-label">E-mail (login da Central) *</span><input class="fi-input" id="v-email" type="email" value="${esc(v.email)}" placeholder="nome@fiorella.ind.br"></label>
-      <label class="fi-field"><span class="fi-label">Telefone</span><input class="fi-input" id="v-tel" value="${esc(v.telefone || '')}"></label>
-      <label class="fi-field"><span class="fi-label">Região de atendimento</span><select class="fi-select" id="v-reg"><option value="">—</option>
+      <label class="fi-field mt-full"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="v-nome" value="${esc(v.nome)}"></label>
+      <label class="fi-field"><span class="fi-label">${t('E-mail (login da Central) *')}</span><input class="fi-input" id="v-email" type="email" value="${esc(v.email)}" placeholder="nome@fiorella.ind.br"></label>
+      <label class="fi-field"><span class="fi-label">${t('Telefone')}</span><input class="fi-input" id="v-tel" value="${esc(v.telefone || '')}"></label>
+      <label class="fi-field"><span class="fi-label">${t('Região de atendimento')}</span><select class="fi-select" id="v-reg"><option value="">—</option>
         ${S.regioes.filter(r => r.ativo || r.id === v.regiao_id).map(r => `<option value="${r.id}" ${r.id === v.regiao_id ? 'selected' : ''}>${esc(r.nome)}</option>`).join('')}</select></label>
-      <label class="mt-check" style="align-self:end"><input type="checkbox" id="v-ativo" ${v.ativo ? 'checked' : ''}> Ativo</label></div>`,
+      <label class="mt-check" style="align-self:end"><input type="checkbox" id="v-ativo" ${v.ativo ? 'checked' : ''}> ${t('Ativo')}</label></div>`,
     botoes: [
-      ...(v.id ? [{ texto: 'Excluir', perigo: true, esquerda: true, acao: async () => {
-        if (!await confirmar({ title: 'Excluir vendedor', message: 'Remove também as metas, lançamentos e fechamentos dele em todos os módulos. Prefira inativar.', confirmText: 'Excluir', danger: true })) return false;
-        await q(S.sb.from('met_vendedores').delete().eq('id', v.id)); await recarregar('Vendedor excluído'); } }] : []),
-      { texto: 'Cancelar' },
-      { texto: 'Salvar', primario: true, acao: async () => {
+      ...(v.id ? [{ texto: t('Excluir'), perigo: true, esquerda: true, acao: async () => {
+        if (!await confirmar({ title: t('Excluir vendedor'), message: t('Remove também as metas, lançamentos e fechamentos dele em todos os módulos. Prefira inativar.'), confirmText: t('Excluir'), danger: true })) return false;
+        await q(S.sb.from('met_vendedores').delete().eq('id', v.id)); await recarregar(t('Vendedor excluído')); } }] : []),
+      { texto: t('Cancelar') },
+      { texto: t('Salvar'), primario: true, acao: async () => {
         const d = { nome: $('#v-nome').value.trim(), email: $('#v-email').value.trim().toLowerCase(),
                     telefone: $('#v-tel').value.trim() || null, regiao_id: $('#v-reg').value || null, ativo: $('#v-ativo').checked };
-        if (!d.nome) { notify('Informe o nome.', 'warning'); return false; }
-        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) { notify('Informe um e-mail válido — ele é o login do vendedor.', 'warning'); return false; }
-        if (v.id) await q(S.sb.from('met_vendedores').update(d).eq('id', v.id));
-        else await q(S.sb.from('met_vendedores').insert(d));
-        await recarregar('Vendedor salvo');
+        if (!d.nome) { notify(t('Informe o nome.'), 'warning'); return false; }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) { notify(t('Informe um e-mail válido — ele é o login do vendedor.'), 'warning'); return false; }
+        if (v.id) await q(S.sb.from('met_vendedores').update(d).eq('id', v.id)); else await q(S.sb.from('met_vendedores').insert(d));
+        await recarregar(t('Vendedor salvo'));
       } }] });
 }
 
 /* --------------------------- Tabelas de premiação --------------------------- */
 function aTabelas() {
-  $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">Tabelas de graduação de premiação</div>
-    <div class="fi-card__note">Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago.</div></div>
-    <button class="fi-btn fi-btn--primary" id="bt-novo">Nova tabela</button></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>Tabela</th><th>Faixas</th><th>Recupera trimestre</th><th>Recupera ano</th><th class="mt-num">Módulos</th><th></th></tr></thead><tbody>
-    ${S.tabelas.map(t => `<tr><td class="mt-strong">${esc(t.nome)}</td>
-      <td>${faixasOrd(t).map(f => `<span class="mt-pill ${classeMult(f.mult)}">≥${num(f.min, f.min % 1 ? 1 : 0)}% → ${multTxt(f.mult)}</span>`).join(' ')}</td>
-      <td>${t.recup_tri ? 'Sim' : 'Não'}</td><td>${t.recup_anual ? 'Sim' : 'Não'}</td>
-      <td class="mt-num">${S.modulos.filter(m => m.tabela_id === t.id).length}</td>
-      <td class="mt-num"><button class="fi-btn" data-ed="${t.id}">Editar</button></td></tr>`).join('') ||
-      '<tr><td colspan="6"><div class="fi-empty">Nenhuma tabela.</div></td></tr>'}
+  $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Tabelas de graduação de premiação')}</div>
+    <div class="fi-card__note">${t('Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago.')}</div></div>
+    <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Nova tabela')}</button></div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Tabela')}</th><th>${t('Faixas')}</th><th>${t('Recupera trimestre')}</th><th>${t('Recupera ano')}</th><th class="mt-num">${t('Módulos')}</th><th></th></tr></thead><tbody>
+    ${S.tabelas.map(tb => `<tr><td class="mt-strong">${esc(tb.nome)}</td>
+      <td>${faixasOrd(tb).map(f => `<span class="mt-pill ${classeMult(f.mult)}">≥${num(f.min, f.min % 1 ? 1 : 0)}% → ${multTxt(f.mult)}</span>`).join(' ')}</td>
+      <td>${tb.recup_tri ? t('Sim') : t('Não')}</td><td>${tb.recup_anual ? t('Sim') : t('Não')}</td>
+      <td class="mt-num">${S.modulos.filter(m => m.tabela_id === tb.id).length}</td>
+      <td class="mt-num"><button class="fi-btn" data-ed="${tb.id}">${t('Editar')}</button></td></tr>`).join('') ||
+      `<tr><td colspan="6"><div class="fi-empty">${t('Nenhuma tabela.')}</div></td></tr>`}
     </tbody></table></div></section>`;
   $('#bt-novo').onclick = () => formTabela();
   $$('[data-ed]').forEach(b => b.onclick = () => formTabela(byId(S.tabelas, b.dataset.ed)));
 }
-function formTabela(t) {
-  t = t || { nome: '', faixas: [{ min: 90, mult: 0.5 }, { min: 100, mult: 1 }, { min: 105, mult: 2 }], recup_tri: true, recup_anual: true, observacao: '' };
-  const emUso = t.id && S.modulos.some(m => m.tabela_id === t.id);
+function formTabela(tb) {
+  tb = tb || { nome: '', faixas: [{ min: 90, mult: 0.5 }, { min: 100, mult: 1 }, { min: 105, mult: 2 }], recup_tri: true, recup_anual: true, observacao: '' };
+  const emUso = tb.id && S.modulos.some(m => m.tabela_id === tb.id);
   const linhaFaixa = f => `<div class="mt-faixa" data-faixa>
-      <label class="fi-field"><span class="fi-label">Atingimento mínimo (%)</span><input class="fi-input" data-min value="${num(f.min, f.min % 1 ? 1 : 0)}"></label>
-      <label class="fi-field"><span class="fi-label">Paga do prêmio-base (%)</span><input class="fi-input" data-mult value="${num(f.mult * 100, 0)}"></label>
-      <div class="fi-field"><span class="fi-label">Equivale a</span><div class="mt-small mt-muted" data-eq style="min-height:38px;display:flex;align-items:center"></div></div>
-      <button class="fi-icon-btn" data-rm title="Remover faixa">✕</button></div>`;
-  const el = modal({ titulo: t.id ? 'Editar tabela de premiação' : 'Nova tabela de premiação', largura: 720,
-    corpo: `<label class="fi-field"><span class="fi-label">Nome *</span><input class="fi-input" id="t-nome" value="${esc(t.nome)}"></label>
-      ${emUso ? '<div class="fi-alert fi-alert--warning">Tabela em uso: mudanças valem para os meses ainda não fechados dos módulos que a usam.</div>' : ''}
-      <div id="t-faixas" style="display:grid;gap:8px">${faixasOrd(t).map(linhaFaixa).join('')}</div>
-      <div><button class="fi-btn" id="t-add">+ Faixa</button></div>
-      <label class="mt-check"><input type="checkbox" id="t-tri" ${t.recup_tri ? 'checked' : ''}> Recuperação trimestral — batendo a soma do trimestre, recupera os meses do trimestre que ficaram abaixo de 100%</label>
-      <label class="mt-check"><input type="checkbox" id="t-ano" ${t.recup_anual ? 'checked' : ''}> Recuperação anual — batendo a soma do ano, recupera os meses ainda não recuperados</label>
-      <label class="fi-field"><span class="fi-label">Observação</span><textarea class="fi-textarea" id="t-obs">${esc(t.observacao || '')}</textarea></label>
-      <div class="mt-help">Exemplo de leitura: meta R$ 100.000 e prêmio-base R$ 1.000 → a faixa de 100% (1×) paga R$ 1.000 sobre R$ 100.000 vendidos = 1,00% de comissão; a de 90% (50%) paga R$ 500 sobre R$ 90.000 = 0,56%; a de 105% (2×) paga R$ 2.000 sobre R$ 105.000 = 1,90%.</div>`,
+      <label class="fi-field"><span class="fi-label">${t('Atingimento mínimo (%)')}</span><input class="fi-input" data-min value="${num(f.min, f.min % 1 ? 1 : 0)}"></label>
+      <label class="fi-field"><span class="fi-label">${t('Paga do prêmio-base (%)')}</span><input class="fi-input" data-mult value="${num(f.mult * 100, 0)}"></label>
+      <div class="fi-field"><span class="fi-label">${t('Equivale a')}</span><div class="mt-small mt-muted" data-eq style="min-height:38px;display:flex;align-items:center"></div></div>
+      <button class="fi-icon-btn" data-rm title="${t('Remover faixa')}">✕</button></div>`;
+  const el = modal({ titulo: tb.id ? t('Editar tabela de premiação') : t('Nova tabela de premiação'), largura: 720,
+    corpo: `<label class="fi-field"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="t-nome" value="${esc(tb.nome)}"></label>
+      ${emUso ? `<div class="fi-alert fi-alert--warning">${t('Tabela em uso: mudanças valem para os meses ainda não fechados dos módulos que a usam.')}</div>` : ''}
+      <div id="t-faixas" style="display:grid;gap:8px">${faixasOrd(tb).map(linhaFaixa).join('')}</div>
+      <div><button class="fi-btn" id="t-add">${t('+ Faixa')}</button></div>
+      <label class="mt-check"><input type="checkbox" id="t-tri" ${tb.recup_tri ? 'checked' : ''}> ${t('Recuperação trimestral — a faixa atingida no trimestre vale para os 3 meses, descontando o que cada mês já recebeu')}</label>
+      <label class="mt-check"><input type="checkbox" id="t-ano" ${tb.recup_anual ? 'checked' : ''}> ${t('Recuperação anual — a faixa atingida no ano vale para os 12 meses, descontando o que cada mês já recebeu')}</label>
+      <label class="fi-field"><span class="fi-label">${t('Observação')}</span><textarea class="fi-textarea" id="t-obs">${esc(tb.observacao || '')}</textarea></label>
+      <div class="mt-help">${t('Exemplo de leitura: meta R$ 100.000 e prêmio-base R$ 1.000 → a faixa de 100% (paga 100%) paga R$ 1.000 sobre R$ 100.000 vendidos = 1,00% de comissão; a de 90% (paga 50%) paga R$ 500 sobre R$ 90.000 = 0,56%; a de 105% (paga 200%) paga R$ 2.000 sobre R$ 105.000 = 1,90%.')}</div>`,
     botoes: [
-      ...(t.id && !emUso ? [{ texto: 'Excluir', perigo: true, esquerda: true, acao: async () => {
-        if (!await confirmar({ title: 'Excluir tabela', message: 'Excluir esta tabela de premiação?', confirmText: 'Excluir', danger: true })) return false;
-        await q(S.sb.from('met_tabelas').delete().eq('id', t.id)); await recarregar('Tabela excluída'); } }] : []),
-      { texto: 'Cancelar' },
-      { texto: 'Salvar', primario: true, acao: async () => {
-        const faixas = $$('[data-faixa]', el).map(r => ({ min: parseBR($('[data-min]', r).value), mult: (parseBR($('[data-mult]', r).value) || 0) / 100 }))
+      ...(tb.id && !emUso ? [{ texto: t('Excluir'), perigo: true, esquerda: true, acao: async () => {
+        if (!await confirmar({ title: t('Excluir tabela'), message: t('Excluir esta tabela de premiação?'), confirmText: t('Excluir'), danger: true })) return false;
+        await q(S.sb.from('met_tabelas').delete().eq('id', tb.id)); await recarregar(t('Tabela excluída')); } }] : []),
+      { texto: t('Cancelar') },
+      { texto: t('Salvar'), primario: true, acao: async () => {
+        const faixas = $$('[data-faixa]', el).map(r => ({ min: parseNum($('[data-min]', r).value), mult: (parseNum($('[data-mult]', r).value) || 0) / 100 }))
           .filter(f => f.min != null).sort((a, b) => a.min - b.min);
         const d = { nome: $('#t-nome').value.trim(), faixas, recup_tri: $('#t-tri').checked, recup_anual: $('#t-ano').checked, observacao: $('#t-obs').value.trim() || null };
-        if (!d.nome) { notify('Informe o nome da tabela.', 'warning'); return false; }
-        if (!faixas.length) { notify('Inclua ao menos uma faixa.', 'warning'); return false; }
-        if (t.id) await q(S.sb.from('met_tabelas').update(d).eq('id', t.id));
-        else await q(S.sb.from('met_tabelas').insert(d));
-        await recarregar('Tabela salva');
+        if (!d.nome) { notify(t('Informe o nome da tabela.'), 'warning'); return false; }
+        if (!faixas.length) { notify(t('Inclua ao menos uma faixa.'), 'warning'); return false; }
+        if (tb.id) await q(S.sb.from('met_tabelas').update(d).eq('id', tb.id)); else await q(S.sb.from('met_tabelas').insert(d));
+        await recarregar(t('Tabela salva'));
       } }] });
   const atualizaEq = () => $$('[data-faixa]', el).forEach(r => {
-    const mi = parseBR($('[data-min]', r).value), mu = (parseBR($('[data-mult]', r).value) || 0) / 100;
-    $('[data-eq]', r).textContent = mi ? `${multTxt(mu)} do prêmio · ${pct(mu / (mi / 100), 2)} do prêmio-base por 1% de meta` : '';
+    const mi = parseNum($('[data-min]', r).value), mu = (parseNum($('[data-mult]', r).value) || 0) / 100;
+    $('[data-eq]', r).textContent = mi ? t('paga {m} do prêmio-base', { m: multTxt(mu) }) : '';
   });
   const liga = () => { $$('[data-rm]', el).forEach(b => b.onclick = () => { b.closest('[data-faixa]').remove(); }); $$('input', $('#t-faixas', el)).forEach(i => i.oninput = atualizaEq); atualizaEq(); };
   $('#t-add', el).onclick = () => { $('#t-faixas', el).insertAdjacentHTML('beforeend', linhaFaixa({ min: 110, mult: 2 })); liga(); };
@@ -721,193 +1038,279 @@ function formTabela(t) {
 
 /* ---------------------------- Módulos de metas ---------------------------- */
 function aModulos() {
-  $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">Módulos de metas</div>
-    <div class="fi-card__note">Cada módulo tem ano, tabela de premiação e os vendedores atrelados com meta e prêmio-base de cada mês. “Liberado” = os vendedores veem o próprio painel.</div></div>
-    <button class="fi-btn fi-btn--primary" id="bt-novo">Novo módulo</button></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>Módulo</th><th class="mt-num">Ano</th><th>Tabela</th><th>Região</th>
-      <th class="mt-num">Vendedores</th><th class="mt-num">Meta anual</th><th class="mt-num">Prêmio-base anual</th><th class="mt-num">Comissão equiv. (100%)</th><th>Fechado até</th><th>Visualização</th><th></th></tr></thead><tbody>
+  $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Módulos de metas')}</div>
+    <div class="fi-card__note">${t('Cada módulo tem ano, tabela de premiação e os vendedores atrelados com meta e prêmio-base de cada mês. “Liberado” = os vendedores veem o próprio painel.')}</div></div>
+    <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Novo módulo')}</button></div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Módulo')}</th><th class="mt-num">${t('Ano')}</th><th>${t('Tabela')}</th><th>${t('Região')}</th>
+      <th class="mt-num">${t('Vendedores')}</th><th class="mt-num">${t('Meta anual')}</th><th class="mt-num">${t('Prêmio-base anual')}</th><th class="mt-num">${t('Comissão equiv. (100%)')}</th><th>${t('Fechado até {m}', { m: '' }).trim()}</th><th>${t('Visualização')}</th><th></th></tr></thead><tbody>
     ${S.modulos.map(m => {
-      const v = vincDe(m.id), meta = sum(v.map(x => sum(x.metas))), pr = sum(v.map(x => sum(x.premios))), uf = ultimoFechado(m.id);
-      return `<tr><td class="mt-strong">${esc(m.nome)}${m.ativo ? '' : ' <span class="fi-badge fi-badge--warning">Inativo</span>'}</td><td class="mt-num">${m.ano}</td>
-      <td>${esc((byId(S.tabelas, m.tabela_id) || {}).nome || '—')}</td><td>${esc((byId(S.regioes, m.regiao_id) || {}).nome || 'Todas')}</td>
-      <td class="mt-num">${v.length}</td><td class="mt-num">${brl0(meta)}</td><td class="mt-num">${brl0(pr)}</td><td class="mt-num">${pct(meta ? pr / meta : null, 2)}</td>
-      <td>${uf ? MESES[uf - 1] : '—'}</td>
-      <td><label class="mt-check"><input type="checkbox" data-vis="${m.id}" ${m.visivel ? 'checked' : ''}> ${m.visivel ? 'Liberado' : 'Oculto'}</label></td>
-      <td class="mt-num" style="white-space:nowrap"><button class="fi-btn" data-vend="${m.id}">Vendedores e metas</button> <button class="fi-btn" data-ed="${m.id}">Editar</button></td></tr>`; }).join('') ||
-      '<tr><td colspan="11"><div class="fi-empty">Nenhum módulo criado.</div></td></tr>'}
+      const v = vincDe(m.id);
+      const metasAno = v.map(x => somaMetas(x.metas, 1, 12));
+      const meta = v.length && metasAno.every(z => z != null) ? sum(metasAno) : null;
+      const pr = sum(v.map(x => sum(x.premios))), uf = ultimoFechado(m.id);
+      return `<tr><td class="mt-strong">${esc(m.nome)}${m.ativo ? '' : ` <span class="fi-badge fi-badge--warning">${t('Inativo')}</span>`}</td><td class="mt-num">${m.ano}</td>
+      <td>${esc((byId(S.tabelas, m.tabela_id) || {}).nome || '—')}</td><td>${esc((byId(S.regioes, m.regiao_id) || {}).nome || t('Todas'))}</td>
+      <td class="mt-num">${v.length}</td><td class="mt-num">${meta == null ? WAIT() : brl0(meta)}</td><td class="mt-num">${brl0(pr)}</td><td class="mt-num">${pct(meta ? pr / meta : null, 2)}</td>
+      <td>${uf ? MES(uf - 1) : '—'}</td>
+      <td><label class="mt-check"><input type="checkbox" data-vis="${m.id}" ${m.visivel ? 'checked' : ''}> ${m.visivel ? t('Liberado') : t('Oculto')}</label></td>
+      <td class="mt-num" style="white-space:nowrap"><button class="fi-btn" data-metas="${m.id}">${t('Metas mensais')}</button> <button class="fi-btn" data-vend="${m.id}">${t('Vendedores e metas')}</button> <button class="fi-btn" data-ed="${m.id}">${t('Editar')}</button></td></tr>`; }).join('') ||
+      `<tr><td colspan="11"><div class="fi-empty">${t('Nenhum módulo criado.')}</div></td></tr>`}
     </tbody></table></div></section>`;
   $('#bt-novo').onclick = () => formModulo();
   $$('[data-ed]').forEach(b => b.onclick = () => formModulo(byId(S.modulos, b.dataset.ed)));
   $$('[data-vend]').forEach(b => b.onclick = () => editorVinculos(byId(S.modulos, b.dataset.vend)));
+  $$('[data-metas]').forEach(b => b.onclick = () => { S.metaModulo = b.dataset.metas; location.hash = '#/adm/metas'; });
   $$('[data-vis]').forEach(c => c.onchange = async () => {
-    try { await q(S.sb.from('met_modulos').update({ visivel: c.checked }).eq('id', c.dataset.vis)); await recarregar(c.checked ? 'Visualização liberada aos vendedores' : 'Módulo ocultado dos vendedores'); }
+    try { await q(S.sb.from('met_modulos').update({ visivel: c.checked }).eq('id', c.dataset.vis)); await recarregar(c.checked ? t('Visualização liberada aos vendedores') : t('Módulo ocultado dos vendedores')); }
     catch (e) { notify(erroMsg(e), 'danger'); c.checked = !c.checked; }
   });
 }
 function formModulo(m) {
-  if (!S.tabelas.length) { notify('Cadastre antes uma tabela de premiação.', 'warning'); return; }
+  if (!S.tabelas.length) { notify(t('Cadastre antes uma tabela de premiação.'), 'warning'); return; }
   m = m || { nome: '', ano: HOJE.getFullYear(), tabela_id: S.tabelas[0].id, regiao_id: null, descricao: '', visivel: false, ativo: true };
-  modal({ titulo: m.id ? 'Editar módulo de metas' : 'Novo módulo de metas',
+  modal({ titulo: m.id ? t('Editar módulo de metas') : t('Novo módulo de metas'),
     corpo: `<div class="mt-form">
-      <label class="fi-field mt-full"><span class="fi-label">Nome *</span><input class="fi-input" id="m-nome" value="${esc(m.nome)}" placeholder="Ex.: Metas de Faturamento ${HOJE.getFullYear()}"></label>
-      <label class="fi-field"><span class="fi-label">Ano *</span><input class="fi-input" id="m-ano" type="number" min="2020" max="2100" value="${m.ano}"></label>
-      <label class="fi-field"><span class="fi-label">Tabela de premiação *</span><select class="fi-select" id="m-tab">
-        ${S.tabelas.map(t => `<option value="${t.id}" ${t.id === m.tabela_id ? 'selected' : ''}>${esc(t.nome)}</option>`).join('')}</select></label>
-      <label class="fi-field"><span class="fi-label">Região (opcional)</span><select class="fi-select" id="m-reg"><option value="">Todas</option>
+      <label class="fi-field mt-full"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="m-nome" value="${esc(m.nome)}" placeholder="${esc(t('Ex.: Metas de Faturamento {a}', { a: HOJE.getFullYear() }))}"></label>
+      <label class="fi-field"><span class="fi-label">${t('Ano *')}</span><input class="fi-input" id="m-ano" type="number" min="2020" max="2100" value="${m.ano}"></label>
+      <label class="fi-field"><span class="fi-label">${t('Tabela de premiação *')}</span><select class="fi-select" id="m-tab">
+        ${S.tabelas.map(tb => `<option value="${tb.id}" ${tb.id === m.tabela_id ? 'selected' : ''}>${esc(tb.nome)}</option>`).join('')}</select></label>
+      <label class="fi-field"><span class="fi-label">${t('Região (opcional)')}</span><select class="fi-select" id="m-reg"><option value="">${t('Todas')}</option>
         ${S.regioes.map(r => `<option value="${r.id}" ${r.id === m.regiao_id ? 'selected' : ''}>${esc(r.nome)}</option>`).join('')}</select></label>
       <div style="display:grid;gap:8px;align-content:end">
-        <label class="mt-check"><input type="checkbox" id="m-vis" ${m.visivel ? 'checked' : ''}> Liberar visualização aos vendedores</label>
-        <label class="mt-check"><input type="checkbox" id="m-ativo" ${m.ativo ? 'checked' : ''}> Ativo</label></div>
-      <label class="fi-field mt-full"><span class="fi-label">Descrição</span><textarea class="fi-textarea" id="m-desc" placeholder="Ex.: base = faturamento líquido de devoluções">${esc(m.descricao || '')}</textarea></label></div>`,
+        <label class="mt-check"><input type="checkbox" id="m-vis" ${m.visivel ? 'checked' : ''}> ${t('Liberar visualização aos vendedores')}</label>
+        <label class="mt-check"><input type="checkbox" id="m-ativo" ${m.ativo ? 'checked' : ''}> ${t('Ativo')}</label></div>
+      <label class="fi-field mt-full"><span class="fi-label">${t('Descrição')}</span><textarea class="fi-textarea" id="m-desc" placeholder="${t('Ex.: base = faturamento líquido de devoluções')}">${esc(m.descricao || '')}</textarea></label></div>`,
     botoes: [
-      ...(m.id ? [{ texto: 'Excluir', perigo: true, esquerda: true, acao: async () => {
-        if (!await confirmar({ title: 'Excluir módulo', message: 'Apaga o módulo com todas as metas, lançamentos e fechamentos. Não pode ser desfeito.', confirmText: 'Excluir', danger: true })) return false;
-        await q(S.sb.from('met_modulos').delete().eq('id', m.id)); await recarregar('Módulo excluído'); } }] : []),
-      { texto: 'Cancelar' },
-      { texto: 'Salvar', primario: true, acao: async () => {
+      ...(m.id ? [{ texto: t('Excluir'), perigo: true, esquerda: true, acao: async () => {
+        if (!await confirmar({ title: t('Excluir módulo'), message: t('Apaga o módulo com todas as metas, lançamentos e fechamentos. Não pode ser desfeito.'), confirmText: t('Excluir'), danger: true })) return false;
+        await q(S.sb.from('met_modulos').delete().eq('id', m.id)); await recarregar(t('Módulo excluído')); } }] : []),
+      { texto: t('Cancelar') },
+      { texto: t('Salvar'), primario: true, acao: async () => {
         const d = { nome: $('#m-nome').value.trim(), ano: Number($('#m-ano').value), tabela_id: $('#m-tab').value, regiao_id: $('#m-reg').value || null,
                     descricao: $('#m-desc').value.trim() || null, visivel: $('#m-vis').checked, ativo: $('#m-ativo').checked };
-        if (!d.nome) { notify('Informe o nome do módulo.', 'warning'); return false; }
-        if (!(d.ano >= 2020 && d.ano <= 2100)) { notify('Ano inválido.', 'warning'); return false; }
-        if (m.id) { await q(S.sb.from('met_modulos').update(d).eq('id', m.id)); await recarregar('Módulo salvo'); }
+        if (!d.nome) { notify(t('Informe o nome do módulo.'), 'warning'); return false; }
+        if (!(d.ano >= 2020 && d.ano <= 2100)) { notify(t('Ano inválido.'), 'warning'); return false; }
+        if (m.id) { await q(S.sb.from('met_modulos').update(d).eq('id', m.id)); await recarregar(t('Módulo salvo')); }
         else {
           const novo = await q(S.sb.from('met_modulos').insert(d).select());
-          await recarregar('Módulo criado — agora atrele os vendedores');
+          await recarregar(t('Módulo criado — agora atrele os vendedores'));
           if (novo && novo[0]) editorVinculos(byId(S.modulos, novo[0].id));
         }
       } }] });
 }
 
-/* Vendedores atrelados ao módulo: meta e prêmio-base por mês */
 function editorVinculos(m) {
-  const t = byId(S.tabelas, m.tabela_id);
-  const fech = fechadosDe(m.id);
-  const atuais = vincDe(m.id);
+  const tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), atuais = vincDe(m.id);
   const candidatos = S.vendedores.filter(v => v.ativo && !atuais.some(x => x.vendedor_id === v.id) && (!m.regiao_id || v.regiao_id === m.regiao_id));
   const outros = S.vendedores.filter(v => v.ativo && !atuais.some(x => x.vendedor_id === v.id) && m.regiao_id && v.regiao_id !== m.regiao_id);
   const linha = x => {
-    const eq100 = comissaoEquiv(t, sum(x.metas), sum(x.premios)).find(e => e.mult === 1);
+    const metaA = somaMetas(x.metas, 1, 12);
+    const eq100 = comissaoEquiv(tb, metaA, sum(x.premios)).find(e => e.mult === 1);
     return `<tr><td class="mt-strong">${esc(x.v.nome)}</td><td>${esc((byId(S.regioes, x.v.regiao_id) || {}).nome || '—')}</td>
-      <td class="mt-num">${brl0(sum(x.metas))}</td><td class="mt-num">${brl0(sum(x.premios))}</td><td class="mt-num">${pct(eq100 ? eq100.pct : null, 2)}</td>
-      <td class="mt-num" style="white-space:nowrap"><button class="fi-btn" data-mm="${x.vendedor_id}">Metas e prêmios</button>
-      <button class="fi-icon-btn" data-rmv="${x.vendedor_id}" title="Remover do módulo">✕</button></td></tr>`;
+      <td class="mt-num">${metaA == null ? WAIT() : brl0(metaA)}</td><td class="mt-num">${brl0(sum(x.premios))}</td><td class="mt-num">${pct(eq100 ? eq100.pct : null, 2)}</td>
+      <td class="mt-num" style="white-space:nowrap"><button class="fi-btn" data-mm="${x.vendedor_id}">${t('Metas e prêmios')}</button>
+      <button class="fi-icon-btn" data-rmv="${x.vendedor_id}" title="${t('Remover do módulo')}">✕</button></td></tr>`;
   };
-  const el = modal({ titulo: 'Vendedores e metas — ' + m.nome + ' (' + m.ano + ')', largura: 900,
-    corpo: `<div class="mt-row"><select class="fi-select" id="vv-add" style="max-width:340px"><option value="">Atrelar vendedor…</option>
+  const el = modal({ titulo: t('Vendedores e metas — {n} ({a})', { n: m.nome, a: m.ano }), largura: 900,
+    corpo: `<div class="mt-row"><select class="fi-select" id="vv-add" style="max-width:340px"><option value="">${t('Atrelar vendedor…')}</option>
         ${candidatos.map(v => `<option value="${v.id}">${esc(v.nome)}</option>`).join('')}
-        ${outros.length ? `<optgroup label="Outras regiões">${outros.map(v => `<option value="${v.id}">${esc(v.nome)}</option>`).join('')}</optgroup>` : ''}</select>
-        <button class="fi-btn fi-btn--primary" id="vv-bt">Atrelar</button>
-        ${candidatos.length > 1 ? `<button class="fi-btn" id="vv-todos">Atrelar todos${m.regiao_id ? ' da região' : ''} (${candidatos.length})</button>` : ''}</div>
-      <div class="fi-table-wrap"><table class="fi-table"><thead><tr><th>Vendedor</th><th>Região</th><th class="mt-num">Meta anual</th><th class="mt-num">Prêmio-base anual</th><th class="mt-num">Comissão equiv. 100%</th><th></th></tr></thead>
-      <tbody>${atuais.map(linha).join('') || '<tr><td colspan="6"><div class="fi-empty">Nenhum vendedor atrelado.</div></td></tr>'}</tbody></table></div>
-      ${fech.size ? `<div class="fi-alert fi-alert--warning">Meses já fechados (${[...fech].sort((a, b) => a - b).map(i => MESES[i - 1]).join(', ')}) ficam travados na edição de metas.</div>` : ''}`,
-    botoes: [{ texto: 'Concluir', primario: true }] });
+        ${outros.length ? `<optgroup label="${t('Outras regiões')}">${outros.map(v => `<option value="${v.id}">${esc(v.nome)}</option>`).join('')}</optgroup>` : ''}</select>
+        <button class="fi-btn fi-btn--primary" id="vv-bt">${t('Atrelar')}</button>
+        ${candidatos.length > 1 ? `<button class="fi-btn" id="vv-todos">${t(m.regiao_id ? 'Atrelar todos da região ({n})' : 'Atrelar todos ({n})', { n: candidatos.length })}</button>` : ''}</div>
+      <div class="fi-table-wrap"><table class="fi-table"><thead><tr><th>${t('Vendedor')}</th><th>${t('Região')}</th><th class="mt-num">${t('Meta anual')}</th><th class="mt-num">${t('Prêmio-base anual')}</th><th class="mt-num">${t('Comissão equiv. 100%')}</th><th></th></tr></thead>
+      <tbody>${atuais.map(linha).join('') || `<tr><td colspan="6"><div class="fi-empty">${t('Nenhum vendedor atrelado.')}</div></td></tr>`}</tbody></table></div>
+      ${fech.size ? `<div class="fi-alert fi-alert--warning">${t('Meses já fechados ({m}) ficam travados na edição de metas.', { m: [...fech].sort((a, b) => a - b).map(i => MES(i - 1)).join(', ') })}</div>` : ''}`,
+    botoes: [{ texto: t('Concluir'), primario: true }] });
   const vincular = async ids => {
     await q(S.sb.from('met_modulo_vendedores').insert(ids.map(id => ({ modulo_id: m.id, vendedor_id: id }))));
     await carregar(); el.remove(); editorVinculos(byId(S.modulos, m.id));
-    notify(ids.length > 1 ? ids.length + ' vendedores atrelados' : 'Vendedor atrelado — defina metas e prêmios', 'success');
+    notify(ids.length > 1 ? t('{n} vendedores atrelados', { n: ids.length }) : t('Vendedor atrelado — defina metas e prêmios'), 'success');
   };
   $('#vv-bt', el).onclick = async () => { const id = $('#vv-add', el).value; if (!id) return; try { await vincular([id]); } catch (e) { notify(erroMsg(e), 'danger'); } };
   const bt = $('#vv-todos', el); if (bt) bt.onclick = async () => { try { await vincular(candidatos.map(v => v.id)); } catch (e) { notify(erroMsg(e), 'danger'); } };
   $$('[data-mm]', el).forEach(b => b.onclick = () => editorMetas(m, atuais.find(x => x.vendedor_id === b.dataset.mm), el));
   $$('[data-rmv]', el).forEach(b => b.onclick = async () => {
     const x = atuais.find(z => z.vendedor_id === b.dataset.rmv);
-    if (!await confirmar({ title: 'Remover vendedor do módulo', message: `Remove ${x.v.nome} deste módulo, com as metas dele. Lançamentos e fechamentos já gravados permanecem no banco.`, confirmText: 'Remover', danger: true })) return;
+    if (!await confirmar({ title: t('Remover vendedor do módulo'), message: t('Remove {n} deste módulo, com as metas dele. Lançamentos e fechamentos já gravados permanecem no banco.', { n: x.v.nome }), confirmText: t('Remover'), danger: true })) return;
     try { await q(S.sb.from('met_modulo_vendedores').delete().eq('modulo_id', m.id).eq('vendedor_id', x.vendedor_id)); await carregar(); el.remove(); editorVinculos(byId(S.modulos, m.id)); rota(); }
     catch (e) { notify(erroMsg(e), 'danger'); }
   });
 }
 function editorMetas(m, x, pai) {
-  const t = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id);
-  const el = modal({ titulo: `Metas e prêmios — ${x.v.nome} · ${m.ano}`, largura: 860,
-    corpo: `<div class="mt-row">
-        <label class="fi-field" style="min-width:170px"><span class="fi-label">Meta para todos os meses</span><input class="fi-input" id="em-meta" placeholder="R$"></label>
-        <label class="fi-field" style="min-width:170px"><span class="fi-label">Prêmio-base para todos</span><input class="fi-input" id="em-pr" placeholder="R$"></label>
-        <button class="fi-btn" id="em-apl" style="align-self:end">Aplicar aos meses abertos</button>
-        <label class="fi-field" style="min-width:150px"><span class="fi-label">ou prêmio = % da meta</span><input class="fi-input" id="em-pct" placeholder="ex.: 1"></label>
-        <button class="fi-btn" id="em-aplp" style="align-self:end">Calcular prêmios</button></div>
-      <div class="fi-table-wrap"><table class="fi-table"><thead><tr><th>Mês</th><th class="mt-num">Meta (R$)</th><th class="mt-num">Prêmio-base (R$)</th>
-        ${faixasOrd(t).map(f => `<th class="mt-num">Comissão ${num(f.min, 0)}%</th>`).join('')}</tr></thead><tbody>
-        ${MESES.map((n, i) => `<tr><td>${n}${fech.has(i + 1) ? ' 🔒' : ''}</td>
-          <td class="mt-tight"><input class="mt-in" data-meta="${i}" value="${num(x.metas[i])}" ${fech.has(i + 1) ? 'disabled' : ''}></td>
-          <td class="mt-tight"><input class="mt-in" data-pr="${i}" value="${num(x.premios[i])}" ${fech.has(i + 1) ? 'disabled' : ''}></td>
-          ${faixasOrd(t).map((f, k) => `<td class="mt-num" data-eq="${i}-${k}"></td>`).join('')}</tr>`).join('')}
-        </tbody><tfoot><tr><td>Ano</td><td class="mt-num" id="em-tm"></td><td class="mt-num" id="em-tp"></td>${faixasOrd(t).map((f, k) => `<td class="mt-num" id="em-te-${k}"></td>`).join('')}</tr></tfoot></table></div>
-      <div class="mt-help">Comissão equivalente = prêmio pago na faixa ÷ venda necessária para atingir a faixa. Use para comparar a premiação com a política de comissão.</div>`,
-    botoes: [{ texto: 'Cancelar' }, { texto: 'Salvar', primario: true, acao: async () => {
-      const metas = MESES.map((_, i) => parseBR($(`[data-meta="${i}"]`, el).value) || 0);
-      const premios = MESES.map((_, i) => parseBR($(`[data-pr="${i}"]`, el).value) || 0);
+  const tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), fx = faixasOrd(tb);
+  const fmtIn = v => v == null ? '' : num(v);
+  let corpoLinhas = '';
+  for (let i = 0; i < 12; i++) {
+    corpoLinhas += `<tr><td>${MES(i)}${fech.has(i + 1) ? ' 🔒' : ''}</td>
+      <td class="mt-tight"><input class="mt-in" data-meta="${i}" value="${fmtIn(x.metas[i])}" ${fech.has(i + 1) ? 'disabled' : ''}></td>
+      <td class="mt-tight"><input class="mt-in" data-pr="${i}" value="${num(x.premios[i])}" ${fech.has(i + 1) ? 'disabled' : ''}></td>
+      ${fx.map((f, k) => `<td class="mt-num" data-eq="${i}-${k}"></td>`).join('')}</tr>`;
+    if ((i + 1) % 3 === 0) corpoLinhas += `<tr class="mt-sub"><td>${t('{q}º tri', { q: (i + 1) / 3 })}</td><td class="mt-num" data-qm="${(i + 1) / 3}"></td><td class="mt-num" data-qp="${(i + 1) / 3}"></td><td colspan="${fx.length}"></td></tr>`;
+  }
+  const el = modal({ titulo: t('Metas e prêmios — {n} · {a}', { n: x.v.nome, a: m.ano }), largura: 860,
+    corpo: `<div class="mt-help">${t('Meta em branco = ainda não lançada. Trimestre e ano são somados automaticamente quando todos os meses do período têm meta.')}</div>
+      <div class="mt-row">
+        <label class="fi-field" style="min-width:170px"><span class="fi-label">${t('Meta para todos os meses')}</span><input class="fi-input" id="em-meta" placeholder="R$"></label>
+        <label class="fi-field" style="min-width:170px"><span class="fi-label">${t('Prêmio-base para todos')}</span><input class="fi-input" id="em-pr" placeholder="R$"></label>
+        <button class="fi-btn" id="em-apl" style="align-self:end">${t('Aplicar aos meses abertos')}</button>
+        <label class="fi-field" style="min-width:150px"><span class="fi-label">${t('ou prêmio = % da meta')}</span><input class="fi-input" id="em-pct" placeholder="${t('ex.: 1')}"></label>
+        <button class="fi-btn" id="em-aplp" style="align-self:end">${t('Calcular prêmios')}</button></div>
+      <div class="fi-table-wrap"><table class="fi-table"><thead><tr><th>${t('Mês')}</th><th class="mt-num">${t('Meta (R$)')}</th><th class="mt-num">${t('Prêmio-base (R$)')}</th>
+        ${fx.map(f => `<th class="mt-num">${t('Comissão {p}', { p: num(f.min, 0) + '%' })}</th>`).join('')}</tr></thead><tbody>${corpoLinhas}</tbody>
+        <tfoot><tr><td>${t('Ano')}</td><td class="mt-num" id="em-tm"></td><td class="mt-num" id="em-tp"></td>${fx.map((f, k) => `<td class="mt-num" id="em-te-${k}"></td>`).join('')}</tr></tfoot></table></div>
+      <div class="mt-help">${t('Comissão equivalente = prêmio pago na faixa ÷ venda necessária para atingir a faixa. Use para comparar a premiação com a política de comissão.')}</div>`,
+    botoes: [{ texto: t('Cancelar') }, { texto: t('Salvar'), primario: true, acao: async () => {
+      const { metas, premios } = ler();
       await q(S.sb.from('met_modulo_vendedores').update({ metas, premios }).eq('modulo_id', m.id).eq('vendedor_id', x.vendedor_id));
-      await carregar(); if (pai) { pai.remove(); editorVinculos(byId(S.modulos, m.id)); } rota(); notify('Metas salvas', 'success');
+      await carregar(); if (pai) { pai.remove(); editorVinculos(byId(S.modulos, m.id)); } rota(); notify(t('Metas salvas'), 'success');
     } }] });
+  const ler = () => ({
+    metas: Array.from({ length: 12 }, (_, i) => parseNum($(`[data-meta="${i}"]`, el).value)),
+    premios: Array.from({ length: 12 }, (_, i) => parseNum($(`[data-pr="${i}"]`, el).value) || 0)
+  });
   const recalc = () => {
-    const metas = MESES.map((_, i) => parseBR($(`[data-meta="${i}"]`, el).value) || 0);
-    const prs = MESES.map((_, i) => parseBR($(`[data-pr="${i}"]`, el).value) || 0);
-    MESES.forEach((_, i) => comissaoEquiv(t, metas[i], prs[i]).forEach((e, k) => { $(`[data-eq="${i}-${k}"]`, el).textContent = pct(e.pct, 2); }));
-    $('#em-tm', el).textContent = brl(sum(metas)); $('#em-tp', el).textContent = brl(sum(prs));
-    comissaoEquiv(t, sum(metas), sum(prs)).forEach((e, k) => { $('#em-te-' + k, el).textContent = pct(e.pct, 2); });
+    const { metas, premios } = ler();
+    for (let i = 0; i < 12; i++) comissaoEquiv(tb, metas[i], premios[i]).forEach((e, k) => { $(`[data-eq="${i}-${k}"]`, el).textContent = pct(e.pct, 2); });
+    for (let qd = 1; qd <= 4; qd++) {
+      const mq = somaMetas(metas, qd * 3 - 2, qd * 3);
+      $(`[data-qm="${qd}"]`, el).innerHTML = brlOuWait(mq);
+      $(`[data-qp="${qd}"]`, el).textContent = brl(sum(premios.slice(qd * 3 - 3, qd * 3)));
+    }
+    const ma = somaMetas(metas, 1, 12);
+    $('#em-tm', el).innerHTML = brlOuWait(ma); $('#em-tp', el).textContent = brl(sum(premios));
+    comissaoEquiv(tb, ma, sum(premios)).forEach((e, k) => { $('#em-te-' + k, el).textContent = pct(e.pct, 2); });
   };
-  $$('.mt-in', el).forEach(i => { i.addEventListener('input', recalc); i.addEventListener('blur', () => { const v = parseBR(i.value); if (v != null) i.value = num(v); }); });
+  $$('.mt-in', el).forEach(i => { i.addEventListener('input', recalc); i.addEventListener('blur', () => { const v = parseNum(i.value); if (v != null) i.value = num(v); }); });
   $('#em-apl', el).onclick = () => {
-    const vm = parseBR($('#em-meta', el).value), vp = parseBR($('#em-pr', el).value);
-    MESES.forEach((_, i) => { if (fech.has(i + 1)) return;
+    const vm = parseNum($('#em-meta', el).value), vp = parseNum($('#em-pr', el).value);
+    for (let i = 0; i < 12; i++) { if (fech.has(i + 1)) continue;
       if (vm != null) $(`[data-meta="${i}"]`, el).value = num(vm);
-      if (vp != null) $(`[data-pr="${i}"]`, el).value = num(vp); });
+      if (vp != null) $(`[data-pr="${i}"]`, el).value = num(vp); }
     recalc();
   };
   $('#em-aplp', el).onclick = () => {
-    const p = parseBR($('#em-pct', el).value); if (p == null) return;
-    MESES.forEach((_, i) => { if (fech.has(i + 1)) return;
-      const mt = parseBR($(`[data-meta="${i}"]`, el).value) || 0; $(`[data-pr="${i}"]`, el).value = num(mt * p / 100); });
+    const p = parseNum($('#em-pct', el).value); if (p == null) return;
+    for (let i = 0; i < 12; i++) { if (fech.has(i + 1)) continue;
+      const mt = parseNum($(`[data-meta="${i}"]`, el).value); if (mt != null) $(`[data-pr="${i}"]`, el).value = num(mt * p / 100); }
     recalc();
   };
   recalc();
 }
 
-/* ------------------------------ Lançamentos ------------------------------ */
+/* ------------------------------ Metas mensais (grade) ------------------------------ */
 function seletorModulo(atual, idSel) {
-  return `<select class="fi-select" id="${idSel}">${S.modulos.map(m => `<option value="${m.id}" ${m.id === atual ? 'selected' : ''}>${esc(m.nome)} · ${m.ano}</option>`).join('')}</select>`;
+  return `<select class="fi-select" id="${idSel}" style="max-width:340px">${S.modulos.map(m => `<option value="${m.id}" ${m.id === atual ? 'selected' : ''}>${esc(m.nome)} · ${m.ano}</option>`).join('')}</select>`;
 }
+const COLS = [1, 2, 3, 'T1', 4, 5, 6, 'T2', 7, 8, 9, 'T3', 10, 11, 12, 'T4', 'A'];
+function aMetas() {
+  if (!S.modulos.length) { $('#adm-body').innerHTML = `<div class="fi-card"><div class="fi-empty">${t('Crie um módulo de metas primeiro.')}</div></div>`; return; }
+  if (!byId(S.modulos, S.metaModulo)) S.metaModulo = S.modulos[0].id;
+  const m = byId(S.modulos, S.metaModulo), fech = fechadosDe(m.id), vinc = vincDe(m.id), campo = S.metaCampo;
+  const head = COLS.map(c => typeof c === 'number' ? `<th class="mt-num">${MES(c - 1)}${fech.has(c) ? ' 🔒' : ''}</th>`
+    : `<th class="mt-num mt-qcol">${c === 'A' ? t('Ano') : t('{q}º tri', { q: c.slice(1) })}</th>`).join('');
+  let html = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Metas mensais')}</div>
+      <div class="fi-card__note">${t('Lance a meta de cada mês por vendedor. Trimestres e ano são calculados sozinhos com os meses já lançados; enquanto faltar algum mês, aparece “Aguardando dados”.')}</div></div>
+      <div class="mt-row">${seletorModulo(m.id, 'mm-mod')}
+        <div class="mt-tabs" style="margin:0"><button class="mt-tab" data-campo="metas" aria-selected="${campo === 'metas'}">${t('Meta')}</button><button class="mt-tab" data-campo="premios" aria-selected="${campo === 'premios'}">${t('Prêmio-base')}</button></div>
+        <button class="fi-btn fi-btn--primary" id="mm-salvar" disabled>${t('Salvar alterações')}</button></div></div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-metas"><thead><tr><th>${t('Vendedor')}</th>${head}</tr></thead><tbody>`;
+  if (!vinc.length) html += `<tr><td colspan="${COLS.length + 1}"><div class="fi-empty">${t('Nenhum vendedor atrelado a este módulo.')}</div></td></tr>`;
+  vinc.forEach(x => {
+    const arr = campo === 'metas' ? x.metas : x.premios.map(Number);
+    html += `<tr data-row="${x.vendedor_id}"><td class="mt-strong">${esc(x.v.nome)}</td>${COLS.map(c => typeof c === 'number'
+      ? `<td class="mt-tight"><input class="mt-in" data-v="${x.vendedor_id}" data-m="${c}" value="${arr[c - 1] == null ? '' : num(arr[c - 1])}" data-orig="${arr[c - 1] == null ? '' : arr[c - 1]}" ${fech.has(c) ? 'disabled' : ''}></td>`
+      : `<td class="mt-num mt-qcol" data-calc="${x.vendedor_id}|${c}"></td>`).join('')}</tr>`;
+  });
+  html += `</tbody>${vinc.length ? `<tfoot><tr><td>${t('Total da equipe')}</td>${COLS.map(c => `<td class="mt-num ${typeof c === 'number' ? '' : 'mt-qcol'}" data-tot="${c}"></td>`).join('')}</tr></tfoot>` : ''}</table></div>
+    <div class="fi-card__foot">${t('Meta em branco = ainda não lançada. Trimestre e ano são somados automaticamente quando todos os meses do período têm meta.')}</div></section>`;
+  $('#adm-body').innerHTML = html;
+
+  const sujos = new Map(), btS = $('#mm-salvar');
+  const valoresDe = vid => Array.from({ length: 12 }, (_, i) => { const inp = $(`#tb-metas .mt-in[data-v="${vid}"][data-m="${i + 1}"]`); return parseNum(inp.value); });
+  const somaPer = (arr, de, ate) => campo === 'metas' ? somaMetas(arr, de, ate) : sum(arr.slice(de - 1, ate));
+  const per = c => c === 'A' ? [1, 12] : [Number(c.slice(1)) * 3 - 2, Number(c.slice(1)) * 3];
+  const recalc = () => {
+    const todos = vinc.map(x => valoresDe(x.vendedor_id));
+    vinc.forEach((x, k) => COLS.filter(c => typeof c !== 'number').forEach(c => {
+      const [a, b] = per(c); $(`[data-calc="${x.vendedor_id}|${c}"]`).innerHTML = brlOuWait(somaPer(todos[k], a, b));
+    }));
+    COLS.forEach(c => {
+      const cel = $(`[data-tot="${c}"]`); if (!cel) return;
+      const [a, b] = typeof c === 'number' ? [c, c] : per(c);
+      const vals = todos.map(arr => somaPer(arr, a, b));
+      cel.innerHTML = brlOuWait(vals.some(v => v == null) ? null : sum(vals));
+    });
+  };
+  $$('#tb-metas .mt-in').forEach(i => {
+    i.addEventListener('input', () => {
+      const v = i.value.trim() === '' ? null : parseNum(i.value);
+      const k = i.dataset.v + '|' + i.dataset.m, o = i.dataset.orig === '' ? null : Number(i.dataset.orig);
+      if (v === o) { sujos.delete(k); i.classList.remove('mt-dirty'); } else { sujos.set(k, v); i.classList.add('mt-dirty'); }
+      btS.disabled = !sujos.size; btS.textContent = sujos.size ? t('Salvar alterações ({n})', { n: sujos.size }) : t('Salvar alterações');
+      recalc();
+    });
+    i.addEventListener('blur', () => { const v = parseNum(i.value); if (v != null) i.value = num(v); });
+    i.addEventListener('keydown', e => { if (e.key === 'Enter') { const all = $$('#tb-metas .mt-in:not(:disabled)'); const n = all[all.indexOf(i) + 1]; if (n) n.focus(); } });
+  });
+  const descartaOk = () => !sujos.size || window.confirm(t('Há alterações não salvas. Descartar?'));
+  $('#mm-mod').onchange = e => { if (!descartaOk()) { e.target.value = m.id; return; } S.metaModulo = e.target.value; aMetas(); };
+  $$('[data-campo]').forEach(b => b.onclick = () => { if (b.dataset.campo === campo || !descartaOk()) return; S.metaCampo = b.dataset.campo; aMetas(); });
+  btS.onclick = async () => {
+    btS.disabled = true;
+    try {
+      const porVend = new Map();
+      sujos.forEach((_, k) => porVend.set(k.split('|')[0], true));
+      for (const vid of porVend.keys()) {
+        const x = vinc.find(z => z.vendedor_id === vid);
+        let arr = valoresDe(vid);
+        if (campo === 'premios') arr = arr.map(v => v || 0);
+        await q(S.sb.from('met_modulo_vendedores').update({ [campo]: arr }).eq('modulo_id', m.id).eq('vendedor_id', x.vendedor_id));
+      }
+      await recarregar(t('Metas salvas'));
+    } catch (e) { notify(erroMsg(e), 'danger'); btS.disabled = false; }
+  };
+  recalc();
+}
+
+/* ------------------------------ Lançamentos ------------------------------ */
 function aLancamentos() {
-  if (!S.modulos.length) { $('#adm-body').innerHTML = '<div class="fi-card"><div class="fi-empty">Crie um módulo de metas primeiro.</div></div>'; return; }
+  if (!S.modulos.length) { $('#adm-body').innerHTML = `<div class="fi-card"><div class="fi-empty">${t('Crie um módulo de metas primeiro.')}</div></div>`; return; }
   if (!byId(S.modulos, S.lancModulo)) S.lancModulo = S.modulos[0].id;
   const m = byId(S.modulos, S.lancModulo), fech = fechadosDe(m.id), vinc = vincDe(m.id);
-  let html = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">Realizado por vendedor e mês</div>
-      <div class="fi-card__note">Digite os valores (R$) e salve. Meses fechados 🔒 não podem ser alterados — reabra o mês em Fechamentos se precisar corrigir.</div></div>
+  let html = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Realizado por vendedor e mês')}</div>
+      <div class="fi-card__note">${t('Digite os valores (R$) e salve. Meses fechados 🔒 não podem ser alterados — reabra o mês em Fechamentos se precisar corrigir.')}</div></div>
       <div class="mt-row">${seletorModulo(m.id, 'l-mod')}
-      <button class="fi-btn" id="l-modelo">Modelo Excel</button>
-      <label class="fi-btn" style="cursor:pointer">Importar Excel<input type="file" id="l-file" accept=".xlsx,.xls,.csv" hidden></label>
-      <button class="fi-btn fi-btn--primary" id="l-salvar" disabled>Salvar alterações</button></div></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-lanc"><thead><tr><th>Vendedor</th>
-      ${MESES.map((n, i) => `<th class="mt-num">${n}${fech.has(i + 1) ? ' 🔒' : ''}</th>`).join('')}<th class="mt-num">Total</th></tr></thead><tbody>`;
-  if (!vinc.length) html += `<tr><td colspan="14"><div class="fi-empty">Nenhum vendedor atrelado a este módulo.</div></td></tr>`;
+      <button class="fi-btn" id="l-modelo">${t('Modelo Excel')}</button>
+      <label class="fi-btn" style="cursor:pointer">${t('Importar Excel')}<input type="file" id="l-file" accept=".xlsx,.xls,.csv" hidden></label>
+      <button class="fi-btn fi-btn--primary" id="l-salvar" disabled>${t('Salvar alterações')}</button></div></div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-lanc"><thead><tr><th>${t('Vendedor')}</th>
+      ${Array.from({ length: 12 }, (_, i) => `<th class="mt-num">${MES(i)}${fech.has(i + 1) ? ' 🔒' : ''}</th>`).join('')}<th class="mt-num">${t('Total')}</th></tr></thead><tbody>`;
+  if (!vinc.length) html += `<tr><td colspan="14"><div class="fi-empty">${t('Nenhum vendedor atrelado a este módulo.')}</div></td></tr>`;
   vinc.forEach(x => {
     const r = realDe(m.id, x.vendedor_id);
     html += `<tr><td class="mt-strong">${esc(x.v.nome)}</td>${r.map((v, i) => `<td class="mt-tight"><input class="mt-in" data-v="${x.vendedor_id}" data-m="${i + 1}"
-      value="${v == null ? '' : num(v)}" data-orig="${v == null ? '' : v}" ${fech.has(i + 1) ? 'disabled' : ''} title="Meta ${brl(x.metas[i])}"></td>`).join('')}
+      value="${v == null ? '' : num(v)}" data-orig="${v == null ? '' : v}" ${fech.has(i + 1) ? 'disabled' : ''} title="${t('Meta')} ${x.metas[i] == null ? t('Aguardando dados') : brl(x.metas[i])}"></td>`).join('')}
       <td class="mt-num mt-strong" data-tot="${x.vendedor_id}">${brl(sum(r))}</td></tr>`;
   });
-  html += `</tbody></table></div><div class="fi-card__foot">Importação: colunas <b>email</b> (ou <b>vendedor</b>), <b>mes</b> (1–12, “jan” ou data) e <b>valor</b>. Antes de gravar, o sistema mostra a prévia.</div></section>`;
+  html += `</tbody></table></div><div class="fi-card__foot">${t('Importação: colunas email (ou vendedor), mes (1–12, “jan” ou data) e valor. Antes de gravar, o sistema mostra a prévia.')}</div></section>`;
   $('#adm-body').innerHTML = html;
-  const sujos = new Map();
-  const btS = $('#l-salvar');
+  const sujos = new Map(), btS = $('#l-salvar');
   $$('#tb-lanc .mt-in').forEach(i => {
     i.addEventListener('input', () => {
-      const v = i.value.trim() === '' ? null : parseBR(i.value);
+      const v = i.value.trim() === '' ? null : parseNum(i.value);
       const k = i.dataset.v + '|' + i.dataset.m, o = i.dataset.orig === '' ? null : Number(i.dataset.orig);
       if (v === o) { sujos.delete(k); i.classList.remove('mt-dirty'); } else { sujos.set(k, v); i.classList.add('mt-dirty'); }
-      btS.disabled = !sujos.size; btS.textContent = sujos.size ? `Salvar alterações (${sujos.size})` : 'Salvar alterações';
-      const tot = sum($$(`#tb-lanc .mt-in[data-v="${i.dataset.v}"]`).map(z => parseBR(z.value) || 0));
-      $(`[data-tot="${i.dataset.v}"]`).textContent = brl(tot);
+      btS.disabled = !sujos.size; btS.textContent = sujos.size ? t('Salvar alterações ({n})', { n: sujos.size }) : t('Salvar alterações');
+      $(`[data-tot="${i.dataset.v}"]`).textContent = brl(sum($$(`#tb-lanc .mt-in[data-v="${i.dataset.v}"]`).map(z => parseNum(z.value) || 0)));
     });
-    i.addEventListener('blur', () => { const v = parseBR(i.value); if (v != null) i.value = num(v); });
+    i.addEventListener('blur', () => { const v = parseNum(i.value); if (v != null) i.value = num(v); });
     i.addEventListener('keydown', e => { if (e.key === 'Enter') { const all = $$('#tb-lanc .mt-in:not(:disabled)'); const n = all[all.indexOf(i) + 1]; if (n) n.focus(); } });
   });
-  $('#l-mod').onchange = e => { if (sujos.size && !window.confirm('Há alterações não salvas. Descartar?')) { e.target.value = m.id; return; } S.lancModulo = e.target.value; aLancamentos(); };
+  $('#l-mod').onchange = e => { if (sujos.size && !window.confirm(t('Há alterações não salvas. Descartar?'))) { e.target.value = m.id; return; } S.lancModulo = e.target.value; aLancamentos(); };
   btS.onclick = async () => {
     btS.disabled = true;
     try { await gravarRealizado(m, [...sujos].map(([k, v]) => { const [vid, mes] = k.split('|'); return { vendedor_id: vid, mes: Number(mes), valor: v }; }));
-          await recarregar('Lançamentos salvos'); }
+          await recarregar(t('Lançamentos salvos')); }
     catch (e) { notify(erroMsg(e), 'danger'); btS.disabled = false; }
   };
   $('#l-modelo').onclick = () => modeloExcel(m);
@@ -920,17 +1323,15 @@ async function gravarRealizado(m, itens) {
   if (ups.length) await q(S.sb.from('met_realizado').upsert(ups, { onConflict: 'modulo_id,vendedor_id,mes' }));
   for (const d of dels) await q(S.sb.from('met_realizado').delete().eq('modulo_id', m.id).eq('vendedor_id', d.vendedor_id).eq('mes', d.mes));
 }
+const nomeArq = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w]+/g, '_');
 function modeloExcel(m) {
-  if (!window.XLSX) { notify('Biblioteca de Excel ainda carregando, tente de novo.', 'warning'); return; }
+  if (!window.XLSX) { notify(t('Biblioteca de Excel ainda carregando, tente de novo.'), 'warning'); return; }
   const linhas = [];
-  vincDe(m.id).forEach(x => MESES.forEach((_, i) => {
-    const r = realDe(m.id, x.vendedor_id)[i];
-    linhas.push({ email: x.v.email, vendedor: x.v.nome, mes: i + 1, valor: r == null ? '' : r });
-  }));
+  vincDe(m.id).forEach(x => { const r = realDe(m.id, x.vendedor_id); for (let i = 0; i < 12; i++) linhas.push({ email: x.v.email, vendedor: x.v.nome, mes: i + 1, valor: r[i] == null ? '' : r[i] }); });
   const ws = XLSX.utils.json_to_sheet(linhas.length ? linhas : [{ email: '', vendedor: '', mes: '', valor: '' }]);
   ws['!cols'] = [{ wch: 30 }, { wch: 28 }, { wch: 6 }, { wch: 14 }];
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Realizado');
-  XLSX.writeFile(wb, `realizado_${m.nome.replace(/[^\w]+/g, '_')}_${m.ano}.xlsx`);
+  XLSX.writeFile(wb, `realizado_${nomeArq(m.nome)}_${m.ano}.xlsx`);
 }
 function mesDe(v) {
   if (v == null || v === '') return null;
@@ -941,102 +1342,97 @@ function mesDe(v) {
   let mm = s.match(/^(\d{4})[-/](\d{1,2})/); if (mm) return Number(mm[2]);
   mm = s.match(/^(\d{1,2})[-/](\d{4})$/); if (mm) return Number(mm[1]);
   mm = s.match(/^\d{1,2}\/(\d{1,2})\/\d{2,4}$/); if (mm) return Number(mm[1]);
-  const i = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'].findIndex(p => s.startsWith(p));
+  const pt = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'], en = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  let i = pt.findIndex(p => s.startsWith(p)); if (i < 0) i = en.findIndex(p => s.startsWith(p));
   return i >= 0 ? i + 1 : null;
 }
 async function importarExcel(m, file) {
-  if (!window.XLSX) { notify('Biblioteca de Excel ainda carregando, tente de novo.', 'warning'); return; }
+  if (!window.XLSX) { notify(t('Biblioteca de Excel ainda carregando, tente de novo.'), 'warning'); return; }
   const fech = fechadosDe(m.id), vinc = vincDe(m.id);
   let rows;
   try { const wb = XLSX.read(await file.arrayBuffer(), { cellDates: true }); rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' }); }
-  catch (e) { notify('Não consegui ler a planilha: ' + e.message, 'danger'); return; }
+  catch (e) { notify(t('Não consegui ler a planilha: {e}', { e: e.message }), 'danger'); return; }
   const norm = o => { const r = {}; Object.keys(o).forEach(k => { r[k.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()] = o[k]; }); return r; };
   const ok = [], erros = [], soma = new Map();
   rows.map(norm).forEach((r, idx) => {
     const lin = idx + 2;
-    const em = String(r.email || r['e-mail'] || '').trim().toLowerCase(), nm = String(r.vendedor || r.nome || '').trim().toLowerCase();
-    if (!em && !nm && (r.valor === '' || r.valor == null)) return;
-    const x = vinc.find(z => (em && z.v.email === em)) || vinc.find(z => nm && z.v.nome.toLowerCase() === nm);
-    const mes = mesDe(r.mes != null && r.mes !== '' ? r.mes : (r.data || r.periodo || r.competencia));
-    const valor = r.valor === '' || r.valor == null ? null : parseBR(r.valor);
-    if (!x) return erros.push(`Linha ${lin}: vendedor “${em || nm}” não está neste módulo`);
-    if (!mes) return erros.push(`Linha ${lin}: mês inválido`);
-    if (valor == null) return erros.push(`Linha ${lin}: valor vazio ou inválido`);
-    if (fech.has(mes)) return erros.push(`Linha ${lin}: ${MESES[mes - 1]} já está fechado`);
+    const em = String(r.email || r['e-mail'] || '').trim().toLowerCase(), nm = String(r.vendedor || r.nome || r.rep || '').trim().toLowerCase();
+    const bruto = r.valor !== undefined && r.valor !== '' ? r.valor : r.value;
+    if (!em && !nm && (bruto === '' || bruto == null)) return;
+    const x = vinc.find(z => em && z.v.email === em) || vinc.find(z => nm && z.v.nome.toLowerCase() === nm);
+    const mes = mesDe(r.mes != null && r.mes !== '' ? r.mes : (r.month || r.data || r.periodo || r.competencia));
+    const valor = bruto === '' || bruto == null ? null : (typeof bruto === 'number' ? bruto : parseNum(bruto));
+    if (!x) return erros.push(t('Linha {l}: vendedor “{v}” não está neste módulo', { l: lin, v: em || nm }));
+    if (!mes) return erros.push(t('Linha {l}: mês inválido', { l: lin }));
+    if (valor == null) return erros.push(t('Linha {l}: valor vazio ou inválido', { l: lin }));
+    if (fech.has(mes)) return erros.push(t('Linha {l}: {m} já está fechado', { l: lin, m: MES(mes - 1) }));
     const k = x.vendedor_id + '|' + mes;
-    soma.set(k, (soma.get(k) || 0) + valor);   // várias linhas do mesmo vendedor/mês são somadas
+    soma.set(k, (soma.get(k) || 0) + valor);
   });
   soma.forEach((v, k) => { const [vid, mes] = k.split('|'); ok.push({ vendedor_id: vid, mes: Number(mes), valor: v }); });
   const nomeV = id => (byId(S.vendedores, id) || {}).nome;
-  modal({ titulo: 'Prévia da importação — ' + file.name, largura: 760,
-    corpo: `<div class="mt-small">${ok.length} lançamento(s) válidos${erros.length ? `, <b class="mt-neg">${erros.length} linha(s) ignorada(s)</b>` : ''}. Linhas do mesmo vendedor e mês são somadas. Os valores importados <b>substituem</b> o que estiver lançado.</div>
+  modal({ titulo: t('Prévia da importação — {f}', { f: file.name }), largura: 760,
+    corpo: `<div class="mt-small">${t('{n} lançamento(s) válidos', { n: ok.length })}${erros.length ? `, <b class="mt-neg">${t('{n} linha(s) ignorada(s)', { n: erros.length })}</b>` : ''}. ${t('Linhas do mesmo vendedor e mês são somadas. Os valores importados substituem o que estiver lançado.')}</div>
       ${erros.length ? `<div class="fi-alert fi-alert--warning" style="display:block;max-height:120px;overflow:auto">${erros.slice(0, 50).map(esc).join('<br>')}</div>` : ''}
-      <div class="fi-table-wrap" style="max-height:320px;overflow:auto"><table class="fi-table"><thead><tr><th>Vendedor</th><th>Mês</th><th class="mt-num">Atual</th><th class="mt-num">Importado</th></tr></thead><tbody>
+      <div class="fi-table-wrap" style="max-height:320px;overflow:auto"><table class="fi-table"><thead><tr><th>${t('Vendedor')}</th><th>${t('Mês')}</th><th class="mt-num">${t('Atual')}</th><th class="mt-num">${t('Importado')}</th></tr></thead><tbody>
       ${ok.sort((a, b) => nomeV(a.vendedor_id).localeCompare(nomeV(b.vendedor_id)) || a.mes - b.mes).map(o => {
         const at = realDe(m.id, o.vendedor_id)[o.mes - 1];
-        return `<tr><td>${esc(nomeV(o.vendedor_id))}</td><td>${MESES[o.mes - 1]}</td><td class="mt-num mt-muted">${at == null ? '—' : brl(at)}</td><td class="mt-num mt-strong">${brl(o.valor)}</td></tr>`; }).join('')}
+        return `<tr><td>${esc(nomeV(o.vendedor_id))}</td><td>${MES(o.mes - 1)}</td><td class="mt-num mt-muted">${at == null ? '—' : brl(at)}</td><td class="mt-num mt-strong">${brl(o.valor)}</td></tr>`; }).join('')}
       </tbody></table></div>`,
-    botoes: [{ texto: 'Cancelar' }, ...(ok.length ? [{ texto: `Gravar ${ok.length} lançamento(s)`, primario: true, acao: async () => { await gravarRealizado(m, ok); await recarregar('Importação gravada'); } }] : [])] });
+    botoes: [{ texto: t('Cancelar') }, ...(ok.length ? [{ texto: t('Gravar {n} lançamento(s)', { n: ok.length }), primario: true, acao: async () => { await gravarRealizado(m, ok); await recarregar(t('Importação gravada')); } }] : [])] });
 }
 
 /* ------------------------------ Fechamentos ------------------------------ */
 function aFechamentos() {
-  if (!S.modulos.length) { $('#adm-body').innerHTML = '<div class="fi-card"><div class="fi-empty">Crie um módulo de metas primeiro.</div></div>'; return; }
+  if (!S.modulos.length) { $('#adm-body').innerHTML = `<div class="fi-card"><div class="fi-empty">${t('Crie um módulo de metas primeiro.')}</div></div>`; return; }
   if (!byId(S.modulos, S.fechModulo)) S.fechModulo = S.modulos[0].id;
-  const m = byId(S.modulos, S.fechModulo), t = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), uf = ultimoFechado(m.id);
+  const m = byId(S.modulos, S.fechModulo), tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), uf = ultimoFechado(m.id);
   if (!S.fechMes) S.fechMes = Math.min(12, uf + 1);
-  const mes = S.fechMes, fechado = fech.has(mes);
-  const vinc = vincDe(m.id);
-  const ehTri = mes % 3 === 0;
-
-  // valores: fechado -> snapshot; aberto -> prévia calculada (sem lançamento = 0)
+  const mes = S.fechMes, fechado = fech.has(mes), vinc = vincDe(m.id), ehTri = mes % 3 === 0;
   const linhas = vinc.map(x => {
-    if (fechado) {
-      const f = S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id);
-      return { x, d: f ? f.dados : null, f };
-    }
+    if (fechado) { const f = S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id); return { x, d: f ? f.dados : null, f }; }
     const real = realDe(m.id, x.vendedor_id).map((v, i) => (i + 1 <= mes && v == null ? 0 : v));
-    const c = calcular(t, x.metas, x.premios, real, mes), mm = c.meses[mes - 1];
-    const semLanc = realDe(m.id, x.vendedor_id)[mes - 1] == null;
-    return { x, semLanc, d: snapshot(m, t, x, c, mm) };
+    const c = calcular(tb, x.metas, x.premios, real, mes), mm = c.meses[mes - 1];
+    return { x, semLanc: realDe(m.id, x.vendedor_id)[mes - 1] == null, d: snapshot(m, tb, x, c, mm) };
   });
   const tot = k => sum(linhas.map(l => l.d ? l.d[k] : 0));
   const semLanc = linhas.filter(l => l.semLanc).length;
-  const status = MESES.map((n, i) => `<button class="mt-tab" data-fm="${i + 1}" aria-selected="${i + 1 === mes}">${n}${fech.has(i + 1) ? ' 🔒' : ''}</button>`).join('');
   const fe = linhas.find(l => l.f);
-  let html = `<div class="mt-printhead"><img data-fi-logo style="width:120px"><h2 style="margin:6px 0 0">Fechamento ${MESES_LONGO[mes - 1]}/${m.ano} — ${esc(m.nome)}</h2>
-      <div class="mt-small">Tabela: ${esc(t ? t.nome : '')} · ${fechado && fe ? 'Fechado em ' + new Date(fe.f.fechado_em).toLocaleString('pt-BR') + ' por ' + esc(fe.f.fechado_por || '') : 'PRÉVIA — mês não fechado'}</div></div>
+  const quando = fe ? { d: new Date(fe.f.fechado_em).toLocaleString(LOC()), p: esc(fe.f.fechado_por || '') } : null;
+  const pctOuWait = v => v == null ? WAIT() : pct(v);
+  let html = `<div class="mt-printhead"><img data-fi-logo style="width:120px"><h2 style="margin:6px 0 0">${esc(t('Fechamento {m}/{a} — {n}', { m: MESL(mes - 1), a: m.ano, n: m.nome }))}</h2>
+      <div class="mt-small">${esc(t('Tabela: {n}', { n: tb ? tb.nome : '' }))} · ${fechado && quando ? t('Fechado em {d} por {p}', quando) : t('PRÉVIA — mês não fechado')}</div></div>
     <section class="fi-card mt-noprint"><div class="fi-card__body" style="display:grid;gap:10px">
       <div class="mt-row">${seletorModulo(m.id, 'f-mod')}<span class="mt-sp"></span>
-        <button class="fi-btn" id="f-print">Imprimir / PDF</button><button class="fi-btn" id="f-xls">Exportar Excel</button>
-        ${fechado ? `<button class="fi-btn fi-btn--danger" id="f-reabrir" ${mes !== uf ? 'disabled title="Reabra primeiro os meses posteriores"' : ''}>Reabrir ${MESES[mes - 1]}</button>`
-                  : `<button class="fi-btn fi-btn--primary" id="f-fechar" ${mes !== uf + 1 || !vinc.length ? 'disabled' : ''}>Fechar ${MESES_LONGO[mes - 1]}</button>`}</div>
-      <div class="mt-tabs" style="margin:0">${status}</div>
-      ${!fechado && mes !== uf + 1 ? `<div class="fi-alert fi-alert--info">Os meses são fechados em sequência. Próximo a fechar: <b>${uf < 12 ? MESES_LONGO[uf] : '—'}</b>.</div>` : ''}
-      ${!fechado && semLanc ? `<div class="fi-alert fi-alert--warning">${semLanc} vendedor(es) sem lançamento em ${MESES[mes - 1]} — no fechamento serão considerados R$ 0,00.</div>` : ''}
-      ${ehTri ? `<div class="fi-alert fi-alert--info">Fim do ${mes / 3}º trimestre: este fechamento inclui a recuperação trimestral${mes === 12 ? ' e a recuperação anual' : ''}.</div>` : ''}
+        <button class="fi-btn" id="f-print">${t('Imprimir / PDF')}</button><button class="fi-btn" id="f-xls">${t('Exportar Excel')}</button>
+        ${fechado ? `<button class="fi-btn fi-btn--danger" id="f-reabrir" ${mes !== uf ? `disabled title="${t('Reabra primeiro os meses posteriores')}"` : ''}>${t('Reabrir {m}', { m: MES(mes - 1) })}</button>`
+                  : `<button class="fi-btn fi-btn--primary" id="f-fechar" ${mes !== uf + 1 || !vinc.length ? 'disabled' : ''}>${t('Fechar {m}', { m: MESL(mes - 1) })}</button>`}</div>
+      <div class="mt-tabs" style="margin:0">${Array.from({ length: 12 }, (_, i) => `<button class="mt-tab" data-fm="${i + 1}" aria-selected="${i + 1 === mes}">${MES(i)}${fech.has(i + 1) ? ' 🔒' : ''}</button>`).join('')}</div>
+      ${!fechado && mes !== uf + 1 ? `<div class="fi-alert fi-alert--info">${t('Os meses são fechados em sequência. Próximo a fechar: {m}.', { m: '<b>' + (uf < 12 ? MESL(uf) : '—') + '</b>' })}</div>` : ''}
+      ${!fechado && semLanc ? `<div class="fi-alert fi-alert--warning">${t('{n} vendedor(es) sem lançamento em {m} — no fechamento serão considerados R$ 0,00.', { n: semLanc, m: MES(mes - 1) })}</div>` : ''}
+      ${ehTri ? `<div class="fi-alert fi-alert--info">${t(mes === 12 ? 'Fim do {q}º trimestre: este fechamento inclui a recuperação trimestral e a recuperação anual.' : 'Fim do {q}º trimestre: este fechamento inclui a recuperação trimestral.', { q: mes / 3 })}</div>` : ''}
     </div></section>
-    <section class="fi-card mt-mt"><div class="fi-card__head"><div><div class="fi-card__title">${fechado ? 'Fechamento' : 'Prévia do fechamento'} — ${MESES_LONGO[mes - 1]}/${m.ano}</div>
-      <div class="fi-card__note">${fechado && fe ? 'Fechado em ' + new Date(fe.f.fechado_em).toLocaleString('pt-BR') + ' por ' + esc(fe.f.fechado_por || '') + ' — valores congelados.' : 'Valores calculados com os lançamentos atuais.'}</div></div>
-      ${fechado ? '<span class="fi-badge fi-badge--success">Fechado</span>' : '<span class="fi-badge fi-badge--warning">Aberto</span>'}</div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-fech"><thead><tr><th>Vendedor</th><th class="mt-num">Meta</th><th class="mt-num">Realizado</th><th class="mt-num">Atingido</th>
-      <th>Faixa</th><th class="mt-num">Prêmio-base</th><th class="mt-num">Prêmio mês</th>${ehTri ? '<th class="mt-num">Trim. %</th><th class="mt-num">Rec. trimestre</th>' : ''}
-      ${mes === 12 ? '<th class="mt-num">Ano %</th><th class="mt-num">Rec. ano</th>' : ''}<th class="mt-num">Total a pagar</th><th class="mt-num">Comissão efetiva</th></tr></thead><tbody>
-      ${linhas.map(({ x, d, semLanc: sl }) => !d ? `<tr><td>${esc(x.v.nome)}</td><td colspan="12" class="mt-muted">Sem registro neste fechamento (atrelado depois).</td></tr>` :
-        `<tr><td class="mt-strong">${esc(d.vendedor || x.v.nome)}${sl ? ' <span class="fi-badge fi-badge--warning">sem lançamento</span>' : ''}</td>
-        <td class="mt-num">${brl(d.meta)}</td><td class="mt-num">${brl(d.realizado)}</td><td class="mt-num">${pct(d.atingimento)}</td>
+    <section class="fi-card mt-mt"><div class="fi-card__head"><div><div class="fi-card__title">${fechado ? t('Fechamento') : t('Prévia do fechamento')} — ${MESL(mes - 1)}/${m.ano}</div>
+      <div class="fi-card__note">${fechado && quando ? t('Fechado em {d} por {p} — valores congelados.', quando) : t('Valores calculados com os lançamentos atuais.')}</div></div>
+      ${fechado ? `<span class="fi-badge fi-badge--success">${t('Fechado')}</span>` : `<span class="fi-badge fi-badge--warning">${t('Aberto')}</span>`}</div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-fech"><thead><tr><th>${t('Vendedor')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th><th class="mt-num">${t('Atingido')}</th>
+      <th>${t('Faixa')}</th><th class="mt-num">${t('Prêmio-base')}</th><th class="mt-num">${t('Prêmio mês')}</th>${ehTri ? `<th class="mt-num">${t('Trim. %')}</th><th class="mt-num">${t('Rec. trimestre')}</th>` : ''}
+      ${mes === 12 ? `<th class="mt-num">${t('Ano %')}</th><th class="mt-num">${t('Rec. ano')}</th>` : ''}<th class="mt-num">${t('Total a pagar')}</th><th class="mt-num">${t('Comissão efetiva')}</th></tr></thead><tbody>
+      ${linhas.map(({ x, d, semLanc: sl }) => !d ? `<tr><td>${esc(x.v.nome)}</td><td colspan="12" class="mt-muted">${t('Sem registro neste fechamento (atrelado depois).')}</td></tr>` :
+        `<tr><td class="mt-strong">${esc(d.vendedor || x.v.nome)}${sl ? ` <span class="fi-badge fi-badge--warning">${t('sem lançamento')}</span>` : ''}</td>
+        <td class="mt-num">${brlOuWait(d.meta)}</td><td class="mt-num">${brl(d.realizado)}</td><td class="mt-num">${pct(d.atingimento)}</td>
         <td><span class="mt-pill ${classeMult(d.multiplicador)}">${multTxt(d.multiplicador)}</span></td><td class="mt-num">${brl(d.premio_base)}</td>
         <td class="mt-num">${brl(d.premio_mes)}</td>
-        ${ehTri ? `<td class="mt-num">${pct(d.trimestre_atingimento)}</td><td class="mt-num ${d.recuperacao_tri ? 'mt-pos mt-strong' : ''}">${brl(d.recuperacao_tri)}</td>` : ''}
-        ${mes === 12 ? `<td class="mt-num">${pct(d.ano_atingimento)}</td><td class="mt-num ${d.recuperacao_ano ? 'mt-pos mt-strong' : ''}">${brl(d.recuperacao_ano)}</td>` : ''}
+        ${ehTri ? `<td class="mt-num">${pctOuWait(d.trimestre_atingimento)}</td><td class="mt-num ${d.recuperacao_tri ? 'mt-pos mt-strong' : ''}">${brl(d.recuperacao_tri)}</td>` : ''}
+        ${mes === 12 ? `<td class="mt-num">${pctOuWait(d.ano_atingimento)}</td><td class="mt-num ${d.recuperacao_ano ? 'mt-pos mt-strong' : ''}">${brl(d.recuperacao_ano)}</td>` : ''}
         <td class="mt-num mt-strong">${brl(d.total)}</td><td class="mt-num">${pct(d.realizado ? d.total / d.realizado : null, 2)}</td></tr>`).join('') ||
-        '<tr><td colspan="13"><div class="fi-empty">Nenhum vendedor atrelado.</div></td></tr>'}
-      </tbody>${linhas.length ? `<tfoot><tr><td>Total</td><td class="mt-num">${brl(tot('meta'))}</td><td class="mt-num">${brl(tot('realizado'))}</td>
+        `<tr><td colspan="13"><div class="fi-empty">${t('Nenhum vendedor atrelado.')}</div></td></tr>`}
+      </tbody>${linhas.length ? `<tfoot><tr><td>${t('Total')}</td><td class="mt-num">${linhas.some(l => l.d && l.d.meta == null) ? WAIT() : brl(tot('meta'))}</td><td class="mt-num">${brl(tot('realizado'))}</td>
         <td class="mt-num">${pct(tot('meta') ? tot('realizado') / tot('meta') : null)}</td><td></td><td class="mt-num">${brl(tot('premio_base'))}</td><td class="mt-num">${brl(tot('premio_mes'))}</td>
         ${ehTri ? `<td></td><td class="mt-num">${brl(tot('recuperacao_tri'))}</td>` : ''}${mes === 12 ? `<td></td><td class="mt-num">${brl(tot('recuperacao_ano'))}</td>` : ''}
         <td class="mt-num">${brl(tot('total'))}</td><td class="mt-num">${pct(tot('realizado') ? tot('total') / tot('realizado') : null, 2)}</td></tr></tfoot>` : ''}</table></div>
-    <div class="fi-card__foot">Comissão efetiva = total a pagar ÷ realizado do mês.</div></section>
-    ${regraHtml(t)}`;
+    <div class="fi-card__foot">${t('Comissão efetiva = total a pagar ÷ realizado do mês.')}</div></section>
+    ${regraHtml(tb)}`;
   $('#adm-body').innerHTML = html;
   if (UI()) UI().init($('#adm-body'));
   $('#f-mod').onchange = e => { S.fechModulo = e.target.value; S.fechMes = null; aFechamentos(); };
@@ -1045,62 +1441,63 @@ function aFechamentos() {
   $('#f-xls').onclick = () => exportarFechamento(m, mes, linhas, fechado, ehTri);
   const bf = $('#f-fechar');
   if (bf) bf.onclick = async () => {
-    if (!await confirmar({ title: `Fechar ${MESES_LONGO[mes - 1]}/${m.ano}`, message: `Congela os valores de ${linhas.length} vendedor(es) — total a pagar ${brl(tot('total'))}. Os lançamentos deste mês ficam travados.`, confirmText: 'Fechar mês' })) return;
+    if (!await confirmar({ title: t('Fechar {m}/{a}', { m: MESL(mes - 1), a: m.ano }), message: t('Congela os valores de {n} vendedor(es) — total a pagar {v}. Os lançamentos deste mês ficam travados.', { n: linhas.length, v: brl(tot('total')) }), confirmText: t('Fechar mês') })) return;
     bf.disabled = true;
     try {
       const quem = S.nome || S.email;
       await q(S.sb.from('met_fechamentos').insert(linhas.filter(l => l.d).map(l => ({ modulo_id: m.id, mes, vendedor_id: l.x.vendedor_id, dados: l.d, fechado_por: quem }))));
       S.fechMes = Math.min(12, mes + 1);
-      await recarregar(`${MESES_LONGO[mes - 1]} fechado`);
+      await recarregar(t('{m} fechado', { m: MESL(mes - 1) }));
     } catch (e) { notify(erroMsg(e), 'danger'); bf.disabled = false; }
   };
   const br = $('#f-reabrir');
   if (br) br.onclick = async () => {
-    if (!await confirmar({ title: `Reabrir ${MESES_LONGO[mes - 1]}`, message: 'Apaga o fechamento congelado deste mês e libera os lançamentos para correção.', confirmText: 'Reabrir', danger: true })) return;
-    try { await q(S.sb.from('met_fechamentos').delete().eq('modulo_id', m.id).eq('mes', mes)); await recarregar(`${MESES_LONGO[mes - 1]} reaberto`); }
+    if (!await confirmar({ title: t('Reabrir {m}', { m: MESL(mes - 1) }), message: t('Apaga o fechamento congelado deste mês e libera os lançamentos para correção.'), confirmText: t('Reabrir'), danger: true })) return;
+    try { await q(S.sb.from('met_fechamentos').delete().eq('modulo_id', m.id).eq('mes', mes)); await recarregar(t('{m} reaberto', { m: MESL(mes - 1) })); }
     catch (e) { notify(erroMsg(e), 'danger'); }
   };
 }
-function snapshot(m, t, x, c, mm) {
+function snapshot(m, tb, x, c, mm) {
   const tq = c.tri[Math.ceil(mm.mes / 3) - 1];
   return {
     vendedor: x.v.nome, email: x.v.email, regiao: (byId(S.regioes, x.v.regiao_id) || {}).nome || null,
     meta: mm.meta, realizado: mm.real || 0, atingimento: mm.ating, multiplicador: mm.mult,
     premio_base: mm.base, premio_mes: mm.premio,
-    trimestre_atingimento: mm.mes % 3 === 0 ? tq.atingQ : null, recuperacao_tri: mm.pagoTri,
+    trimestre_meta: mm.mes % 3 === 0 ? tq.metaQ : null, trimestre_faixa: mm.mes % 3 === 0 ? tq.multQ : null, trimestre_atingimento: mm.mes % 3 === 0 ? tq.atingQ : null, recuperacao_tri: mm.pagoTri,
     meses_recuperados_tri: mm.mes % 3 === 0 ? c.meses.slice(mm.mes - 3, mm.mes).filter(z => z.recTri).map(z => z.mes) : [],
-    ano_atingimento: mm.mes === 12 ? c.ano.atingA : null, recuperacao_ano: mm.pagoAno,
+    ano_meta: mm.mes === 12 ? c.ano.metaA : null, ano_faixa: mm.mes === 12 ? c.ano.multA : null, ano_atingimento: mm.mes === 12 ? c.ano.atingA : null, recuperacao_ano: mm.pagoAno,
     meses_recuperados_ano: mm.mes === 12 ? c.meses.filter(z => z.recAno).map(z => z.mes) : [],
     total: mm.total, acumulado_ano: c.totalAte,
-    tabela: t ? { nome: t.nome, faixas: faixasOrd(t), recup_tri: t.recup_tri, recup_anual: t.recup_anual } : null
+    tabela: tb ? { nome: tb.nome, faixas: faixasOrd(tb), recup_tri: tb.recup_tri, recup_anual: tb.recup_anual } : null
   };
 }
 function exportarFechamento(m, mes, linhas, fechado, ehTri) {
-  if (!window.XLSX) { notify('Biblioteca de Excel ainda carregando.', 'warning'); return; }
+  if (!window.XLSX) { notify(t('Biblioteca de Excel ainda carregando, tente de novo.'), 'warning'); return; }
+  const p100 = v => v == null ? t('Aguardando dados') : +(v * 100).toFixed(2);
   const rows = linhas.filter(l => l.d).map(({ d }) => {
-    const r = { Vendedor: d.vendedor, 'E-mail': d.email, 'Região': d.regiao || '', Meta: d.meta, Realizado: d.realizado,
-      'Atingido %': d.atingimento == null ? '' : +(d.atingimento * 100).toFixed(2), Multiplicador: d.multiplicador,
-      'Prêmio-base': d.premio_base, 'Prêmio mês': d.premio_mes };
-    if (ehTri) { r['Trimestre %'] = d.trimestre_atingimento == null ? '' : +(d.trimestre_atingimento * 100).toFixed(2); r['Recuperação trimestre'] = d.recuperacao_tri; }
-    if (mes === 12) { r['Ano %'] = d.ano_atingimento == null ? '' : +(d.ano_atingimento * 100).toFixed(2); r['Recuperação ano'] = d.recuperacao_ano; }
-    r['Total a pagar'] = d.total; r['Acumulado no ano'] = d.acumulado_ano;
+    const r = { [t('Vendedor')]: d.vendedor, [t('E-mail')]: d.email, [t('Região')]: d.regiao || '', [t('Meta')]: d.meta == null ? t('Aguardando dados') : d.meta, [t('Realizado')]: d.realizado,
+      [t('Atingido %')]: d.atingimento == null ? '' : p100(d.atingimento), [t('Faixa (% do prêmio)')]: p100(d.multiplicador), [t('Prêmio-base')]: d.premio_base, [t('Prêmio mês')]: d.premio_mes };
+    if (ehTri) { r[t('Trimestre %')] = p100(d.trimestre_atingimento); r[t('Recuperação trimestre')] = d.recuperacao_tri; }
+    if (mes === 12) { r[t('Ano %')] = p100(d.ano_atingimento); r[t('Recuperação ano')] = d.recuperacao_ano; }
+    r[t('Total a pagar')] = d.total; r[t('Acumulado no ano')] = d.acumulado_ano;
     return r;
   });
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, (fechado ? 'Fechamento ' : 'Previa ') + MESES[mes - 1]);
-  XLSX.writeFile(wb, `fechamento_${m.nome.replace(/[^\w]+/g, '_')}_${m.ano}_${String(mes).padStart(2, '0')}${fechado ? '' : '_previa'}.xlsx`);
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), ((fechado ? t('Fechamento ') : t('Previa ')) + MES(mes - 1)).slice(0, 31));
+  XLSX.writeFile(wb, `fechamento_${nomeArq(m.nome)}_${m.ano}_${String(mes).padStart(2, '0')}${fechado ? '' : '_previa'}.xlsx`);
 }
 function exportarModulo(m, mes, linhas) {
-  if (!window.XLSX) { notify('Biblioteca de Excel ainda carregando.', 'warning'); return; }
+  if (!window.XLSX) { notify(t('Biblioteca de Excel ainda carregando, tente de novo.'), 'warning'); return; }
   const rows = [];
-  linhas.forEach(({ x, c }) => c.meses.forEach(mm => rows.push({ Vendedor: x.v.nome, 'Mês': MESES[mm.mes - 1], Meta: mm.meta, Realizado: mm.real == null ? '' : mm.real,
-    'Atingido %': mm.ating == null ? '' : +(mm.ating * 100).toFixed(2), Multiplicador: mm.apurado ? mm.mult : '', 'Prêmio-base': mm.base, 'Prêmio': mm.premio,
-    'Rec. trimestre': mm.pagoTri, 'Rec. ano': mm.pagoAno, 'Total': mm.total })));
-  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Metas ' + m.ano);
-  XLSX.writeFile(wb, `metas_${m.nome.replace(/[^\w]+/g, '_')}_${m.ano}_ate_${MESES[mes - 1]}.xlsx`);
+  linhas.forEach(({ x, c }) => c.meses.forEach(mm => rows.push({ [t('Vendedor')]: x.v.nome, [t('Mês')]: MES(mm.mes - 1), [t('Meta')]: mm.meta == null ? t('Aguardando dados') : mm.meta, [t('Realizado')]: mm.real == null ? '' : mm.real,
+    [t('Atingido %')]: mm.ating == null ? '' : +(mm.ating * 100).toFixed(2), [t('Faixa (% do prêmio)')]: mm.apurado ? +(mm.mult * 100).toFixed(0) : '', [t('Prêmio-base')]: mm.base, [t('Prêmio')]: mm.premio,
+    [t('Rec. trimestre')]: mm.pagoTri, [t('Rec. ano')]: mm.pagoAno, [t('Total')]: mm.total })));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), (t('Metas ') + m.ano).slice(0, 31));
+  XLSX.writeFile(wb, `metas_${nomeArq(m.nome)}_${m.ano}_${MES_EN[mes - 1]}.xlsx`);
 }
 
 /* ------------------------------ início ------------------------------ */
+$$('[data-lang]').forEach(b => b.addEventListener('click', () => trocarIdioma(b.dataset.lang)));
+aplicarIdioma();
 async function iniciar() {
   try {
     const app = await window.APP.pronto;
@@ -1110,16 +1507,16 @@ async function iniciar() {
     if (S.admin) $('#nav-adm').classList.remove('mt-hidden');
     await carregar();
     if (!meusVendedores().length && S.veTudo) $('#nav-painel').classList.add('mt-hidden');
-    window.addEventListener('hashchange', rota);
+    window.addEventListener('hashchange', () => { $('#modal-root').innerHTML = ''; rota(); });
     rota();
   } catch (e) {
-    if (typeof e === 'string') return;      // guard já mostrou a tela adequada
+    if (typeof e === 'string') return;
     console.error(e);
-    $('#view').innerHTML = `<div class="fi-alert fi-alert--danger">Não foi possível carregar os dados: ${esc(erroMsg(e))}</div>`;
+    $('#view').innerHTML = `<div class="fi-alert fi-alert--danger">${esc(t('Não foi possível carregar os dados: {e}', { e: erroMsg(e) }))}</div>`;
   }
 }
 if (window.APP && window.APP.pronto) iniciar();
-else document.addEventListener('DOMContentLoaded', () => window.APP && window.APP.pronto ? iniciar() : ($('#view').innerHTML = '<div class="fi-alert fi-alert--danger">Login da Central de Acesso não carregou.</div>'));
+else document.addEventListener('DOMContentLoaded', () => window.APP && window.APP.pronto ? iniciar() : ($('#view').innerHTML = `<div class="fi-alert fi-alert--danger">${t('Login da Central de Acesso não carregou.')}</div>`));
 })();
 </script>
 </body>
