@@ -77,6 +77,14 @@
   .mt-lock{font-size:.66rem;margin-left:4px}
   .mt-loading{padding:60px 0;text-align:center;color:var(--fi-muted)}
   .mt-printhead{display:none}
+  .mt-tip{position:relative;display:inline-grid;place-items:center;width:17px;height:17px;margin-left:5px;border-radius:50%;border:1px solid var(--fi-line-strong);color:var(--fi-muted);font-size:.66rem;font-weight:800;cursor:help;vertical-align:middle;text-transform:none;letter-spacing:0}
+  .mt-tip:hover,.mt-tip:focus{border-color:var(--fi-brand);color:var(--fi-brand);outline:none}
+  .mt-tip>span{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);z-index:120;width:300px;padding:10px 12px;border-radius:7px;background:#171a1f;color:#fff;font-size:.74rem;font-weight:500;line-height:1.45;text-align:left;white-space:normal;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;visibility:hidden;transition:opacity .15s;pointer-events:none}
+  .mt-tip:hover>span,.mt-tip:focus>span{opacity:1;visibility:visible}
+  @media print{.mt-tip{display:none}}
+  .mt-exc{display:grid;grid-template-columns:auto 110px minmax(120px,1fr);gap:6px;align-items:center}
+  .mt-exc input[type=checkbox]{width:16px;height:16px;accent-color:var(--fi-brand)}
+  .mt-exc .mt-obs{text-align:left}
   /* ---------- Estratégia ---------- */
   .es-hero{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
   .es-org{display:grid;gap:14px;justify-items:center;padding:18px 12px 8px}
@@ -396,6 +404,10 @@ const EN = {
   'Falta distribuir aos vendedores':'Not yet fully assigned to reps','Metas acima do planejado':'Targets above plan',
   'A soma dos setores e do subsídio precisa fechar no planejamento.':'Sectors plus subsidy must add up to the plan.','Distribuição salva':'Allocation saved',
   'Definir meta':'Set target','Definir a meta no módulo':'Set the target in the module','Sem meta em {m}: {n} — sem meta não há premiação.':'No target in {m}: {n} — no target means no incentive.',
+  'Realizado bruto':'Gross actual','Vendas excluídas':'Excluded sales','Realizado p/ meta':'Actual for target','Excluir este valor do realizado':'Exclude this amount from actuals',
+  'Cliente / motivo':'Client / reason','− {v} excluídos':'− {v} excluded','excl.: {o}':'excl.: {o}','Motivo da exclusão':'Exclusion reason',
+  'Realizado p/ meta = realizado bruto − vendas excluídas (quando a caixa estiver marcada). Comissão efetiva = total a pagar ÷ realizado p/ meta.':'Actual for target = gross actual − excluded sales (when the box is checked). Effective commission = total payable ÷ actual for target.',
+  'Vendas que o vendedor preferiu deixar fora da meta (ex.: cliente com venda instável). Preencha o valor e marque a caixa: ele é subtraído do realizado bruto. Sem a caixa marcada, o valor fica só registrado e não é descontado. Use “Cliente / motivo” para identificar.':'Sales the rep chose to leave out of the target (e.g. a client with unstable sales). Enter the amount and check the box: it is subtracted from the gross actual. Unchecked, the amount is only recorded and not deducted. Use “Client / reason” to identify it.',
   'Nenhuma tabela de premiação cadastrada ainda.':'No incentive table registered yet.','Vendedor A':'Rep A','Vendedor B':'Rep B','Vendedor C':'Rep C'
 };
 let LANG = 'pt';
@@ -430,6 +442,7 @@ const brl0 = v => new Intl.NumberFormat(LOC(), { style: 'currency', currency: 'B
 const num = (v, d) => new Intl.NumberFormat(LOC(), { minimumFractionDigits: d == null ? 2 : d, maximumFractionDigits: d == null ? 2 : d }).format(Number(v) || 0);
 const pct = (v, d) => v == null || !isFinite(v) ? '—' : new Intl.NumberFormat(LOC(), { style: 'percent', minimumFractionDigits: d == null ? 1 : d, maximumFractionDigits: d == null ? 1 : d }).format(v);
 const multTxt = m => num((Number(m) || 0) * 100, 0) + '%';   // multiplicador exibido como % do prêmio-base
+const dica = txt => `<span class="mt-tip" tabindex="0" aria-label="${esc(txt)}">?<span role="tooltip">${esc(txt)}</span></span>`;
 const WAIT = () => `<span class="mt-wait">${t('Aguardando dados')}</span>`;
 const brlOuWait = v => v == null ? WAIT() : brl(v);
 function parseNum(s) {
@@ -541,11 +554,16 @@ function classeMult(m) { return m >= 2 ? 'mt-m3' : m >= 1 ? 'mt-m2' : m > 0 ? 'm
 window.MetasCalc = { calcular, multDe, comissaoEquiv, somaMetas, parseNum };
 
 /* ------------------------- acesso aos dados ------------------------- */
-function realDe(moduloId, vendedorId) {
+/* Lançamento bruto do mês: valor vendido + vendas excluídas (com a caixa "excluir") */
+function rawDe(moduloId, vendedorId) {
   const arr = Array(12).fill(null);
-  S.realizado.forEach(r => { if (r.modulo_id === moduloId && r.vendedor_id === vendedorId) arr[r.mes - 1] = Number(r.valor); });
+  S.realizado.forEach(r => { if (r.modulo_id === moduloId && r.vendedor_id === vendedorId)
+    arr[r.mes - 1] = { valor: Number(r.valor), excluido: Number(r.excluido) || 0, excluir: !!r.excluir, obs: r.excluido_obs || '' }; });
   return arr;
 }
+const liquido = r => r == null || r.valor == null ? null : Math.max(0, r.valor - (r.excluir ? (r.excluido || 0) : 0));
+/* Realizado considerado para a meta = bruto − vendas excluídas marcadas */
+function realDe(moduloId, vendedorId) { return rawDe(moduloId, vendedorId).map(liquido); }
 function fechadosDe(moduloId) { const s = new Set(); S.fechamentos.forEach(f => { if (f.modulo_id === moduloId) s.add(f.mes); }); return s; }
 function ultimoFechado(moduloId) { let u = 0; fechadosDe(moduloId).forEach(m => { if (m > u) u = m; }); return u; }
 const ehSup = m => !!m && m.tipo === 'supervisao';
@@ -773,7 +791,7 @@ function vModulo(id, mesSel, regSel) {
     const eq = mm.real && mm.total ? mm.total / mm.real : null;
     html += `<tr data-vend="${x.vendedor_id}" style="cursor:pointer">
       <td class="mt-strong">${esc(x.v.nome)}</td><td>${esc((byId(S.regioes, x.v.regiao_id) || {}).nome || '—')}</td>
-      <td class="mt-num">${brlOuWait(mm.meta)}</td><td class="mt-num">${mm.real == null ? '<span class="mt-muted">—</span>' : brl(mm.real)}</td>
+      <td class="mt-num">${brlOuWait(mm.meta)}</td><td class="mt-num">${mm.real == null ? '<span class="mt-muted">—</span>' : brl(mm.real)}${(() => { const i = infoMes(m, x, mm.mes); return i.excluir && i.excluido ? `<div class="mt-small mt-neg" title="${esc(i.obs || '')}">${esc(t('− {v} excluídos', { v: brl0(i.excluido) }))}</div>` : ''; })()}</td>
       <td class="mt-num">${pct(mm.ating)}</td><td><span class="mt-pill ${classeMult(mm.mult)}">${mm.apurado ? multTxt(mm.mult) : '—'}</span></td>
       <td class="mt-num">${brl(mm.base)}</td><td class="mt-num">${brl(mm.premio)}</td>
       <td class="mt-num ${mm.pagoTri + mm.pagoAno ? 'mt-pos mt-strong' : ''}">${brl(mm.pagoTri + mm.pagoAno)}</td>
@@ -828,7 +846,7 @@ function tabelaAnoHtml(m, x, c) {
     <th class="mt-num">${t('Rec. trimestre')}</th><th class="mt-num">${t('Rec. ano')}</th><th class="mt-num">${t('Total pago')}</th></tr></thead><tbody>`;
   c.meses.forEach(mm => {
     h += `<tr><td>${MES(mm.mes - 1)}${fech.has(mm.mes) ? `<span class="mt-lock" title="${t('Mês fechado')}">🔒</span>` : ''}</td>
-      <td class="mt-num">${brlOuWait(mm.meta)}</td><td class="mt-num">${mm.real == null ? '<span class="mt-muted">—</span>' : brl(mm.real)}</td>
+      <td class="mt-num">${brlOuWait(mm.meta)}</td><td class="mt-num">${mm.real == null ? '<span class="mt-muted">—</span>' : brl(mm.real)}${(() => { const i = infoMes(m, x, mm.mes); return i.excluir && i.excluido ? `<div class="mt-small mt-neg" title="${esc(i.obs || '')}">${esc(t('− {v} excluídos', { v: brl0(i.excluido) }))}</div>` : ''; })()}</td>
       <td class="mt-num">${pct(mm.ating)}</td><td><span class="mt-pill ${classeMult(mm.mult)}">${mm.apurado ? multTxt(mm.mult) : '—'}</span>${mm.recTri ? ` <span class="mt-small mt-pos" title="${t('Recuperado no trimestre')}">↺T</span>` : ''}${mm.recAno ? ` <span class="mt-small mt-pos" title="${t('Recuperado no ano')}">↺A</span>` : ''}</td>
       <td class="mt-num">${brl(mm.base)}</td><td class="mt-num">${brl(mm.premio)}</td>
       <td class="mt-num">${mm.pagoTri ? brl(mm.pagoTri) : ''}</td><td class="mt-num">${mm.pagoAno ? brl(mm.pagoAno) : ''}</td>
@@ -1456,16 +1474,18 @@ function aFechamento() {
   const pendDoModulo = () => [...PEND.keys()].filter(k => k.startsWith(m.id + '|'));
   const calcLinhas = () => vinc.map(x => {
     if (fechado) { const f = S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id); return { x, d: f ? f.dados : null, f }; }
+    const info = infoMes(m, x, mes, sup ? null : PEND.get(chave(x.vendedor_id)));
     const bruto = realPart(m, x).slice();
-    if (!sup && PEND.has(chave(x.vendedor_id))) bruto[mes - 1] = PEND.get(chave(x.vendedor_id));
+    if (!sup) bruto[mes - 1] = liquido(info);
     const semLanc = bruto[mes - 1] == null;
     const real = bruto.map((v, i) => (i + 1 <= mes && v == null ? 0 : v));
     const c = calcular(tb, x.metas, x.premios, real, mes);
-    return { x, semLanc, real: bruto[mes - 1], d: snapshot(m, tb, x, c, c.meses[mes - 1]) };
+    return { x, semLanc, info, d: comExclusao(snapshot(m, tb, x, c, c.meses[mes - 1]), info) };
   });
   let linhas = calcLinhas();
   const pctW = v => v == null ? WAIT() : pct(v);
   const cols = [
+    ['liq', t('Realizado p/ meta') + dica(t('Realizado p/ meta = realizado bruto − vendas excluídas (quando a caixa estiver marcada). Comissão efetiva = total a pagar ÷ realizado p/ meta.')), d => `<b>${brl(d.realizado)}</b>`],
     ['ating', t('Atingido'), d => pct(d.atingimento)],
     ['faixa', t('Faixa'), d => `<span class="mt-pill ${classeMult(d.multiplicador)}">${multTxt(d.multiplicador)}</span>`],
     ['base', t('Prêmio-base'), d => brl(d.premio_base)],
@@ -1500,18 +1520,22 @@ function aFechamento() {
     <section class="fi-card mt-mt"><div class="fi-card__head"><div><div class="fi-card__title">${fechado ? t('Fechamento') : t('Lançamento e prévia')} — ${MESL(mes - 1)}/${m.ano}</div>
       <div class="fi-card__note">${fechado && quando ? t('Fechado em {d} por {p} — valores congelados.', quando) : sup ? t('Realizado consolidado da equipe (somente leitura).') : t('Digite o realizado do mês; a premiação é recalculada na hora. Salve e, quando estiver tudo certo, feche o mês.')}</div></div>
       ${fechado ? `<span class="fi-badge fi-badge--success">${t('Fechado')}</span>` : `<span class="fi-badge fi-badge--warning">${t('Aberto')}</span>`}</div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-fech"><thead><tr><th>${sup ? t('Supervisor') : t('Vendedor')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-fech"><thead><tr><th>${sup ? t('Supervisor') : t('Vendedor')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado bruto')}</th><th>${t('Vendas excluídas')}${dica(t('Vendas que o vendedor preferiu deixar fora da meta (ex.: cliente com venda instável). Preencha o valor e marque a caixa: ele é subtraído do realizado bruto. Sem a caixa marcada, o valor fica só registrado e não é descontado. Use “Cliente / motivo” para identificar.'))}</th>
       ${cols.map(c => `<th class="${c[0] === 'faixa' ? '' : 'mt-num'}">${c[1]}</th>`).join('')}</tr></thead><tbody>
-      ${linhas.map(l => !l.d ? `<tr><td>${esc(l.x.v.nome)}</td><td colspan="${cols.length + 2}" class="mt-muted">${t('Sem registro neste fechamento (atrelado depois).')}</td></tr>` : `<tr>
+      ${linhas.map(l => !l.d ? `<tr><td>${esc(l.x.v.nome)}</td><td colspan="${cols.length + 3}" class="mt-muted">${t('Sem registro neste fechamento (atrelado depois).')}</td></tr>` : `<tr>
         <td class="mt-strong">${esc(l.d.vendedor || l.x.v.nome)} <span data-sl="${l.x.vendedor_id}"></span></td>
         <td class="mt-num">${l.d.meta == null && !fechado ? `<a href="#/adm/modulos/${m.id}" class="mt-wait" title="${t('Definir a meta no módulo')}">${t('Definir meta')} →</a>` : brlOuWait(l.d.meta)}</td>
-        <td class="mt-num ${!fechado && !sup ? 'mt-tight' : ''}">${!fechado && !sup
-          ? `<input class="mt-in" data-v="${l.x.vendedor_id}" value="${l.real == null ? '' : num(l.real)}" placeholder="R$" ${PEND.has(chave(l.x.vendedor_id)) ? 'data-pend="1"' : ''}>`
-          : brl(l.d.realizado)}</td>
+        ${!fechado && !sup ? `<td class="mt-num mt-tight"><input class="mt-in" data-v="${l.x.vendedor_id}" data-k="valor" value="${l.info.valor == null ? '' : num(l.info.valor)}" placeholder="R$" ${PEND.has(chave(l.x.vendedor_id)) ? 'data-pend="1"' : ''}></td>
+          <td class="mt-tight"><div class="mt-exc">
+            <label title="${t('Excluir este valor do realizado')}"><input type="checkbox" data-v="${l.x.vendedor_id}" data-k="excluir" ${l.info.excluir ? 'checked' : ''}></label>
+            <input class="mt-in" data-v="${l.x.vendedor_id}" data-k="excluido" value="${l.info.excluido ? num(l.info.excluido) : ''}" placeholder="R$">
+            <input class="mt-in mt-obs" data-v="${l.x.vendedor_id}" data-k="obs" value="${esc(l.info.obs || '')}" placeholder="${t('Cliente / motivo')}"></div></td>`
+        : `<td class="mt-num">${brl(l.d.realizado_bruto != null ? l.d.realizado_bruto : l.d.realizado)}</td>
+           <td>${l.d.vendas_excluidas ? `<span class="mt-neg mt-strong">− ${brl(l.d.vendas_excluidas)}</span>${l.d.exclusao_obs ? `<div class="mt-small mt-muted">${esc(l.d.exclusao_obs)}</div>` : ''}` : '<span class="mt-muted">—</span>'}</td>`}
         ${cols.map(c => `<td class="${c[0] === 'faixa' ? '' : 'mt-num'}" data-c="${l.x.vendedor_id}|${c[0]}"></td>`).join('')}</tr>`).join('') ||
-        `<tr><td colspan="${cols.length + 3}"><div class="fi-empty">${t('Nenhum vendedor atrelado.')}</div></td></tr>`}
-      </tbody>${linhas.length ? `<tfoot><tr><td>${t('Total')}</td><td class="mt-num" data-tt="meta"></td><td class="mt-num" data-tt="realizado"></td>${cols.map(c => `<td class="mt-num" data-tt="${c[0]}"></td>`).join('')}</tr></tfoot>` : ''}</table></div>
-    <div class="fi-card__foot">${t('Comissão efetiva = total a pagar ÷ realizado do mês.')}</div></section>
+        `<tr><td colspan="${cols.length + 4}"><div class="fi-empty">${t('Nenhum vendedor atrelado.')}</div></td></tr>`}
+      </tbody>${linhas.length ? `<tfoot><tr><td>${t('Total')}</td><td class="mt-num" data-tt="meta"></td><td class="mt-num" data-tt="bruto"></td><td data-tt="exc"></td>${cols.map(c => `<td class="mt-num" data-tt="${c[0]}"></td>`).join('')}</tr></tfoot>` : ''}</table></div>
+    </section>
     ${regraHtml(tb)}`;
   if (UI()) UI().init($('#adm-body'));
 
@@ -1524,7 +1548,8 @@ function aFechamento() {
     });
     const ok = linhas.filter(l => l.d), tot = k => sum(ok.map(l => l.d[k] || 0));
     const T = (k, v) => { const c = $(`[data-tt="${k}"]`); if (c) c.innerHTML = v; };
-    T('meta', ok.some(l => l.d.meta == null) ? WAIT() : brl(tot('meta'))); T('realizado', brl(tot('realizado')));
+    T('meta', ok.some(l => l.d.meta == null) ? WAIT() : brl(tot('meta'))); T('bruto', brl(tot('realizado_bruto'))); T('liq', `<b>${brl(tot('realizado'))}</b>`);
+    T('exc', tot('vendas_excluidas') ? `<span class="mt-neg">− ${brl(tot('vendas_excluidas'))}</span>` : '');
     T('ating', ok.some(l => l.d.meta == null) ? WAIT() : pct(tot('meta') ? tot('realizado') / tot('meta') : null)); T('faixa', ''); T('base', brl(tot('premio_base'))); T('premio', brl(tot('premio_mes')));
     T('tq', ''); T('rt', brl(tot('recuperacao_tri'))); T('ta', ''); T('ra', brl(tot('recuperacao_ano')));
     T('total', `<b>${brl(tot('total'))}</b>`); T('ce', pct(tot('realizado') ? tot('total') / tot('realizado') : null, 2));
@@ -1536,22 +1561,33 @@ function aFechamento() {
     const bs = $('#l-salvar'), n = pendDoModulo().length;
     if (bs) { bs.disabled = !n; bs.textContent = n ? t('Salvar lançamentos ({n})', { n }) : t('Salvar lançamentos'); bs.classList.toggle('fi-btn--primary', !!n); }
   };
-  $$('#tb-fech .mt-in').forEach(i => {
-    if (i.dataset.pend) i.classList.add('mt-dirty');
-    i.addEventListener('input', () => {
-      const v = i.value.trim() === '' ? null : parseNum(i.value), vid = i.dataset.v;
-      const orig = realDe(m.id, vid)[mes - 1];
-      if (v === orig) { PEND.delete(chave(vid)); i.classList.remove('mt-dirty'); } else { PEND.set(chave(vid), v); i.classList.add('mt-dirty'); }
-      atualizar();
+  const lerLinha = vid => {
+    const g = k => $(`#tb-fech [data-v="${vid}"][data-k="${k}"]`);
+    const vv = g('valor').value.trim();
+    return { valor: vv === '' ? null : parseNum(vv), excluido: parseNum(g('excluido').value) || 0, excluir: g('excluir').checked, obs: g('obs').value.trim() };
+  };
+  const mudou = vid => {
+    const a = lerLinha(vid), o = rawDe(m.id, vid)[mes - 1] || { valor: null, excluido: 0, excluir: false, obs: '' };
+    const igual = a.valor === o.valor && a.excluido === (o.excluido || 0) && a.excluir === !!o.excluir && a.obs === (o.obs || '');
+    if (igual) PEND.delete(chave(vid)); else PEND.set(chave(vid), a);
+    $$(`#tb-fech .mt-in[data-v="${vid}"]`).forEach(z => z.classList.toggle('mt-dirty', !igual));
+    atualizar();
+  };
+  $$('#tb-fech [data-k]').forEach(i => {
+    if (PEND.has(chave(i.dataset.v)) && i.classList.contains('mt-in')) i.classList.add('mt-dirty');
+    i.addEventListener(i.type === 'checkbox' ? 'change' : 'input', () => {
+      if (i.dataset.k === 'excluido' && parseNum(i.value) > 0) { const cb = $(`#tb-fech [data-v="${i.dataset.v}"][data-k="excluir"]`); if (!cb.dataset.tocado) cb.checked = true; }
+      if (i.dataset.k === 'excluir') i.dataset.tocado = '1';
+      mudou(i.dataset.v);
     });
-    i.addEventListener('blur', () => { const v = parseNum(i.value); if (v != null) i.value = num(v); });
-    i.addEventListener('keydown', e => { if (e.key === 'Enter') { const all = $$('#tb-fech .mt-in'); const n = all[all.indexOf(i) + 1]; if (n) n.focus(); } });
+    if (i.dataset.k === 'valor' || i.dataset.k === 'excluido') i.addEventListener('blur', () => { const v = parseNum(i.value); if (v != null) i.value = num(v); });
+    if (i.dataset.k === 'valor') i.addEventListener('keydown', e => { if (e.key === 'Enter') { const all = $$('#tb-fech [data-k="valor"]'); const n = all[all.indexOf(i) + 1]; if (n) n.focus(); } });
   });
   atualizar();
 
   const salvarPendentes = async () => {
     const ks = pendDoModulo(); if (!ks.length) return;
-    await gravarRealizado(m, ks.map(k => { const [, ms, vid] = k.split('|'); return { vendedor_id: vid, mes: Number(ms), valor: PEND.get(k) }; }));
+    await gravarRealizado(m, ks.map(k => { const [, ms, vid] = k.split('|'); const p = PEND.get(k); return { vendedor_id: vid, mes: Number(ms), valor: p.valor, excluido: p.excluido, excluir: p.excluir, obs: p.obs }; }));
     ks.forEach(k => PEND.delete(k));
   };
   $('#f-mod').onchange = e => {
@@ -1596,8 +1632,26 @@ function calcLinhasDe(m, mes) {
   return vincDe(m.id).map(x => {
     const real = realPart(m, x).map((v, i) => (i + 1 <= mes && v == null ? 0 : v));
     const c = calcular(tb, x.metas, x.premios, real, mes);
-    return { x, d: snapshot(m, tb, x, c, c.meses[mes - 1]) };
+    return { x, d: comExclusao(snapshot(m, tb, x, c, c.meses[mes - 1]), infoMes(m, x, mes)) };
   });
+}
+/* bruto e exclusões do mês (supervisão = soma da equipe); pend = alterações ainda não salvas */
+function infoMes(m, x, mes, pend) {
+  const vazio = { valor: null, excluido: 0, excluir: false, obs: '' };
+  if (ehSup(m)) {
+    const rs = (x.equipeV || []).map(z => rawDe(x.baseMod.id, z.vendedor_id)[mes - 1]);
+    if (!rs.length || rs.some(r => !r)) return vazio;
+    const exc = sum(rs.map(r => r.excluir ? r.excluido : 0));
+    return { valor: sum(rs.map(r => r.valor)), excluido: exc, excluir: exc > 0, obs: '' };
+  }
+  const base = rawDe(m.id, x.vendedor_id)[mes - 1] || vazio;
+  return pend ? Object.assign({}, base, pend) : base;
+}
+function comExclusao(d, info) {
+  d.realizado_bruto = info && info.valor != null ? info.valor : (d.realizado || 0);
+  d.vendas_excluidas = info && info.excluir ? (info.excluido || 0) : 0;
+  d.exclusao_obs = info && info.excluir ? (info.obs || '') : '';
+  return d;
 }
 
 function formModulo(m) {
@@ -1717,7 +1771,13 @@ function editorMetas(m, x, pai) {
 /* ------------------------------ Realizado: gravação e Excel ------------------------------ */
 async function gravarRealizado(m, itens) {
   const quem = S.nome || S.email;
-  const ups = itens.filter(i => i.valor != null).map(i => ({ modulo_id: m.id, vendedor_id: i.vendedor_id, mes: i.mes, valor: i.valor, atualizado_em: new Date().toISOString(), atualizado_por: quem }));
+  const ups = itens.filter(i => i.valor != null).map(i => {
+    const ex = rawDe(m.id, i.vendedor_id)[i.mes - 1] || {};
+    const excluido = i.excluido != null ? i.excluido : (ex.excluido || 0);
+    return { modulo_id: m.id, vendedor_id: i.vendedor_id, mes: i.mes, valor: i.valor,
+      excluido, excluir: i.excluir != null ? i.excluir : !!ex.excluir, excluido_obs: (i.obs != null ? i.obs : ex.obs) || null,
+      atualizado_em: new Date().toISOString(), atualizado_por: quem };
+  });
   const dels = itens.filter(i => i.valor == null);
   if (ups.length) await q(S.sb.from('met_realizado').upsert(ups, { onConflict: 'modulo_id,vendedor_id,mes' }));
   for (const d of dels) await q(S.sb.from('met_realizado').delete().eq('modulo_id', m.id).eq('vendedor_id', d.vendedor_id).eq('mes', d.mes));
@@ -1726,9 +1786,10 @@ const nomeArq = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(
 function modeloExcel(m) {
   if (!window.XLSX) { notify(t('Biblioteca de Excel ainda carregando, tente de novo.'), 'warning'); return; }
   const linhas = [];
-  vincDe(m.id).forEach(x => { const r = realDe(m.id, x.vendedor_id); for (let i = 0; i < 12; i++) linhas.push({ email: x.v.email, vendedor: x.v.nome, mes: i + 1, valor: r[i] == null ? '' : r[i] }); });
-  const ws = XLSX.utils.json_to_sheet(linhas.length ? linhas : [{ email: '', vendedor: '', mes: '', valor: '' }]);
-  ws['!cols'] = [{ wch: 30 }, { wch: 28 }, { wch: 6 }, { wch: 14 }];
+  vincDe(m.id).forEach(x => { const r = rawDe(m.id, x.vendedor_id); for (let i = 0; i < 12; i++) linhas.push({ email: x.v.email, vendedor: x.v.nome, mes: i + 1,
+    valor: r[i] ? r[i].valor : '', vendas_excluidas: r[i] && r[i].excluir && r[i].excluido ? r[i].excluido : '', motivo_exclusao: r[i] && r[i].excluir ? r[i].obs : '' }); });
+  const ws = XLSX.utils.json_to_sheet(linhas.length ? linhas : [{ email: '', vendedor: '', mes: '', valor: '', vendas_excluidas: '', motivo_exclusao: '' }]);
+  ws['!cols'] = [{ wch: 30 }, { wch: 28 }, { wch: 6 }, { wch: 14 }, { wch: 16 }, { wch: 30 }];
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Realizado');
   XLSX.writeFile(wb, `realizado_${nomeArq(m.nome)}_${m.ano}.xlsx`);
 }
@@ -1752,7 +1813,7 @@ async function importarExcel(m, file) {
   try { const wb = XLSX.read(await file.arrayBuffer(), { cellDates: true }); rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' }); }
   catch (e) { notify(t('Não consegui ler a planilha: {e}', { e: e.message }), 'danger'); return; }
   const norm = o => { const r = {}; Object.keys(o).forEach(k => { r[k.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()] = o[k]; }); return r; };
-  const ok = [], erros = [], soma = new Map();
+  const ok = [], erros = [], soma = new Map(), excl = new Map();
   rows.map(norm).forEach((r, idx) => {
     const lin = idx + 2;
     const em = String(r.email || r['e-mail'] || '').trim().toLowerCase(), nm = String(r.vendedor || r.nome || r.rep || '').trim().toLowerCase();
@@ -1767,8 +1828,14 @@ async function importarExcel(m, file) {
     if (fech.has(mes)) return erros.push(t('Linha {l}: {m} já está fechado', { l: lin, m: MES(mes - 1) }));
     const k = x.vendedor_id + '|' + mes;
     soma.set(k, (soma.get(k) || 0) + valor);
+    const excB = r.vendas_excluidas !== undefined && r.vendas_excluidas !== '' ? r.vendas_excluidas : (r.excluido !== undefined && r.excluido !== '' ? r.excluido : r.excluded);
+    if (excB !== undefined && excB !== '' && excB != null) {
+      const e = typeof excB === 'number' ? excB : (parseNum(excB) || 0), o = String(r.motivo_exclusao || r.motivo || '').trim();
+      const ant = excl.get(k) || { v: 0, o: [] }; ant.v += e; if (o) ant.o.push(o); excl.set(k, ant);
+    }
   });
-  soma.forEach((v, k) => { const [vid, mes] = k.split('|'); ok.push({ vendedor_id: vid, mes: Number(mes), valor: v }); });
+  soma.forEach((v, k) => { const [vid, mes] = k.split('|'); const e = excl.get(k);
+    ok.push(e ? { vendedor_id: vid, mes: Number(mes), valor: v, excluido: e.v, excluir: e.v > 0, obs: e.o.join('; ') } : { vendedor_id: vid, mes: Number(mes), valor: v }); });
   const nomeV = id => (byId(S.vendedores, id) || {}).nome;
   modal({ titulo: t('Prévia da importação — {f}', { f: file.name }), largura: 760,
     corpo: `<div class="mt-small">${t('{n} lançamento(s) válidos', { n: ok.length })}${erros.length ? `, <b class="mt-neg">${t('{n} linha(s) ignorada(s)', { n: erros.length })}</b>` : ''}. ${t('Linhas do mesmo vendedor e mês são somadas. Os valores importados substituem o que estiver lançado.')}</div>
@@ -1776,7 +1843,7 @@ async function importarExcel(m, file) {
       <div class="fi-table-wrap" style="max-height:320px;overflow:auto"><table class="fi-table"><thead><tr><th>${t('Vendedor')}</th><th>${t('Mês')}</th><th class="mt-num">${t('Atual')}</th><th class="mt-num">${t('Importado')}</th></tr></thead><tbody>
       ${ok.sort((a, b) => nomeV(a.vendedor_id).localeCompare(nomeV(b.vendedor_id)) || a.mes - b.mes).map(o => {
         const at = realDe(m.id, o.vendedor_id)[o.mes - 1];
-        return `<tr><td>${esc(nomeV(o.vendedor_id))}</td><td>${MES(o.mes - 1)}</td><td class="mt-num mt-muted">${at == null ? '—' : brl(at)}</td><td class="mt-num mt-strong">${brl(o.valor)}</td></tr>`; }).join('')}
+        return `<tr><td>${esc(nomeV(o.vendedor_id))}</td><td>${MES(o.mes - 1)}</td><td class="mt-num mt-muted">${at == null ? '—' : brl(at)}</td><td class="mt-num mt-strong">${brl(o.valor)}${o.excluir ? `<div class="mt-small mt-neg">− ${brl(o.excluido)}</div>` : ''}</td></tr>`; }).join('')}
       </tbody></table></div>`,
     botoes: [{ texto: t('Cancelar') }, ...(ok.length ? [{ texto: t('Gravar {n} lançamento(s)', { n: ok.length }), primario: true, acao: async () => { await gravarRealizado(m, ok); await recarregar(t('Importação gravada')); } }] : [])] });
 }
@@ -1800,7 +1867,8 @@ function exportarFechamento(m, mes, linhas, fechado, ehTri) {
   if (!window.XLSX) { notify(t('Biblioteca de Excel ainda carregando, tente de novo.'), 'warning'); return; }
   const p100 = v => v == null ? t('Aguardando dados') : +(v * 100).toFixed(2);
   const rows = linhas.filter(l => l.d).map(({ d }) => {
-    const r = { [t('Vendedor')]: d.vendedor, [t('E-mail')]: d.email, [t('Região')]: d.regiao || '', [t('Meta')]: d.meta == null ? t('Aguardando dados') : d.meta, [t('Realizado')]: d.realizado,
+    const r = { [t('Vendedor')]: d.vendedor, [t('E-mail')]: d.email, [t('Região')]: d.regiao || '', [t('Meta')]: d.meta == null ? t('Aguardando dados') : d.meta, [t('Realizado bruto')]: d.realizado_bruto != null ? d.realizado_bruto : d.realizado,
+      [t('Vendas excluídas')]: d.vendas_excluidas || 0, [t('Motivo da exclusão')]: d.exclusao_obs || '', [t('Realizado p/ meta')]: d.realizado,
       [t('Atingido %')]: d.atingimento == null ? '' : p100(d.atingimento), [t('Faixa (% do prêmio)')]: p100(d.multiplicador), [t('Prêmio-base')]: d.premio_base, [t('Prêmio mês')]: d.premio_mes };
     if (ehTri) { r[t('Trimestre %')] = p100(d.trimestre_atingimento); r[t('Recuperação trimestre')] = d.recuperacao_tri; }
     if (mes === 12) { r[t('Ano %')] = p100(d.ano_atingimento); r[t('Recuperação ano')] = d.recuperacao_ano; }
@@ -1942,22 +2010,26 @@ function pdfFechamento(m, mes, linhas, fechado, ehTri, quando) {
   const doc = pdfNovo(t('Fechamento {m}/{a} — {n}', { m: MESL(mes - 1), a: m.ano, n: m.nome }), (ehSup(m) ? t('Meta de supervisão') : t('Meta de vendedor')) + ' · ' + t('Tabela: {n}', { n: tb ? tb.nome : '' }),
     fechado && quando ? t('Fechado em {d} por {p} — valores congelados.', quando) : t('PRÉVIA — mês não fechado'));
   const ok = linhas.filter(l => l.d), tot = k => sum(ok.map(l => l.d[k] || 0));
-  const head = [ehSup(m) ? t('Supervisor') : t('Vendedor'), t('Meta'), t('Realizado'), t('Atingido'), t('Faixa'), t('Prêmio-base'), t('Prêmio mês')];
+  const temExc = ok.some(l => l.d.vendas_excluidas);
+  const head = [ehSup(m) ? t('Supervisor') : t('Vendedor'), t('Meta'), ...(temExc ? [t('Realizado bruto'), t('Vendas excluídas')] : []), temExc ? t('Realizado p/ meta') : t('Realizado'), t('Atingido'), t('Faixa'), t('Prêmio-base'), t('Prêmio mês')];
   if (ehTri) head.push(t('Trim. %'), t('Rec. trimestre'));
   if (mes === 12) head.push(t('Ano %'), t('Rec. ano'));
   head.push(t('Total a pagar'), t('Comissão efetiva'));
   const body = ok.map(({ d }) => {
-    const r = [d.vendedor, d.meta == null ? t('Aguardando dados') : brl(d.meta), brl(d.realizado), pct(d.atingimento), multTxt(d.multiplicador), brl(d.premio_base), brl(d.premio_mes)];
+    const r = [d.vendedor + (temExc && d.exclusao_obs ? ' (' + t('excl.: {o}', { o: d.exclusao_obs }) + ')' : ''), d.meta == null ? t('Aguardando dados') : brl(d.meta),
+      ...(temExc ? [brl(d.realizado_bruto != null ? d.realizado_bruto : d.realizado), d.vendas_excluidas ? '- ' + brl(d.vendas_excluidas) : '-'] : []), brl(d.realizado), pct(d.atingimento), multTxt(d.multiplicador), brl(d.premio_base), brl(d.premio_mes)];
     if (ehTri) r.push(d.trimestre_atingimento == null ? t('Aguardando dados') : pct(d.trimestre_atingimento), brl(d.recuperacao_tri));
     if (mes === 12) r.push(d.ano_atingimento == null ? t('Aguardando dados') : pct(d.ano_atingimento), brl(d.recuperacao_ano));
     r.push(brl(d.total), pct(d.realizado ? d.total / d.realizado : null, 2));
     return r.map(pdfTxt);
   });
-  const foot = [t('Total'), ok.some(l => l.d.meta == null) ? t('Aguardando dados') : brl(tot('meta')), brl(tot('realizado')), pct(tot('meta') ? tot('realizado') / tot('meta') : null), '', brl(tot('premio_base')), brl(tot('premio_mes'))];
+  const foot = [t('Total'), ok.some(l => l.d.meta == null) ? t('Aguardando dados') : brl(tot('meta')),
+    ...(temExc ? [brl(sum(ok.map(l => l.d.realizado_bruto != null ? l.d.realizado_bruto : l.d.realizado))), '- ' + brl(tot('vendas_excluidas'))] : []), brl(tot('realizado')), pct(tot('meta') ? tot('realizado') / tot('meta') : null), '', brl(tot('premio_base')), brl(tot('premio_mes'))];
   if (ehTri) foot.push('', brl(tot('recuperacao_tri')));
   if (mes === 12) foot.push('', brl(tot('recuperacao_ano')));
   foot.push(brl(tot('total')), pct(tot('realizado') ? tot('total') / tot('realizado') : null, 2));
-  const cols = {}; for (let k = 1; k < head.length; k++) cols[k] = { halign: k === 4 ? 'center' : 'right' };
+  const iFaixa = head.indexOf(t('Faixa'));
+  const cols = {}; for (let k = 1; k < head.length; k++) cols[k] = { halign: k === iFaixa ? 'center' : 'right' };
   let y = pdfSecao(doc, 35, t('Resumo do fechamento'));
   y = pdfTabela(doc, { startY: y + 2, head: [head.map(pdfTxt)], body, foot: [foot.map(pdfTxt)], columnStyles: cols,
     didParseCell: d => { if (d.section === 'body' && d.column.index === head.length - 2) d.cell.styles.fontStyle = 'bold'; } });
