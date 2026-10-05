@@ -119,6 +119,9 @@
   .es-tl>div:last-child{background:color-mix(in srgb,var(--fi-success) 10%,var(--fi-surface));border-radius:0 8px 8px 0}
   .es-tl::before{content:attr(data-vig);position:absolute;left:50%;top:-24px;transform:translateX(-50%);font-size:.66rem;font-weight:800;color:var(--fi-brand);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
   .es-tl::after{content:"";position:absolute;left:50%;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;background:var(--fi-brand);border-radius:2px}
+  .es-dist{display:flex;height:58px;border-radius:9px;overflow:hidden;border:1px solid var(--fi-line)}
+  .es-dist>div{display:flex;flex-direction:column;justify-content:center;padding:0 12px;color:#fff;min-width:0;overflow:hidden;white-space:nowrap;font-size:.74rem;transition:flex .2s}
+  .es-dist b{font-size:.8rem}
   .es-gauge{display:grid;gap:8px}
   .es-g{display:grid;grid-template-columns:110px 1fr 120px;gap:10px;align-items:center;font-size:.76rem}
   .es-g .mt-bar{height:12px}
@@ -379,6 +382,20 @@ const EN = {
   'Meta de supervisão (soma da equipe)':'Supervision target (team total)','Módulo base (vendedores) *':'Base module (sales reps) *',
   'De onde vêm as metas e o realizado da equipe de cada supervisor.':'Where each supervisor’s team targets and actuals come from.','Escolha o módulo base (vendedores).':'Choose the base module (sales reps).',
   'Módulo criado — agora atrele os participantes':'Module created — now assign the participants','Nenhuma tabela para este tipo':'No table for this type',
+  'Distribuição':'Allocation','Distribuição do planejamento anual':'Annual plan allocation',
+  'O planejamento anual é dividido entre os setores Bordados e Industrial. O subsídio (vendas da diretoria) entra para completar a meta. Diminuiu um setor, o outro aumenta — a soma sempre fecha no planejamento.':'The annual plan is split between the Embroidery and Industrial sales sectors. The subsidy (management sales) helps complete the target. Lower one sector and the other goes up — the total always matches the plan.',
+  'Planejamento anual (R$) *':'Annual plan (R$) *','Situação':'Status','Bordados':'Embroidery','Industrial':'Industrial','Subsídio':'Subsidy',
+  'Bordados — setor de vendas':'Embroidery — sales sector','Industrial — setor de vendas':'Industrial — sales sector','Subsídio — vendas da diretoria':'Subsidy — management sales',
+  'Opcional: vendas da diretoria incluídas para bater a meta.':'Optional: management sales included to reach the target.',
+  'Última alteração: {d} por {p}':'Last change: {d} by {p}','Planejado × metas distribuídas aos vendedores':'Plan × targets assigned to sales reps',
+  'Vincule cada setor ao seu módulo de metas para conferir se a soma das metas dos vendedores fecha com o valor do setor.':'Link each sector to its target module to check that the reps’ targets add up to the sector amount.',
+  'Setor':'Sector','Módulo de metas':'Target module','Planejado':'Planned','Metas lançadas':'Targets entered','Diferença':'Difference',
+  'Nenhum módulo de vendedores neste ano ainda.':'No sales rep module for this year yet.','{p} do planejamento · {m}/mês':'{p} of plan · {m}/month','equivale a {m}/mês':'equals {m}/month',
+  'Informe o planejamento anual':'Enter the annual plan','Distribuição fecha no planejamento':'Allocation matches the plan','Falta distribuir {v}':'{v} left to allocate',
+  'Excede o planejamento em {v}':'Exceeds the plan by {v}','Sem módulo vinculado':'No linked module','metas ainda incompletas':'targets still incomplete',
+  'Falta distribuir aos vendedores':'Not yet fully assigned to reps','Metas acima do planejado':'Targets above plan',
+  'A soma dos setores e do subsídio precisa fechar no planejamento.':'Sectors plus subsidy must add up to the plan.','Distribuição salva':'Allocation saved',
+  'Definir meta':'Set target','Definir a meta no módulo':'Set the target in the module','Sem meta em {m}: {n} — sem meta não há premiação.':'No target in {m}: {n} — no target means no incentive.',
   'Nenhuma tabela de premiação cadastrada ainda.':'No incentive table registered yet.','Vendedor A':'Rep A','Vendedor B':'Rep B','Vendedor C':'Rep C'
 };
 let LANG = 'pt';
@@ -400,7 +417,7 @@ const HOJE = new Date();
 const S = {
   sb: null, perm: null, admin: false, veTudo: false, email: '', nome: '',
   regioes: [], vendedores: [], tabelas: [], modulos: [], mv: [], realizado: [], fechamentos: [],
-  contas: null, modEdit: null, admTab: 'modulos', lancModulo: null, metaModulo: null, metaCampo: 'metas', fechModulo: null, fechMes: null
+  contas: null, dist: [], distAno: null, modEdit: null, admTab: 'modulos', lancModulo: null, metaModulo: null, metaCampo: 'metas', fechModulo: null, fechMes: null
 };
 
 /* ------------------------------ util ------------------------------ */
@@ -572,6 +589,7 @@ async function carregar() {
     q(sb.from('met_realizado').select('*')),
     q(sb.from('met_fechamentos').select('*'))
   ]);
+  if (S.veTudo) { try { S.dist = await q(sb.from('met_distribuicao').select('*')) || []; } catch (_) { S.dist = []; } }
   Object.assign(S, { regioes: reg || [], vendedores: ven || [], tabelas: tab || [], modulos: mod || [],
                      mv: mv || [], realizado: rea || [], fechamentos: fec || [] });
   if (S.admin) { try { S.contas = await q(sb.rpc('met_contas_central')); } catch (_) { S.contas = null; } }
@@ -978,15 +996,15 @@ function vEstrategia() {
 }
 
 /* ============================ ADMINISTRAÇÃO ============================ */
-const ADM_TABS = [['modulos', 'Módulos de metas'], ['fechamento', 'Lançamentos e fechamento'],
+const ADM_TABS = [['distribuicao', 'Distribuição'], ['modulos', 'Módulos de metas'], ['fechamento', 'Lançamentos e fechamento'],
                   ['vendedores', 'Vendedores e supervisores'], ['regioes', 'Regiões'], ['tabelas', 'Tabelas de premiação']];
 function vAdm() {
-  const tab = ADM_TABS.find(x => x[0] === S.admTab) || ADM_TABS[0];
+  const tab = ADM_TABS.find(x => x[0] === S.admTab) || ADM_TABS[1];
   setHead(t('Administração'), t(tab[1]), t('Cadastros, metas, lançamentos e fechamentos. Somente administradores da ferramenta.'));
   $('#view').innerHTML = `<div class="mt-tabs" role="tablist">${ADM_TABS.map(([k, n]) =>
     `<button class="mt-tab" role="tab" aria-selected="${k === tab[0]}" data-tab="${k}">${t(n)}</button>`).join('')}</div><div id="adm-body"></div>`;
   $$('[data-tab]').forEach(b => b.addEventListener('click', () => { location.hash = '#/adm/' + b.dataset.tab; }));
-  ({ modulos: aModulos, fechamento: aFechamento, vendedores: aVendedores, regioes: aRegioes, tabelas: aTabelas }[tab[0]])();
+  ({ distribuicao: aDistribuicao, modulos: aModulos, fechamento: aFechamento, vendedores: aVendedores, regioes: aRegioes, tabelas: aTabelas }[tab[0]])();
 }
 async function recarregar(msg) { await carregar(); if (msg) notify(msg, 'success'); rota(); }
 const badgeAtivo = (a, fem) => a ? `<span class="fi-badge fi-badge--success">${t(fem ? 'Ativa' : 'Ativo')}</span>` : `<span class="fi-badge">${t(fem ? 'Inativa' : 'Inativo')}</span>`;
@@ -1130,6 +1148,116 @@ function formTabela(tb) {
   const liga = () => { $$('[data-rm]', el).forEach(b => b.onclick = () => { b.closest('[data-faixa]').remove(); }); $$('input', $('#t-faixas', el)).forEach(i => i.oninput = atualizaEq); atualizaEq(); };
   $('#t-add', el).onclick = () => { $('#t-faixas', el).insertAdjacentHTML('beforeend', linhaFaixa({ min: 110, mult: 2 })); liga(); };
   liga();
+}
+
+/* ---------------------------- Distribuição do planejamento anual ---------------------------- */
+/* Planejamento = Bordados + Industrial + Subsídio (vendas da diretoria).
+   Bordados e Industrial dividem o que sobra do planejamento depois do subsídio:
+   mexeu em um, o outro se ajusta para a soma continuar fechando. */
+const SETORES = [['bordados', 'Bordados'], ['industrial', 'Industrial']];
+function aDistribuicao() {
+  const anos = [...new Set([HOJE.getFullYear(), HOJE.getFullYear() + 1, ...S.modulos.map(m => m.ano), ...S.dist.map(d => d.ano)])].sort((a, b) => b - a);
+  if (!S.distAno) S.distAno = HOJE.getFullYear() + (HOJE.getMonth() >= 9 ? 1 : 0);
+  const ano = S.distAno;
+  const salvo = S.dist.find(d => d.ano === ano);
+  const st = salvo ? { planejamento: +salvo.planejamento, bordados: +salvo.bordados, industrial: +salvo.industrial, subsidio: +salvo.subsidio,
+                       modulo_bordados: salvo.modulo_bordados, modulo_industrial: salvo.modulo_industrial, observacao: salvo.observacao || '' }
+                   : { planejamento: 0, bordados: 0, industrial: 0, subsidio: 0, modulo_bordados: null, modulo_industrial: null, observacao: '' };
+  const modsAno = S.modulos.filter(m => m.ano === ano && !ehSup(m));
+  const campo = (id, rot, help, cls) => `<label class="fi-field ${cls || ''}"><span class="fi-label">${rot}</span>
+      <input class="fi-input mt-num" id="${id}" inputmode="decimal" style="font-size:1.05rem;font-weight:750"><span class="fi-field__help" id="${id}-h">${help || ''}</span></label>`;
+  $('#adm-body').innerHTML = `
+  <section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Distribuição do planejamento anual')}</div>
+      <div class="fi-card__note">${t('O planejamento anual é dividido entre os setores Bordados e Industrial. O subsídio (vendas da diretoria) entra para completar a meta. Diminuiu um setor, o outro aumenta — a soma sempre fecha no planejamento.')}</div></div>
+      <div class="mt-row"><select class="fi-select" id="d-ano" style="width:auto">${anos.map(a => `<option value="${a}" ${a === ano ? 'selected' : ''}>${a}</option>`).join('')}</select>
+      <button class="fi-btn fi-btn--primary" id="d-salvar" disabled>${t('Salvar')}</button></div></div>
+    <div class="fi-card__body" style="display:grid;gap:16px">
+      <div class="mt-form" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+        ${campo('d-plan', t('Planejamento anual (R$) *'), '', '')}
+        <div class="fi-field"><span class="fi-label">${t('Situação')}</span><div id="d-status" style="min-height:42px;display:flex;align-items:center"></div></div>
+      </div>
+      <div><div class="es-dist" id="d-barra"></div>
+        <div class="mt-row mt-mt"><span class="mt-small mt-strong">${t('Bordados')}</span>
+          <input type="range" id="d-slider" min="0" max="1000" step="1" style="flex:1;accent-color:var(--fi-brand)">
+          <span class="mt-small mt-strong">${t('Industrial')}</span></div></div>
+      <div class="fi-grid fi-grid--3">
+        <div class="fi-card fi-metric fi-metric--brand" style="min-height:0">${campo('d-bordados', t('Bordados — setor de vendas'))}</div>
+        <div class="fi-card fi-metric" style="min-height:0;--x:1">${campo('d-industrial', t('Industrial — setor de vendas'))}</div>
+        <div class="fi-card fi-metric" style="min-height:0">${campo('d-subsidio', t('Subsídio — vendas da diretoria'), t('Opcional: vendas da diretoria incluídas para bater a meta.'))}</div>
+      </div>
+      <label class="fi-field"><span class="fi-label">${t('Observação')}</span><textarea class="fi-textarea" id="d-obs" style="min-height:60px">${esc(st.observacao)}</textarea></label>
+    </div>
+    ${salvo ? `<div class="fi-card__foot">${esc(t('Última alteração: {d} por {p}', { d: new Date(salvo.atualizado_em).toLocaleString(LOC()), p: salvo.atualizado_por || '—' }))}</div>` : ''}
+  </section>
+
+  <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Planejado × metas distribuídas aos vendedores')}</div>
+    <div class="fi-card__note">${t('Vincule cada setor ao seu módulo de metas para conferir se a soma das metas dos vendedores fecha com o valor do setor.')}</div></div></div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="d-conf"><thead><tr><th>${t('Setor')}</th><th>${t('Módulo de metas')}</th><th class="mt-num">${t('Planejado')}</th>
+      <th class="mt-num">${t('Metas lançadas')}</th><th class="mt-num">${t('Diferença')}</th><th>${t('Situação')}</th></tr></thead><tbody>
+      ${SETORES.map(([k, n]) => `<tr><td class="mt-strong">${t(n)}</td><td><select class="fi-select" id="d-mod-${k}" style="min-width:220px"><option value="">—</option>
+        ${modsAno.map(m => `<option value="${m.id}" ${st['modulo_' + k] === m.id ? 'selected' : ''}>${esc(m.nome)}</option>`).join('')}</select></td>
+        <td class="mt-num" data-pl="${k}"></td><td class="mt-num" data-ml="${k}"></td><td class="mt-num" data-df="${k}"></td><td data-si="${k}"></td></tr>`).join('')}
+    </tbody></table></div>
+    ${modsAno.length ? '' : `<div class="fi-card__foot">${t('Nenhum módulo de vendedores neste ano ainda.')}</div>`}</section>`;
+
+  const I = id => $('#' + id);
+  const fmt = v => num(v);
+  const set = (id, v) => { if (document.activeElement !== I(id)) I(id).value = fmt(v); };
+  let sujo = false;
+  const marca = () => { sujo = true; I('d-salvar').disabled = false; };
+  const resto = () => Math.max(0, st.planejamento - st.subsidio);
+  const ratioB = () => { const r = st.bordados + st.industrial; return r > 0 ? st.bordados / r : 0.5; };
+  const reparte = (rB) => { const r = resto(); st.bordados = Math.round(r * rB * 100) / 100; st.industrial = Math.round((r - st.bordados) * 100) / 100; };
+  const render = () => {
+    ['d-plan', 'd-bordados', 'd-industrial', 'd-subsidio'].forEach(id => set(id, st[{ 'd-plan': 'planejamento', 'd-bordados': 'bordados', 'd-industrial': 'industrial', 'd-subsidio': 'subsidio' }[id]]));
+    const P = st.planejamento || 0, p = v => P ? pct(v / P) : '—';
+    I('d-bordados-h').textContent = t('{p} do planejamento · {m}/mês', { p: p(st.bordados), m: brl0(st.bordados / 12) });
+    I('d-industrial-h').textContent = t('{p} do planejamento · {m}/mês', { p: p(st.industrial), m: brl0(st.industrial / 12) });
+    I('d-plan-h').textContent = P ? t('equivale a {m}/mês', { m: brl0(P / 12) }) : '';
+    const partes = [['bordados', 'Bordados', 'var(--fi-brand)'], ['industrial', 'Industrial', 'var(--fi-info)'], ['subsidio', 'Subsídio', 'var(--fi-warning)']];
+    I('d-barra').innerHTML = P ? partes.filter(([k]) => st[k] > 0).map(([k, n, c]) => `<div style="flex:${st[k]};background:${c}" title="${t(n)} ${brl0(st[k])}">
+        <b>${t(n)}</b><span>${pct(st[k] / P)} · ${brl0(st[k])}</span></div>`).join('') : `<div style="flex:1;background:var(--fi-surface-alt);color:var(--fi-muted)"><span>${t('Informe o planejamento anual')}</span></div>`;
+    I('d-slider').disabled = !resto();
+    if (document.activeElement !== I('d-slider')) I('d-slider').value = Math.round((resto() ? st.bordados / resto() : 0.5) * 1000);
+    const soma = st.bordados + st.industrial + st.subsidio, dif = Math.round((P - soma) * 100) / 100;
+    I('d-status').innerHTML = !P ? `<span class="mt-muted">—</span>` : Math.abs(dif) < 0.01
+      ? `<span class="fi-badge fi-badge--success">✓ ${t('Distribuição fecha no planejamento')}</span>`
+      : `<span class="fi-badge fi-badge--warning">${dif > 0 ? t('Falta distribuir {v}', { v: brl(dif) }) : t('Excede o planejamento em {v}', { v: brl(-dif) })}</span>`;
+    // conferência com os módulos
+    SETORES.forEach(([k]) => {
+      const mid = I('d-mod-' + k).value, plan = st[k];
+      $(`[data-pl="${k}"]`).textContent = brl(plan);
+      if (!mid) { [`[data-ml="${k}"]`, `[data-df="${k}"]`].forEach(s => $(s).textContent = '—'); $(`[data-si="${k}"]`).innerHTML = `<span class="mt-muted mt-small">${t('Sem módulo vinculado')}</span>`; return; }
+      const v = vincDe(mid);
+      const lancado = sum(v.map(x => sum(x.metas.map(z => z || 0))));
+      const completo = v.length && v.every(x => somaMetas(x.metas, 1, 12) != null);
+      const dif2 = plan - lancado;
+      $(`[data-ml="${k}"]`).innerHTML = brl(lancado) + (completo ? '' : `<div class="mt-wait">${t('metas ainda incompletas')}</div>`);
+      $(`[data-df="${k}"]`).innerHTML = `<span class="${Math.abs(dif2) < 0.01 ? 'mt-pos' : dif2 > 0 ? 'mt-warn' : 'mt-neg'} mt-strong">${brl(dif2)}</span>`;
+      $(`[data-si="${k}"]`).innerHTML = Math.abs(dif2) < 0.01 ? `<span class="fi-badge fi-badge--success">✓ ${t('Fechado')}</span>`
+        : dif2 > 0 ? `<span class="fi-badge fi-badge--warning">${t('Falta distribuir aos vendedores')}</span>` : `<span class="fi-badge fi-badge--danger">${t('Metas acima do planejado')}</span>`;
+    });
+  };
+  const ler = id => Math.max(0, parseNum(I(id).value) || 0);
+  I('d-plan').addEventListener('input', () => { const rB = ratioB(); st.planejamento = ler('d-plan'); st.subsidio = Math.min(st.subsidio, st.planejamento); reparte(rB); marca(); render(); });
+  I('d-subsidio').addEventListener('input', () => { const rB = ratioB(); st.subsidio = Math.min(ler('d-subsidio'), st.planejamento); reparte(rB); marca(); render(); });
+  I('d-bordados').addEventListener('input', () => { st.bordados = Math.min(ler('d-bordados'), resto()); st.industrial = Math.round((resto() - st.bordados) * 100) / 100; marca(); render(); });
+  I('d-industrial').addEventListener('input', () => { st.industrial = Math.min(ler('d-industrial'), resto()); st.bordados = Math.round((resto() - st.industrial) * 100) / 100; marca(); render(); });
+  I('d-slider').addEventListener('input', () => { reparte(Number(I('d-slider').value) / 1000); marca(); render(); });
+  ['d-plan', 'd-bordados', 'd-industrial', 'd-subsidio'].forEach(id => I(id).addEventListener('blur', render));
+  SETORES.forEach(([k]) => I('d-mod-' + k).addEventListener('change', () => { marca(); render(); }));
+  I('d-obs').addEventListener('input', marca);
+  I('d-ano').onchange = e => { if (sujo && !window.confirm(t('Há alterações não salvas. Descartar?'))) { e.target.value = ano; return; } S.distAno = Number(e.target.value); aDistribuicao(); };
+  I('d-salvar').onclick = async () => {
+    const d = { ano, planejamento: st.planejamento, bordados: st.bordados, industrial: st.industrial, subsidio: st.subsidio,
+      modulo_bordados: I('d-mod-bordados').value || null, modulo_industrial: I('d-mod-industrial').value || null,
+      observacao: I('d-obs').value.trim() || null, atualizado_em: new Date().toISOString(), atualizado_por: S.nome || S.email };
+    if (Math.abs(d.planejamento - d.bordados - d.industrial - d.subsidio) > 0.01) { notify(t('A soma dos setores e do subsídio precisa fechar no planejamento.'), 'warning'); return; }
+    I('d-salvar').disabled = true;
+    try { await q(S.sb.from('met_distribuicao').upsert(d, { onConflict: 'ano' })); await recarregar(t('Distribuição salva')); }
+    catch (e) { notify(erroMsg(e), 'danger'); I('d-salvar').disabled = false; }
+  };
+  render();
 }
 
 /* ---------------------------- Módulos de metas (lista → configuração com metas mensais) ---------------------------- */
@@ -1376,7 +1504,7 @@ function aFechamento() {
       ${cols.map(c => `<th class="${c[0] === 'faixa' ? '' : 'mt-num'}">${c[1]}</th>`).join('')}</tr></thead><tbody>
       ${linhas.map(l => !l.d ? `<tr><td>${esc(l.x.v.nome)}</td><td colspan="${cols.length + 2}" class="mt-muted">${t('Sem registro neste fechamento (atrelado depois).')}</td></tr>` : `<tr>
         <td class="mt-strong">${esc(l.d.vendedor || l.x.v.nome)} <span data-sl="${l.x.vendedor_id}"></span></td>
-        <td class="mt-num">${brlOuWait(l.d.meta)}</td>
+        <td class="mt-num">${l.d.meta == null && !fechado ? `<a href="#/adm/modulos/${m.id}" class="mt-wait" title="${t('Definir a meta no módulo')}">${t('Definir meta')} →</a>` : brlOuWait(l.d.meta)}</td>
         <td class="mt-num ${!fechado && !sup ? 'mt-tight' : ''}">${!fechado && !sup
           ? `<input class="mt-in" data-v="${l.x.vendedor_id}" value="${l.real == null ? '' : num(l.real)}" placeholder="R$" ${PEND.has(chave(l.x.vendedor_id)) ? 'data-pend="1"' : ''}>`
           : brl(l.d.realizado)}</td>
@@ -1397,12 +1525,14 @@ function aFechamento() {
     const ok = linhas.filter(l => l.d), tot = k => sum(ok.map(l => l.d[k] || 0));
     const T = (k, v) => { const c = $(`[data-tt="${k}"]`); if (c) c.innerHTML = v; };
     T('meta', ok.some(l => l.d.meta == null) ? WAIT() : brl(tot('meta'))); T('realizado', brl(tot('realizado')));
-    T('ating', pct(tot('meta') ? tot('realizado') / tot('meta') : null)); T('faixa', ''); T('base', brl(tot('premio_base'))); T('premio', brl(tot('premio_mes')));
+    T('ating', ok.some(l => l.d.meta == null) ? WAIT() : pct(tot('meta') ? tot('realizado') / tot('meta') : null)); T('faixa', ''); T('base', brl(tot('premio_base'))); T('premio', brl(tot('premio_mes')));
     T('tq', ''); T('rt', brl(tot('recuperacao_tri'))); T('ta', ''); T('ra', brl(tot('recuperacao_ano')));
     T('total', `<b>${brl(tot('total'))}</b>`); T('ce', pct(tot('realizado') ? tot('total') / tot('realizado') : null, 2));
     const sem = linhas.filter(l => l.semLanc).length, aviso = $('#f-semlanc');
-    aviso.style.display = !fechado && sem ? '' : 'none';
-    aviso.textContent = t('{n} vendedor(es) sem lançamento em {m} — no fechamento serão considerados R$ 0,00.', { n: sem, m: MES(mes - 1) });
+    const semMeta = ok.filter(l => l.d.meta == null).map(l => l.d.vendedor);
+    aviso.style.display = !fechado && (sem || semMeta.length) ? '' : 'none';
+    aviso.innerHTML = [sem ? esc(t('{n} vendedor(es) sem lançamento em {m} — no fechamento serão considerados R$ 0,00.', { n: sem, m: MES(mes - 1) })) : '',
+      semMeta.length ? esc(t('Sem meta em {m}: {n} — sem meta não há premiação.', { m: MES(mes - 1), n: semMeta.join(', ') })) + ` <a href="#/adm/modulos/${m.id}">${t('Definir meta')} →</a>` : ''].filter(Boolean).join('<br>');
     const bs = $('#l-salvar'), n = pendDoModulo().length;
     if (bs) { bs.disabled = !n; bs.textContent = n ? t('Salvar lançamentos ({n})', { n }) : t('Salvar lançamentos'); bs.classList.toggle('fi-btn--primary', !!n); }
   };
