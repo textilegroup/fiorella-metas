@@ -165,6 +165,50 @@
   @media(max-width:700px){.mt-form{grid-template-columns:1fr}.mt-kv{grid-template-columns:1fr 1fr}.mt-falta{grid-template-columns:1fr}.mt-faixa{grid-template-columns:1fr 1fr}
     .es-rules{grid-template-columns:1fr}.es-flow{grid-template-columns:1fr}.es-step:not(:last-child)::after{display:none}.es-step{border-radius:8px!important;margin-bottom:6px}
     .es-team{grid-template-columns:1fr}.es-team::before,.es-team>div::before{display:none}.es-g{grid-template-columns:80px 1fr;}.es-g>:last-child{grid-column:1/-1}.es-tl{grid-template-columns:1fr}.es-tl::after,.es-tl::before{display:none}}
+  /* Início compacto (folha A4) */
+  body.mt-a4 .fi-page{width:min(1123px,100%)}
+  .mt-homegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+  .mt-homeano{grid-column:1/-1;margin:4px 0 -4px}
+  .mt-hmod .fi-card__head{display:block;padding:10px 12px}
+  .mt-hmod__tit{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0}
+  .mt-hmod__tit .fi-card__title{font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mt-hmod__tit .mt-row{flex-wrap:nowrap;gap:4px}
+  .mt-hmod__tit .fi-badge{font-size:.58rem;padding:1px 6px}
+  .mt-hmod .fi-card__note{font-size:.66rem;margin-top:1px}
+  .mt-hkpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:8px}
+  .mt-hkpis div{display:grid;gap:1px;min-width:0}
+  .mt-hkpis span{color:var(--fi-muted);font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mt-hkpis b{font-size:.8rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .mt-hmod .fi-card__body{padding:8px 12px 10px}
+  .mt-mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:6px}
+  .mt-mcard>*{min-width:0}
+  .mt-mcard__l2 span{overflow:hidden;text-overflow:ellipsis}
+  .mt-mcard{overflow:hidden;display:grid;gap:3px;padding:6px 8px;border:1px solid var(--fi-line);border-left:3px solid var(--fi-line-strong);border-radius:6px;background:var(--fi-surface);min-width:0}
+  .mt-mcard__l1{display:flex;justify-content:space-between;align-items:baseline;gap:6px;min-width:0}
+  .mt-mcard__l1 b{font-size:.7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mt-mcard__l1 strong{font-size:.86rem;font-variant-numeric:tabular-nums}
+  .mt-mcard .mt-bar{height:5px;min-width:0}
+  .mt-mcard .mt-bar>i{top:-2px;bottom:-2px;width:1px}
+  .mt-mcard__l2{display:flex;justify-content:space-between;gap:4px;color:var(--fi-muted);font-size:.6rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .mt-mcard__l2 b{color:var(--fi-text)}
+  .mt-hsub{display:flex;justify-content:space-between;gap:8px;margin:8px 0 4px;color:var(--fi-brand);font-size:.58rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+  .mt-hsub span{color:var(--fi-muted);letter-spacing:0;text-transform:none;font-weight:600}
+  @media(max-width:900px){.mt-homegrid{grid-template-columns:1fr}.mt-hkpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  /* Edição de textos (ADM) */
+  .mt-edbar{position:fixed;right:18px;bottom:18px;z-index:240;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(100vw - 36px)}
+  .mt-edbar .mt-edhint{max-width:330px;padding:7px 10px;border:1px solid var(--fi-line);border-radius:7px;background:var(--fi-surface);color:var(--fi-muted);font-size:.7rem;box-shadow:var(--fi-shadow)}
+  .mt-edbar .fi-btn{box-shadow:var(--fi-shadow)}
+  body.mt-tem-edbar .fi-toast-region{bottom:74px}
+  .mt-ed{outline:1px dashed var(--fi-brand);outline-offset:2px;border-radius:3px;cursor:text;min-width:24px}
+  .mt-ed:focus{outline:2px solid var(--fi-brand);background:color-mix(in srgb,var(--fi-brand) 6%,transparent)}
+  .mt-ed.mt-ed-mod{outline-style:solid;outline-color:var(--fi-warning)}
+  .mt-ed:empty::before{content:attr(data-ph);color:var(--fi-muted);font-style:italic}
+  @media print{
+    @page{size:A4 landscape;margin:8mm}
+    body.mt-a4 .fi-page{width:100%}
+    .mt-edbar{display:none!important}
+    .mt-homegrid{gap:6px}
+  }
   @media print{
     .fi-topbar,.mt-noprint,.fi-toast-region,.mt-tabs{display:none!important}
     body.fi-app{background:#fff}
@@ -209,6 +253,11 @@
 </main>
 
 <div id="modal-root"></div>
+<div class="mt-edbar mt-hidden mt-noprint" id="mt-edbar" data-noed>
+  <span class="mt-edhint mt-hidden" id="ed-hint"></span>
+  <button class="fi-btn mt-hidden" id="ed-cancelar" type="button"></button>
+  <button class="fi-btn fi-btn--primary" id="ed-botao" type="button">✎</button>
+</div>
 
 <script>
 /* =====================================================================
@@ -224,7 +273,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.010', DOC_DATA = '05/10/2026';
+const DOC_VERSAO = 'V.011', DOC_DATA = '06/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -472,13 +521,22 @@ const EN = {
   'Todos os vendedores ({n})':'All sales reps ({n})','Atrelar Supervisão 1 / Supervisão 2…':'Assign Supervision 1 / Supervision 2…',
   'Todos os vendedores dos módulos base (automático — quem entrar depois já conta)':'All sales reps in the base modules (automatic — new reps count too)',
   'Painel da equipe':'Team dashboard','Equipe até {m}':'Team to {m}',
+  'Visão geral de todos os módulos de metas.':'Overview of all target modules.',
+  'Editar':'Edit','Concluir edição':'Finish editing','Salvar textos ({n})':'Save texts ({n})','Textos salvos ({n})':'Texts saved ({n})',
+  'Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.':'Click any text with a dashed outline to change it. Clear it to restore the original text.',
+  'Última edição de textos: {d} por {p}':'Last text edit: {d} by {p}','Editar os textos desta tela':'Edit the texts on this screen',
   'Nenhuma tabela de premiação cadastrada ainda.':'No incentive table registered yet.','Vendedor A':'Rep A','Vendedor B':'Rep B','Vendedor C':'Rep C'
 };
 let LANG = 'pt';
 try { const s = localStorage.getItem('fiorella-metas-lang'); if (s === 'en' || s === 'pt') LANG = s; } catch (_) {}
+/* TXT: textos alterados pelo ADM (tabela met_textos), por idioma — têm prioridade sobre o padrão */
+const TXT = {}, T_KEYS = new Map();
+const tPadrao = s => LANG === 'en' && EN[s] != null ? EN[s] : s;
 function t(s, o) {
-  let r = LANG === 'en' && EN[s] != null ? EN[s] : s;
+  const ov = TXT[LANG + '|' + s];
+  let r = ov != null ? ov : tPadrao(s);
   if (o) Object.keys(o).forEach(k => { r = r.split('{' + k + '}').join(o[k]); });
+  else if (r) T_KEYS.set(r, s);       // registra o texto exibido -> chave (para o modo edição)
   return r;
 }
 const LOC = () => LANG === 'en' ? 'en-US' : 'pt-BR';
@@ -502,6 +560,7 @@ const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const UI = () => window.FiorellaUI;
 const brl = v => new Intl.NumberFormat(LOC(), { style: 'currency', currency: 'BRL' }).format(Number(v) || 0);
+const brlC = v => new Intl.NumberFormat(LOC(), { notation: 'compact', maximumFractionDigits: 1 }).format(Number(v) || 0);
 const brl0 = v => new Intl.NumberFormat(LOC(), { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(Number(v) || 0);
 const num = (v, d) => new Intl.NumberFormat(LOC(), { minimumFractionDigits: d == null ? 2 : d, maximumFractionDigits: d == null ? 2 : d }).format(Number(v) || 0);
 const pct = (v, d) => v == null || !isFinite(v) ? '—' : new Intl.NumberFormat(LOC(), { style: 'percent', minimumFractionDigits: d == null ? 1 : d, maximumFractionDigits: d == null ? 1 : d }).format(v);
@@ -692,7 +751,7 @@ function meusVendedores() { return S.vendedores.filter(v => v.email === S.email)
 async function carregar() {
   const sb = S.sb;
   const [reg, ven, tab, mod, mv, rea, fec] = await Promise.all([
-    q(sb.from('met_regioes').select('*').order('nome')),
+    Promise.resolve([]),
     q(sb.from('met_vendedores').select('*').order('nome')),
     q(sb.from('met_tabelas').select('*').order('nome')),
     q(sb.from('met_modulos').select('*').order('ano', { ascending: false }).order('nome')),
@@ -705,6 +764,12 @@ async function carregar() {
                      mv: mv || [], realizado: rea || [], fechamentos: fec || [] });
   if (S.admin) { try { S.contas = await q(sb.rpc('met_contas_central')); } catch (_) { S.contas = null; } }
   try { S.vis = await q(sb.from('met_visibilidade').select('*')) || []; } catch (_) { S.vis = []; }
+  try {
+    const tx = await q(sb.from('met_textos').select('*')) || [];
+    Object.keys(TXT).forEach(k => delete TXT[k]);
+    tx.forEach(r => { TXT[r.lang + '|' + r.chave] = r.texto; });
+    S.txtUlt = tx.reduce((a, r) => !a || r.atualizado_em > a.atualizado_em ? r : a, null);
+  } catch (_) { /* tabela ainda não criada: segue com os textos padrão */ }
 }
 
 /* ------------------------------ modal ------------------------------ */
@@ -743,7 +808,7 @@ function modal({ titulo, corpo, botoes, largura }) {
 function setHead(eyebrow, titulo, sub, acoesHtml) {
   $('#eyebrow').textContent = eyebrow;
   const tt = $('#titulo'), ver = tt.querySelector('.fi-ui-version');
-  tt.textContent = titulo; if (ver) tt.appendChild(ver);
+  tt.textContent = ''; const sp = document.createElement('span'); sp.id = 'titulo-tx'; sp.textContent = titulo; tt.appendChild(sp); if (ver) tt.appendChild(ver);
   $('#subtitulo').textContent = sub || '';
   $('#head-acoes').innerHTML = acoesHtml || '';
 }
@@ -764,13 +829,20 @@ function aplicarIdioma() {
 }
 function trocarIdioma(l) {
   if (l === LANG) return;
-  if ($('.mt-in.mt-dirty') && !window.confirm(t('Há alterações não salvas. Descartar?'))) return;
+  if (($('.mt-in.mt-dirty') || (S.editando && S.edPend.size)) && !window.confirm(t('Há alterações não salvas. Descartar?'))) return;
+  if (S.editando) sairEdicao();
   LANG = l;
   try { localStorage.setItem('fiorella-metas-lang', l); } catch (_) {}
   $('#modal-root').innerHTML = '';
   aplicarIdioma(); rota();
 }
 function rota() {
+  const nm = ((location.hash || '#/inicio').replace(/^#\/?/, '').split('/')[0]) || 'inicio';
+  document.body.classList.toggle('mt-a4', ['inicio', 'painel', 'estrategia'].includes(nm) || !['adm', 'modulo'].includes(nm));
+  rota0();
+  if (S.editando) setTimeout(marcarEditaveis, 0);
+}
+function rota0() {
   const h = (location.hash || '#/inicio').replace(/^#\/?/, '').split('/');
   const nome = h[0] || 'inicio';
   $('#nav').classList.remove('fi-open');
@@ -826,9 +898,19 @@ function totaisEquipe(m, ate) {
   const cs = equipeUniao(m).map(z => calcVinc(z.baseMod, z, ate));
   return { meta: sum(cs.map(c => c.metaAte)), real: sum(cs.map(c => c.realAte)) };
 }
+function miniCard(m, x, c) {
+  const a = c.atingAte;
+  const dica = `${x.v.nome} — ${t('Acumulado')}: ${brl0(c.realAte)} / ${c.metaAte ? brl0(c.metaAte) : '—'} · ${t('Premiação acumulada')}: ${brl0(c.totalAte)}`;
+  return `<div class="mt-mcard" title="${esc(dica)}" style="border-left-color:${corAt(a)}">
+    <div class="mt-mcard__l1"><b title="${esc(x.v.nome)}">${esc(x.v.nome)}</b><strong style="color:${corAt(a)}">${pct(a)}</strong></div>
+    <div class="mt-bar"><span style="width:${Math.min(100, (a || 0) / 1.1 * 100)}%;background:${corAt(a)}"></span><i style="left:${90 / 1.1}%"></i><i style="left:${100 / 1.1}%"></i></div>
+    <div class="mt-mcard__l2"><span>${brlC(c.realAte)} / ${c.metaAte ? brlC(c.metaAte) : '—'}</span><b>${brl0(c.totalAte)}</b></div>
+  </div>`;
+}
+/* Início: todos os grupos de metas numa única folha (A4 paisagem), sem links — a navegação fica só no menu superior */
 function vInicio() {
   setHead(t('Comercial'), t('Metas e Premiação'),
-    S.veTudo ? t('Todos os módulos de metas. Clique para ver o detalhamento por vendedor.') : t('Módulos de metas liberados para você.'));
+    S.veTudo ? t('Visão geral de todos os módulos de metas.') : t('Módulos de metas liberados para você.'));
   const meusIds = new Set(meusVendedores().map(v => v.id));
   const mods = S.modulos.filter(m => S.veTudo || (m.visivel && m.ativo && S.mv.some(x => x.modulo_id === m.id && meusIds.has(x.vendedor_id))));
   if (!mods.length) {
@@ -838,9 +920,9 @@ function vInicio() {
     return;
   }
   const anos = [...new Set(mods.map(m => m.ano))].sort((a, b) => b - a);
-  let html = '';
+  let html = '<div class="mt-homegrid">';
   anos.forEach(ano => {
-    html += `<div class="fi-eyebrow mt-mt2">${ano}</div>`;
+    if (anos.length > 1) html += `<div class="fi-eyebrow mt-homeano">${ano}</div>`;
     mods.filter(m => m.ano === ano).forEach(m => {
       const vinc = vincDe(m.id).filter(x => S.veTudo || x.v.email === S.email);
       const ate = Math.max(ultimoFechado(m.id), mesPadrao(m.ano));
@@ -851,30 +933,30 @@ function vInicio() {
       if (ehSup(m)) { const te = totaisEquipe(m, ate); meta = te.meta; real = te.real; }
       const at = meta > 0 ? real / meta : null;
       const tb = byId(S.tabelas, m.tabela_id), fech = ultimoFechado(m.id);
-      html += `<section class="fi-card mt-mt">
-        <div class="fi-card__head mt-modhead" data-mod="${m.id}" tabindex="0" title="${t('Abrir o detalhamento do módulo')}">
-          <div><div class="fi-card__title">${esc(m.nome)} <span class="mt-small mt-muted">→</span></div>
-            <div class="fi-card__note">${esc(tb ? tb.nome : '—')}</div>
-            <div class="mt-row" style="margin-top:6px">${tipoBadge(m)}${S.veTudo ? (m.visivel ? `<span class="fi-badge fi-badge--success">${t('Liberado')}</span>` : `<span class="fi-badge">${t('Oculto')}</span>`) : ''}${!m.ativo ? `<span class="fi-badge fi-badge--warning">${t('Inativo')}</span>` : ''}</div></div>
-          <div class="mt-modkpis">
-            <div><span>${t('Meta até {m}', { m: MES(ate - 1) })}</span><b>${meta ? brl0(meta) : WAIT()}</b></div>
+      let equipe = '';
+      if (ehSup(m) && S.veTudo) {
+        const eq = equipeUniao(m).map(z => ({ z, c: calcVinc(z.baseMod, z, ate) }));
+        if (eq.length) equipe = `<div class="mt-hsub">${t('Painel da equipe')} · ${eq.length}<span>${t('Equipe até {m}', { m: MES(ate - 1) })}: <b style="color:${corAt(at)}">${pct(at)}</b></span></div>
+          <div class="mt-mgrid">${eq.map(({ z, c }) => miniCard(z.baseMod, z, c)).join('')}</div>`;
+      }
+      html += `<section class="fi-card mt-hmod">
+        <div class="fi-card__head">
+          <div class="mt-hmod__tit"><div class="fi-card__title" title="${esc(m.nome)}">${esc(m.nome)}</div>
+            <div class="mt-row">${tipoBadge(m)}${S.veTudo && !m.visivel ? `<span class="fi-badge">${t('Oculto')}</span>` : ''}${!m.ativo ? `<span class="fi-badge fi-badge--warning">${t('Inativo')}</span>` : ''}</div></div>
+          <div class="fi-card__note">${esc(tb ? tb.nome : '—')}</div>
+          <div class="mt-hkpis">
+            <div><span>${t('Meta até {m}', { m: MES(ate - 1) })}</span><b>${meta ? brl0(meta) : '—'}</b></div>
             <div><span>${t('Realizado')}</span><b>${brl0(real)}</b></div>
             <div><span>${t('Atingido')}</span><b style="color:${corAt(at)}">${pct(at)}</b></div>
             <div><span>${t('Premiação acumulada')}</span><b>${brl0(premio)}</b></div>
             <div><span>${t('Fechado até')}</span><b>${fech ? MES(fech - 1) : '—'}</b></div>
           </div></div>
-        <div class="fi-card__body"><div class="mt-pgrid">
-        ${linhas.map(({ x, c }) => cardPessoa(m, x, c, ate)).join('') || `<div class="mt-muted mt-small">${t('Nenhum vendedor atrelado.')}</div>`}
-        </div>${ehSup(m) ? painelEquipe(m, ate) : ''}</div></section>`;
+        <div class="fi-card__body"><div class="mt-mgrid">
+        ${linhas.map(({ x, c }) => miniCard(m, x, c)).join('') || `<div class="mt-muted mt-small">${t('Nenhum vendedor atrelado.')}</div>`}
+        </div>${equipe}</div></section>`;
     });
   });
-  $('#view').innerHTML = html;
-  $$('[data-mod]').forEach(c => {
-    const go = () => { location.hash = '#/modulo/' + c.dataset.mod; };
-    c.addEventListener('click', go);
-    c.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
-  });
-  ligaCards($('#view'));
+  $('#view').innerHTML = html + '</div>';
 }
 
 /* ========================== DETALHE DO MÓDULO ========================== */
@@ -2348,6 +2430,104 @@ function aplicarVisibilidade() {
   $('#nav-adm').classList.toggle('mt-hidden', !(S.admin && podeAdm()));
 }
 
+/* ======================= EDIÇÃO DE TEXTOS (ADM) =======================
+   Como no fiorella-ia: botão "Editar" no canto inferior direito; os textos fixos da tela
+   ganham contorno tracejado e podem ser alterados ali mesmo. Salvo em met_textos (por idioma). */
+const ED_INLINE = new Set(['B', 'STRONG', 'I', 'EM', 'BR']);
+const ED_FORA = 'input,select,textarea,button,a,option,svg,canvas,[data-noed],.fi-table td';
+S.edPend = new Map(); S.editando = false;
+let edNorm = null, edNormN = -1, edObs = null;
+function mapaEditavel() {
+  if (edNorm && edNormN === T_KEYS.size) return edNorm;
+  edNorm = new Map(); const tp = document.createElement('template');
+  T_KEYS.forEach((k, out) => { tp.innerHTML = out; const n = tp.innerHTML.trim(); if (n && !edNorm.has(n)) edNorm.set(n, k); });
+  edNormN = T_KEYS.size; return edNorm;
+}
+function limparHtml(el) {
+  const out = document.createElement('div');
+  (function walk(src, dst) {
+    src.childNodes.forEach(n => {
+      if (n.nodeType === 3) dst.appendChild(document.createTextNode(n.textContent));
+      else if (n.nodeType === 1) { if (ED_INLINE.has(n.tagName)) { const e = document.createElement(n.tagName.toLowerCase()); dst.appendChild(e); walk(n, e); } else walk(n, dst); }
+    });
+  })(el, out);
+  return out.innerHTML.trim();
+}
+const valorEd = el => el.dataset.edh === '1' ? limparHtml(el) : el.textContent.replace(/[<>]/g, '').replace(/\s+/g, ' ').trim();
+function marcarEditaveis() {
+  if (!S.editando) return;
+  const mapa = mapaEditavel();
+  $$('.fi-page *').forEach(el => {
+    if (el.dataset.edk || el.closest(ED_FORA) || (el.parentElement && el.parentElement.closest('[data-edk]'))) return;
+    if (![...el.children].every(c => ED_INLINE.has(c.tagName)) || !el.textContent.trim() || el.offsetParent === null) return;
+    const k = mapa.get(el.innerHTML.trim()); if (!k) return;
+    el.dataset.edk = k; el.dataset.edh = el.children.length ? '1' : '';
+    el.dataset.ph = tPadrao(k).replace(/<[^>]+>/g, '');
+    if (S.edPend.has(k)) { const v = S.edPend.get(k); if (el.dataset.edh) el.innerHTML = v; else el.textContent = v; el.classList.add('mt-ed-mod'); }
+    el.contentEditable = 'true'; el.spellcheck = false; el.classList.add('mt-ed');
+  });
+}
+function desmarcarEditaveis() {
+  $$('[data-edk]').forEach(el => { el.removeAttribute('contenteditable'); el.classList.remove('mt-ed', 'mt-ed-mod'); delete el.dataset.edk; delete el.dataset.edh; });
+}
+function barraEdicao() {
+  const bar = $('#mt-edbar'); if (!bar) return;
+  bar.classList.toggle('mt-hidden', !S.admin); document.body.classList.toggle('mt-tem-edbar', !!S.admin);
+  const bt = $('#ed-botao'), cc = $('#ed-cancelar'), hint = $('#ed-hint'), n = S.edPend.size;
+  cc.textContent = t('Cancelar');
+  if (S.editando) {
+    bt.textContent = n ? t('Salvar textos ({n})', { n }) : t('Concluir edição');
+    hint.textContent = t('Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.');
+  } else {
+    bt.textContent = '✎ ' + t('Editar');
+    const u = S.txtUlt;
+    bt.title = u ? t('Última edição de textos: {d} por {p}', { d: new Date(u.atualizado_em).toLocaleString(LOC()), p: u.atualizado_por || '—' }) : t('Editar os textos desta tela');
+  }
+  cc.classList.toggle('mt-hidden', !S.editando); hint.classList.toggle('mt-hidden', !S.editando);
+}
+function entrarEdicao() {
+  S.editando = true; S.edPend = new Map(); document.body.classList.add('mt-editando');
+  marcarEditaveis();
+  edObs = new MutationObserver(() => { clearTimeout(edObs._t); edObs._t = setTimeout(marcarEditaveis, 60); });
+  edObs.observe($('.fi-page'), { childList: true, subtree: true });
+  barraEdicao();
+}
+function sairEdicao() {
+  S.editando = false; S.edPend = new Map(); document.body.classList.remove('mt-editando');
+  if (edObs) { edObs.disconnect(); edObs = null; }
+  desmarcarEditaveis(); barraEdicao();
+}
+async function salvarTextos() {
+  if (!S.edPend.size) { sairEdicao(); return; }
+  const ups = [], dels = [], agora = new Date().toISOString();
+  S.edPend.forEach((v, k) => { if (!v || v === tPadrao(k)) dels.push(k); else ups.push({ lang: LANG, chave: k, texto: v, atualizado_em: agora, atualizado_por: S.nome || S.email }); });
+  const bt = $('#ed-botao'); bt.disabled = true;
+  try {
+    if (ups.length) await q(S.sb.from('met_textos').upsert(ups));
+    for (const k of dels) await q(S.sb.from('met_textos').delete().eq('lang', LANG).eq('chave', k));
+    ups.forEach(r => { TXT[LANG + '|' + r.chave] = r.texto; }); dels.forEach(k => { delete TXT[LANG + '|' + k]; });
+    if (ups.length) S.txtUlt = ups[0];
+    const n = ups.length + dels.length;
+    sairEdicao(); aplicarIdioma(); rota();
+    notify(t('Textos salvos ({n})', { n }), 'success');
+  } catch (e) { notify(erroMsg(e), 'danger'); } finally { bt.disabled = false; }
+}
+document.addEventListener('input', e => {
+  const el = e.target.closest && e.target.closest('[data-edk]'); if (!el || !S.editando) return;
+  S.edPend.set(el.dataset.edk, valorEd(el)); el.classList.add('mt-ed-mod');
+  $$('[data-edk]').forEach(o => { if (o !== el && o.dataset.edk === el.dataset.edk) { if (o.dataset.edh) o.innerHTML = el.innerHTML; else o.textContent = el.textContent; } });
+  barraEdicao();
+});
+document.addEventListener('keydown', e => { if (S.editando && e.key === 'Enter' && e.target.closest && e.target.closest('[data-edk]')) { e.preventDefault(); e.target.blur(); } });
+document.addEventListener('paste', e => {
+  const el = e.target.closest && e.target.closest('[data-edk]'); if (!el) return;
+  e.preventDefault(); document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text/plain').replace(/\s+/g, ' '));
+});
+document.addEventListener('click', e => { if (S.editando && e.target.closest && e.target.closest('[data-edk]')) { e.stopPropagation(); e.preventDefault(); } }, true);
+$('#ed-botao').addEventListener('click', () => S.editando ? salvarTextos() : entrarEdicao());
+$('#ed-cancelar').addEventListener('click', () => { const tinha = S.edPend.size; sairEdicao(); if (tinha) rota(); });
+window.addEventListener('beforeunload', e => { if (S.editando && S.edPend.size) { e.preventDefault(); e.returnValue = ''; } });
+
 $$('[data-lang]').forEach(b => b.addEventListener('click', () => trocarIdioma(b.dataset.lang)));
 aplicarIdioma();
 async function iniciar() {
@@ -2357,7 +2537,7 @@ async function iniciar() {
     S.veTudo = S.admin || app.permissao === 'editar';
     S.email = String(app.usuario.email || '').toLowerCase(); S.nome = app.usuario.nome || '';
     await carregar();
-    aplicarVisibilidade();
+    aplicarIdioma(); aplicarVisibilidade(); barraEdicao();
     window.addEventListener('hashchange', () => { $('#modal-root').innerHTML = ''; rota(); });
     rota();
   } catch (e) {
