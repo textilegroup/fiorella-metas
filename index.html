@@ -77,6 +77,8 @@
   .mt-lock{font-size:.66rem;margin-left:4px}
   .mt-loading{padding:60px 0;text-align:center;color:var(--fi-muted)}
   .mt-printhead{display:none}
+  .fi-table tr.mt-lider td{background:color-mix(in srgb,var(--fi-info) 7%,var(--fi-surface))}
+  .fi-table tr.mt-lider:first-of-type td,.fi-table tr:not(.mt-lider)+tr.mt-lider td{border-top:2px solid var(--fi-line-strong)}
   .mt-tip{position:relative;display:inline-grid;place-items:center;width:17px;height:17px;margin-left:5px;border-radius:50%;border:1px solid var(--fi-line-strong);color:var(--fi-muted);font-size:.66rem;font-weight:800;cursor:help;vertical-align:middle;text-transform:none;letter-spacing:0}
   .mt-tip:hover,.mt-tip:focus{border-color:var(--fi-brand);color:var(--fi-brand);outline:none}
   .mt-tip>span{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);z-index:120;width:300px;padding:10px 12px;border-radius:7px;background:#171a1f;color:#fff;font-size:.74rem;font-weight:500;line-height:1.45;text-align:left;white-space:normal;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;visibility:hidden;transition:opacity .15s;pointer-events:none}
@@ -408,6 +410,11 @@ const EN = {
   'Cliente / motivo':'Client / reason','− {v} excluídos':'− {v} excluded','excl.: {o}':'excl.: {o}','Motivo da exclusão':'Exclusion reason',
   'Realizado p/ meta = realizado bruto − vendas excluídas (quando a caixa estiver marcada). Comissão efetiva = total a pagar ÷ realizado p/ meta.':'Actual for target = gross actual − excluded sales (when the box is checked). Effective commission = total payable ÷ actual for target.',
   'Vendas que o vendedor preferiu deixar fora da meta (ex.: cliente com venda instável). Preencha o valor e marque a caixa: ele é subtraído do realizado bruto. Sem a caixa marcada, o valor fica só registrado e não é descontado. Use “Cliente / motivo” para identificar.':'Sales the rep chose to leave out of the target (e.g. a client with unstable sales). Enter the amount and check the box: it is subtracted from the gross actual. Unchecked, the amount is only recorded and not deducted. Use “Client / reason” to identify it.',
+  'Gerência':'Management','Gerente':'Manager','Gerente — premiação pela meta do grupo':'Manager — incentive on the group target',
+  'Liderança do grupo':'Group leadership','Remunerados pela soma de vendas do grupo.':'Paid on the group’s total sales.',
+  'Supervisão e gerência deste grupo são remuneradas pela soma das vendas de todos os vendedores do módulo (meta do grupo × realizado do grupo), com tabela de premiação própria. Defina o prêmio-base de cada um na grade abaixo, na opção “Prêmio-base”. Eles não entram na soma das metas e vendas do grupo.':'This group’s supervision and management are paid on the total sales of all reps in the module (group target × group actual), with their own incentive table. Set each one’s base incentive in the grid below, under “Base incentive”. They are not added to the group’s targets and sales.',
+  'Tabela da supervisão':'Supervision table','Tabela da gerência':'Management table','— sem —':'— none —','Mesma do módulo ({n})':'Same as module ({n})',
+  'Esta pessoa já participa do módulo com outro papel.':'This person already takes part in the module with another role.','{p} definida':'{p} set','{p} removida':'{p} removed',
   'Nenhuma tabela de premiação cadastrada ainda.':'No incentive table registered yet.','Vendedor A':'Rep A','Vendedor B':'Rep B','Vendedor C':'Rep C'
 };
 let LANG = 'pt';
@@ -568,20 +575,33 @@ function fechadosDe(moduloId) { const s = new Set(); S.fechamentos.forEach(f => 
 function ultimoFechado(moduloId) { let u = 0; fechadosDe(moduloId).forEach(m => { if (m > u) u = m; }); return u; }
 const ehSup = m => !!m && m.tipo === 'supervisao';
 const tipoBadge = m => ehSup(m) ? `<span class="fi-badge fi-badge--info">${t('Meta de supervisão')}</span>` : `<span class="fi-badge">${t('Meta de vendedor')}</span>`;
+const ehLider = x => !!x && (x.papel === 'supervisor' || x.papel === 'gerente');
+const ORDEM_PAPEL = { vendedor: 0, supervisor: 1, gerente: 2 };
+const papelBadge = x => !ehLider(x) ? '' : x.papel === 'supervisor'
+  ? ` <span class="fi-badge fi-badge--info">${t('Supervisão')}</span>` : ` <span class="fi-badge fi-badge--warning">${t('Gerência')}</span>`;
 function vincDe(moduloId) {
   const mod = byId(S.modulos, moduloId);
   const lista = S.mv.filter(x => x.modulo_id === moduloId)
-    .map(x => ({ ...x, equipe: x.equipe || [], metas: (x.metas || Array(12).fill(null)).map(valorMeta), premios: (x.premios || Array(12).fill(0)), v: byId(S.vendedores, x.vendedor_id) }))
+    .map(x => ({ ...x, papel: x.papel || 'vendedor', equipe: x.equipe || [], metas: (x.metas || Array(12).fill(null)).map(valorMeta), premios: (x.premios || Array(12).fill(0)), v: byId(S.vendedores, x.vendedor_id) }))
     .filter(x => x.v)
-    .sort((a, b) => a.v.nome.localeCompare(b.v.nome, 'pt-BR'));
+    .sort((a, b) => (ORDEM_PAPEL[a.papel] - ORDEM_PAPEL[b.papel]) || a.v.nome.localeCompare(b.v.nome, 'pt-BR'));
   if (ehSup(mod)) lista.forEach(x => Object.assign(x, consolidar(mod, x)));
+  else {
+    // supervisão / gerência do grupo: meta e realizado = soma de todos os vendedores do módulo
+    const vend = lista.filter(x => !ehLider(x));
+    lista.filter(ehLider).forEach(x => Object.assign(x, consolidarEq(vend, mod)));
+  }
   return lista;
 }
+const soVendedores = lista => lista.filter(x => !ehLider(x));
 /* Supervisão: meta e realizado de cada mês = soma da equipe no módulo base de vendedores.
    Mês com meta ou realizado faltando em algum vendedor da equipe fica nulo ("Aguardando dados"). */
 function consolidar(mod, x) {
   const base = byId(S.modulos, mod.base_modulo_id);
-  const eq = base && !ehSup(base) ? vincDe(base.id).filter(z => x.equipe.includes(z.vendedor_id)) : [];
+  const eq = base && !ehSup(base) ? soVendedores(vincDe(base.id)).filter(z => x.equipe.includes(z.vendedor_id)) : [];
+  return consolidarEq(eq, base);
+}
+function consolidarEq(eq, base) {
   const metas = [], real = [];
   for (let i = 0; i < 12; i++) {
     if (!eq.length) { metas.push(null); real.push(null); continue; }
@@ -592,8 +612,13 @@ function consolidar(mod, x) {
   }
   return { metas, realSup: real, equipeV: eq, baseMod: base };
 }
-function realPart(m, x) { return ehSup(m) ? (x.realSup || Array(12).fill(null)) : realDe(m.id, x.vendedor_id); }
-function calcVinc(mod, x, ate) { return calcular(byId(S.tabelas, mod.tabela_id), x.metas, x.premios, realPart(mod, x), ate); }
+function realPart(m, x) { return ehSup(m) || ehLider(x) ? (x.realSup || Array(12).fill(null)) : realDe(m.id, x.vendedor_id); }
+/* cada papel pode ter sua própria tabela de premiação no módulo */
+function tabelaDe(m, x) {
+  const id = (x && x.papel === 'supervisor' && m.tabela_supervisor_id) || (x && x.papel === 'gerente' && m.tabela_gerente_id) || m.tabela_id;
+  return byId(S.tabelas, id) || byId(S.tabelas, m.tabela_id);
+}
+function calcVinc(mod, x, ate) { return calcular(tabelaDe(mod, x), x.metas, x.premios, realPart(mod, x), ate); }
 function meusVendedores() { return S.vendedores.filter(v => v.email === S.email); }
 
 async function carregar() {
@@ -707,7 +732,7 @@ function vInicio() {
       const vinc = vincDe(m.id).filter(x => S.veTudo || x.v.email === S.email);
       const ate = Math.max(ultimoFechado(m.id), mesPadrao(m.ano));
       let meta = 0, real = 0, premio = 0;
-      vinc.forEach(x => { const c = calcVinc(m, x, ate); meta += c.metaAte; real += c.realAte; premio += c.totalAte; });
+      vinc.forEach(x => { const c = calcVinc(m, x, ate); if (!ehLider(x) || !S.veTudo) { meta += c.metaAte; real += c.realAte; } premio += c.totalAte; });
       const at = meta > 0 ? real / meta : null;
       const tb = byId(S.tabelas, m.tabela_id), reg = byId(S.regioes, m.regiao_id), fech = ultimoFechado(m.id);
       html += `<article class="fi-card mt-modcard" data-mod="${m.id}" tabindex="0">
@@ -753,11 +778,10 @@ function vModulo(id, mesSel, regSel) {
 
   const linhas = vinc.map(x => ({ x, c: calcVinc(m, x, mes) }));
   const tot = { meta: 0, metaOk: true, real: 0, premio: 0, rec: 0, total: 0, metaAte: 0, realAte: 0, totalAte: 0 };
-  linhas.forEach(({ c }) => {
-    const mm = c.meses[mes - 1];
-    if (mm.meta == null) tot.metaOk = false; else tot.meta += mm.meta;
-    tot.real += mm.real || 0; tot.premio += mm.premio; tot.rec += mm.pagoTri + mm.pagoAno; tot.total += mm.total;
-    tot.metaAte += c.metaAte; tot.realAte += c.realAte; tot.totalAte += c.totalAte;
+  linhas.forEach(({ x, c }) => {
+    const mm = c.meses[mes - 1], lid = ehLider(x) && linhas.some(l => !ehLider(l.x));
+    if (!lid) { if (mm.meta == null) tot.metaOk = false; else tot.meta += mm.meta; tot.real += mm.real || 0; tot.metaAte += c.metaAte; tot.realAte += c.realAte; }
+    tot.premio += mm.premio; tot.rec += mm.pagoTri + mm.pagoAno; tot.total += mm.total; tot.totalAte += c.totalAte;
   });
   const metaMes = tot.metaOk && linhas.length ? tot.meta : null;
   const regsDoMod = [...new Set(vincDe(m.id).map(x => x.v.regiao_id).filter(Boolean))];
@@ -790,7 +814,7 @@ function vModulo(id, mesSel, regSel) {
     const mm = c.meses[mes - 1];
     const eq = mm.real && mm.total ? mm.total / mm.real : null;
     html += `<tr data-vend="${x.vendedor_id}" style="cursor:pointer">
-      <td class="mt-strong">${esc(x.v.nome)}</td><td>${esc((byId(S.regioes, x.v.regiao_id) || {}).nome || '—')}</td>
+      <td class="mt-strong">${esc(x.v.nome)}${papelBadge(x)}</td><td>${esc((byId(S.regioes, x.v.regiao_id) || {}).nome || '—')}</td>
       <td class="mt-num">${brlOuWait(mm.meta)}</td><td class="mt-num">${mm.real == null ? '<span class="mt-muted">—</span>' : brl(mm.real)}${(() => { const i = infoMes(m, x, mm.mes); return i.excluir && i.excluido ? `<div class="mt-small mt-neg" title="${esc(i.obs || '')}">${esc(t('− {v} excluídos', { v: brl0(i.excluido) }))}</div>` : ''; })()}</td>
       <td class="mt-num">${pct(mm.ating)}</td><td><span class="mt-pill ${classeMult(mm.mult)}">${mm.apurado ? multTxt(mm.mult) : '—'}</span></td>
       <td class="mt-num">${brl(mm.base)}</td><td class="mt-num">${brl(mm.premio)}</td>
@@ -868,7 +892,7 @@ function tabelaAnoHtml(m, x, c) {
   return h;
 }
 function comissaoHtml(m, x, mes) {
-  const tb = byId(S.tabelas, m.tabela_id);
+  const tb = tabelaDe(m, x);
   const meta = x.metas[mes - 1], base = Number(x.premios[mes - 1]) || 0;
   if (meta == null) return `<div class="fi-alert fi-alert--info">${t('Meta do mês não lançada')} — ${WAIT()}</div>`;
   const r = realPart(m, x)[mes - 1] || 0;
@@ -878,7 +902,7 @@ function comissaoHtml(m, x, mes) {
 }
 /* Supervisão: desempenho de cada vendedor da equipe no mês */
 function equipeHtml(m, x, mes) {
-  if (!ehSup(m) || !x.baseMod) return '';
+  if (!x.equipeV || !x.baseMod) return '';
   const linhas = (x.equipeV || []).map(z => {
     const meta = z.metas[mes - 1], real = realDe(x.baseMod.id, z.vendedor_id)[mes - 1];
     const acM = sum(z.metas.slice(0, mes).map(v => v || 0)), acR = sum(realDe(x.baseMod.id, z.vendedor_id).slice(0, mes).map(v => v || 0));
@@ -1073,7 +1097,7 @@ function aVendedores() {
     <div class="fi-card__note">${t('O e-mail precisa ser o mesmo da conta na Central de Acesso — é por ele que cada vendedor vê só o próprio painel.')}</div></div>
     <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Nova pessoa')}</button></div>
     <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Nome')}</th><th>${t('Função')}</th><th>${t('E-mail')}</th><th>${t('Região')}</th><th>${t('Telefone')}</th><th>${t('Central')}</th><th class="mt-num">${t('Módulos')}</th><th>${t('Status')}</th><th></th></tr></thead><tbody>
-    ${S.vendedores.map(v => `<tr><td class="mt-strong">${esc(v.nome)}</td><td>${v.funcao === 'supervisor' ? `<span class="fi-badge fi-badge--info">${t('Supervisor')}</span>` : `<span class="fi-badge">${t('Vendedor')}</span>`}</td><td>${esc(v.email)}</td><td>${esc((byId(S.regioes, v.regiao_id) || {}).nome || '—')}</td>
+    ${S.vendedores.map(v => `<tr><td class="mt-strong">${esc(v.nome)}</td><td>${v.funcao === 'supervisor' ? `<span class="fi-badge fi-badge--info">${t('Supervisor')}</span>` : v.funcao === 'gerente' ? `<span class="fi-badge fi-badge--warning">${t('Gerente')}</span>` : `<span class="fi-badge">${t('Vendedor')}</span>`}</td><td>${esc(v.email)}</td><td>${esc((byId(S.regioes, v.regiao_id) || {}).nome || '—')}</td>
       <td>${esc(v.telefone || '')}</td><td>${contaStatus(v.email)}</td><td class="mt-num">${S.mv.filter(x => x.vendedor_id === v.id).length}</td>
       <td>${badgeAtivo(v.ativo)}</td><td class="mt-num"><button class="fi-btn" data-ed="${v.id}">${t('Editar')}</button></td></tr>`).join('') ||
       `<tr><td colspan="9"><div class="fi-empty">${t('Nenhum vendedor cadastrado.')}</div></td></tr>`}
@@ -1089,7 +1113,8 @@ function formVendedor(v) {
       <label class="fi-field"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="v-nome" value="${esc(v.nome)}"></label>
       <label class="fi-field"><span class="fi-label">${t('Função *')}</span><select class="fi-select" id="v-funcao">
         <option value="vendedor" ${v.funcao !== 'supervisor' ? 'selected' : ''}>${t('Vendedor — comissão + premiação individual')}</option>
-        <option value="supervisor" ${v.funcao === 'supervisor' ? 'selected' : ''}>${t('Supervisor — premiação pela meta da equipe')}</option></select></label>
+        <option value="supervisor" ${v.funcao === 'supervisor' ? 'selected' : ''}>${t('Supervisor — premiação pela meta da equipe')}</option>
+        <option value="gerente" ${v.funcao === 'gerente' ? 'selected' : ''}>${t('Gerente — premiação pela meta do grupo')}</option></select></label>
       <label class="fi-field"><span class="fi-label">${t('E-mail (login da Central) *')}</span><input class="fi-input" id="v-email" type="email" value="${esc(v.email)}" placeholder="nome@fiorella.ind.br"></label>
       <label class="fi-field"><span class="fi-label">${t('Telefone')}</span><input class="fi-input" id="v-tel" value="${esc(v.telefone || '')}"></label>
       <label class="fi-field"><span class="fi-label">${t('Região de atendimento')}</span><select class="fi-select" id="v-reg"><option value="">—</option>
@@ -1137,7 +1162,7 @@ function formTabela(tb) {
   const el = modal({ titulo: tb.id ? t('Editar tabela de premiação') : t('Nova tabela de premiação'), largura: 720,
     corpo: `<div class="mt-form"><label class="fi-field"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="t-nome" value="${esc(tb.nome)}" placeholder="${t('Ex.: Vendedores — premiação reduzida')}"></label>
       <label class="fi-field"><span class="fi-label">${t('Para quem')}</span><select class="fi-select" id="t-tipo">
-        ${['vendedor', 'supervisao', 'ambos'].map(k => `<option value="${k}" ${(tb.tipo || 'ambos') === k ? 'selected' : ''}>${t(tipoTabela({ tipo: k }))}</option>`).join('')}</select></label></div>
+        ${['vendedor', 'supervisao', 'gerencia', 'ambos'].map(k => `<option value="${k}" ${(tb.tipo || 'ambos') === k ? 'selected' : ''}>${t(tipoTabela({ tipo: k }))}</option>`).join('')}</select></label></div>
       ${emUso ? `<div class="fi-alert fi-alert--warning">${t('Tabela em uso: mudanças valem para os meses ainda não fechados dos módulos que a usam.')}</div>` : ''}
       <div id="t-faixas" style="display:grid;gap:8px">${faixasOrd(tb).map(linhaFaixa).join('')}</div>
       <div><button class="fi-btn" id="t-add">${t('+ Faixa')}</button></div>
@@ -1246,7 +1271,7 @@ function aDistribuicao() {
       const mid = I('d-mod-' + k).value, plan = st[k];
       $(`[data-pl="${k}"]`).textContent = brl(plan);
       if (!mid) { [`[data-ml="${k}"]`, `[data-df="${k}"]`].forEach(s => $(s).textContent = '—'); $(`[data-si="${k}"]`).innerHTML = `<span class="mt-muted mt-small">${t('Sem módulo vinculado')}</span>`; return; }
-      const v = vincDe(mid);
+      const v = soVendedores(vincDe(mid));
       const lancado = sum(v.map(x => sum(x.metas.map(z => z || 0))));
       const completo = v.length && v.every(x => somaMetas(x.metas, 1, 12) != null);
       const dif2 = plan - lancado;
@@ -1287,8 +1312,8 @@ function aModulos() {
     <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Módulo')}</th><th>${t('Tipo')}</th><th class="mt-num">${t('Ano')}</th><th>${t('Tabela')}</th>
       <th class="mt-num">${t('Participantes')}</th><th class="mt-num">${t('Meta anual')}</th><th class="mt-num">${t('Prêmio-base anual')}</th><th class="mt-num">${t('Comissão equiv. (100%)')}</th><th>${t('Fechado até')}</th><th>${t('Visualização')}</th><th></th></tr></thead><tbody>
     ${S.modulos.map(m => {
-      const v = vincDe(m.id), metasAno = v.map(x => somaMetas(x.metas, 1, 12));
-      const meta = v.length && metasAno.every(z => z != null) ? sum(metasAno) : null;
+      const v = vincDe(m.id), metasAno = soVendedores(v).map(x => somaMetas(x.metas, 1, 12));
+      const meta = metasAno.length && metasAno.every(z => z != null) ? sum(metasAno) : null;
       const pr = sum(v.map(x => sum(x.premios))), uf = ultimoFechado(m.id);
       return `<tr data-abrir="${m.id}" style="cursor:pointer"><td class="mt-strong">${esc(m.nome)}${m.ativo ? '' : ` <span class="fi-badge fi-badge--warning">${t('Inativo')}</span>`}</td>
       <td>${tipoBadge(m)}</td><td class="mt-num">${m.ano}</td><td>${esc((byId(S.tabelas, m.tabela_id) || {}).nome || '—')}</td>
@@ -1311,15 +1336,16 @@ function aModuloEditor(m) {
   const candidatos = S.vendedores.filter(v => v.ativo && !jaDentro.has(v.id) && (v.funcao || 'vendedor') === funcaoAlvo && (sup || !m.regiao_id || v.regiao_id === m.regiao_id));
   const outros = S.vendedores.filter(v => v.ativo && !jaDentro.has(v.id) && !candidatos.includes(v));
   const editavel = !(sup && campo === 'metas');
+  const editavelX = x => editavel && !(ehLider(x) && campo === 'metas');
   const head = COLS.map(c => typeof c === 'number' ? `<th class="mt-num">${MES(c - 1)}${fech.has(c) ? ' 🔒' : ''}</th>`
     : `<th class="mt-num mt-qcol">${c === 'A' ? t('Ano') : t('{q}º tri', { q: c.slice(1) })}</th>`).join('');
   let linhas = '';
   vinc.forEach(x => {
     const arr = campo === 'metas' ? x.metas : x.premios.map(Number);
-    linhas += `<tr><td class="mt-strong"><a href="#" data-det="${x.vendedor_id}" title="${t('Detalhes e comissão equivalente')}">${esc(x.v.nome)}</a>
+    linhas += `<tr class="${ehLider(x) ? 'mt-lider' : ''}"><td class="mt-strong"><a href="#" data-det="${x.vendedor_id}" title="${t('Detalhes e comissão equivalente')}">${esc(x.v.nome)}</a>${papelBadge(x)}
         ${sup ? `<div class="mt-small mt-muted">${t((x.equipe || []).length === 1 ? '{n} vendedor' : '{n} vendedores', { n: (x.equipe || []).length })}</div>` : ''}</td>
       ${COLS.map(c => typeof c === 'number'
-        ? (editavel ? `<td class="mt-tight"><input class="mt-in" data-v="${x.vendedor_id}" data-m="${c}" value="${arr[c - 1] == null ? '' : num(arr[c - 1])}" data-orig="${arr[c - 1] == null ? '' : arr[c - 1]}" ${fech.has(c) ? 'disabled' : ''}></td>`
+        ? (editavelX(x) ? `<td class="mt-tight"><input class="mt-in" data-v="${x.vendedor_id}" data-m="${c}" value="${arr[c - 1] == null ? '' : num(arr[c - 1])}" data-orig="${arr[c - 1] == null ? '' : arr[c - 1]}" ${fech.has(c) ? 'disabled' : ''}></td>`
                     : `<td class="mt-num" data-ro="${x.vendedor_id}|${c}">${brlOuWait(arr[c - 1])}</td>`)
         : `<td class="mt-num mt-qcol" data-calc="${x.vendedor_id}|${c}"></td>`).join('')}
       <td class="mt-num" style="white-space:nowrap">${sup ? `<button class="fi-btn" data-eqp="${x.vendedor_id}">${t('Equipe')}</button> ` : ''}<button class="fi-icon-btn" data-rmv="${x.vendedor_id}" title="${t('Remover do módulo')}">✕</button></td></tr>`;
@@ -1338,6 +1364,28 @@ function aModuloEditor(m) {
   ${sup ? `<div class="fi-alert fi-alert--info mt-mt">${esc(t('Meta e realizado de cada supervisor = soma da equipe no módulo “{b}”. Aqui você define a equipe e o prêmio-base da supervisão.', { b: base ? base.nome : '—' }))}</div>` : ''}
   ${sup && !base ? `<div class="fi-alert fi-alert--warning mt-mt">${t('Escolha o módulo base (vendedores) em “Editar dados do módulo”.')}</div>` : ''}
   </div></section>
+
+  ${sup ? '' : (() => {
+    const tabsLid = S.tabelas.filter(z => (z.tipo || 'ambos') !== 'vendedor');
+    const selPessoa = papel => {
+      const atual = vinc.find(x => x.papel === papel), fn = papel === 'supervisor' ? 'supervisor' : 'gerente';
+      const pref = S.vendedores.filter(v => v.ativo && (v.funcao || 'vendedor') === fn), resto = S.vendedores.filter(v => v.ativo && (v.funcao || 'vendedor') !== fn && (v.funcao || 'vendedor') !== 'vendedor');
+      return `<select class="fi-select" id="ld-${papel}"><option value="">${t('— sem —')}</option>
+        ${pref.map(v => `<option value="${v.id}" ${atual && atual.vendedor_id === v.id ? 'selected' : ''}>${esc(v.nome)}</option>`).join('')}
+        ${resto.length ? `<optgroup label="${t('Outros')}">${resto.map(v => `<option value="${v.id}" ${atual && atual.vendedor_id === v.id ? 'selected' : ''}>${esc(v.nome)}</option>`).join('')}</optgroup>` : ''}</select>`;
+    };
+    const selTab = papel => { const cur = m['tabela_' + papel + '_id'];
+      return `<select class="fi-select" id="ld-tab-${papel}"><option value="">${esc(t('Mesma do módulo ({n})', { n: tb ? tb.nome : '—' }))}</option>
+        ${tabsLid.map(z => `<option value="${z.id}" ${z.id === cur ? 'selected' : ''}>${esc(z.nome)} — ${t(tipoTabela(z))}</option>`).join('')}</select>`; };
+    return `<section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Liderança do grupo')}${dica(t('Supervisão e gerência deste grupo são remuneradas pela soma das vendas de todos os vendedores do módulo (meta do grupo × realizado do grupo), com tabela de premiação própria. Defina o prêmio-base de cada um na grade abaixo, na opção “Prêmio-base”. Eles não entram na soma das metas e vendas do grupo.'))}</div>
+      <div class="fi-card__note">${t('Remunerados pela soma de vendas do grupo.')}</div></div></div>
+      <div class="fi-card__body mt-form" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+        <label class="fi-field"><span class="fi-label">${t('Supervisão')}</span>${selPessoa('supervisor')}</label>
+        <label class="fi-field"><span class="fi-label">${t('Tabela da supervisão')}</span>${selTab('supervisor')}</label>
+        <label class="fi-field"><span class="fi-label">${t('Gerência')}</span>${selPessoa('gerente')}</label>
+        <label class="fi-field"><span class="fi-label">${t('Tabela da gerência')}</span>${selTab('gerente')}</label>
+      </div></section>`;
+  })()}
 
   <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Participantes e metas mensais')}</div>
       <div class="fi-card__note">${sup ? (campo === 'metas' ? t('Metas calculadas a partir da equipe — somente leitura. Para mudar, ajuste as metas dos vendedores no módulo base.') : t('Prêmio-base mensal da supervisão.'))
@@ -1361,20 +1409,26 @@ function aModuloEditor(m) {
   // grade
   const sujos = new Map(), btS = $('#mm-salvar');
   const valoresDe = x => Array.from({ length: 12 }, (_, i) => {
-    if (!editavel) return (campo === 'metas' ? x.metas : x.premios)[i];
+    if (!editavelX(x)) return (campo === 'metas' ? x.metas : x.premios)[i];
     return parseNum($(`#tb-metas .mt-in[data-v="${x.vendedor_id}"][data-m="${i + 1}"]`).value);
   });
   const somaPer = (arr, de, ate) => campo === 'metas' ? somaMetas(arr, de, ate) : sum(arr.slice(de - 1, ate));
   const per = c => c === 'A' ? [1, 12] : [Number(c.slice(1)) * 3 - 2, Number(c.slice(1)) * 3];
   const recalc = () => {
     const todos = vinc.map(valoresDe);
+    if (!sup && campo === 'metas') {          // liderança acompanha ao vivo a soma dos vendedores
+      const iv = vinc.map((x, k) => ehLider(x) ? null : k).filter(k => k != null);
+      const somaV = Array.from({ length: 12 }, (_, i) => !iv.length || iv.some(k => todos[k][i] == null) ? null : sum(iv.map(k => todos[k][i])));
+      vinc.forEach((x, k) => { if (!ehLider(x)) return; todos[k] = somaV; somaV.forEach((v, i) => { const c = $(`[data-ro="${x.vendedor_id}|${i + 1}"]`); if (c) c.innerHTML = brlOuWait(v); }); });
+    }
+    const paraTotal = vinc.map((x, k) => (campo === 'metas' && ehLider(x) && vinc.some(z => !ehLider(z))) ? null : todos[k]).filter(Boolean);
     vinc.forEach((x, k) => COLS.filter(c => typeof c !== 'number').forEach(c => {
       const [a, b] = per(c); $(`[data-calc="${x.vendedor_id}|${c}"]`).innerHTML = brlOuWait(somaPer(todos[k], a, b));
     }));
     COLS.forEach(c => {
       const cel = $(`[data-tot="${c}"]`); if (!cel) return;
       const [a, b] = typeof c === 'number' ? [c, c] : per(c);
-      const vals = todos.map(arr => somaPer(arr, a, b));
+      const vals = paraTotal.map(arr => somaPer(arr, a, b));
       cel.innerHTML = brlOuWait(vals.some(v => v == null) ? null : sum(vals));
     });
   };
@@ -1425,6 +1479,24 @@ function aModuloEditor(m) {
   $$('[data-det]').forEach(a => a.onclick = e => { e.preventDefault(); editorMetas(m, vinc.find(z => z.vendedor_id === a.dataset.det)); });
   $$('[data-eqp]').forEach(b => b.onclick = () => editorEquipe(m, vinc.find(z => z.vendedor_id === b.dataset.eqp)));
   $('#me-dados').onclick = () => formModulo(m);
+  ['supervisor', 'gerente'].forEach(papel => {
+    const sel = $('#ld-' + papel); if (!sel) return;
+    sel.onchange = async () => {
+      if (!descartaOk()) { sel.value = (vinc.find(x => x.papel === papel) || {}).vendedor_id || ''; return; }
+      const atual = vinc.find(x => x.papel === papel), novo = sel.value || null;
+      if (novo && vinc.some(x => x.vendedor_id === novo && x.papel !== papel)) { notify(t('Esta pessoa já participa do módulo com outro papel.'), 'warning'); sel.value = atual ? atual.vendedor_id : ''; return; }
+      try {
+        if (atual) await q(S.sb.from('met_modulo_vendedores').delete().eq('modulo_id', m.id).eq('vendedor_id', atual.vendedor_id));
+        if (novo) await q(S.sb.from('met_modulo_vendedores').insert({ modulo_id: m.id, vendedor_id: novo, papel, premios: atual ? atual.premios : Array(12).fill(0) }));
+        await recarregar(novo ? t('{p} definida', { p: t(papel === 'supervisor' ? 'Supervisão' : 'Gerência') }) : t('{p} removida', { p: t(papel === 'supervisor' ? 'Supervisão' : 'Gerência') }));
+      } catch (e) { notify(erroMsg(e), 'danger'); await recarregar(); }
+    };
+    const st = $('#ld-tab-' + papel);
+    st.onchange = async () => {
+      try { await q(S.sb.from('met_modulos').update({ ['tabela_' + papel + '_id']: st.value || null }).eq('id', m.id)); await recarregar(t('Tabela salva')); }
+      catch (e) { notify(erroMsg(e), 'danger'); }
+    };
+  });
   $('#me-fech').onclick = () => { S.fechModulo = m.id; S.fechMes = null; location.hash = '#/adm/fechamento'; };
   $('#me-vis').onchange = async e => {
     try { await q(S.sb.from('met_modulos').update({ visivel: e.target.checked }).eq('id', m.id)); await recarregar(e.target.checked ? t('Visualização liberada aos vendedores') : t('Módulo ocultado dos vendedores')); }
@@ -1472,16 +1544,26 @@ function aFechamento() {
   const vinc = vincDe(m.id);
   const chave = vid => m.id + '|' + mes + '|' + vid;
   const pendDoModulo = () => [...PEND.keys()].filter(k => k.startsWith(m.id + '|'));
-  const calcLinhas = () => vinc.map(x => {
-    if (fechado) { const f = S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id); return { x, d: f ? f.dados : null, f }; }
-    const info = infoMes(m, x, mes, sup ? null : PEND.get(chave(x.vendedor_id)));
-    const bruto = realPart(m, x).slice();
-    if (!sup) bruto[mes - 1] = liquido(info);
-    const semLanc = bruto[mes - 1] == null;
-    const real = bruto.map((v, i) => (i + 1 <= mes && v == null ? 0 : v));
-    const c = calcular(tb, x.metas, x.premios, real, mes);
-    return { x, semLanc, info, d: comExclusao(snapshot(m, tb, x, c, c.meses[mes - 1]), info) };
-  });
+  const calcLinhas = () => {
+    const linha = (x, info) => {
+      const tbx = tabelaDe(m, x);
+      const bruto = realPart(m, x).slice();
+      if (!sup) bruto[mes - 1] = liquido(info);
+      const semLanc = bruto[mes - 1] == null;
+      const real = bruto.map((v, i) => (i + 1 <= mes && v == null ? 0 : v));
+      const c = calcular(tbx, x.metas, x.premios, real, mes);
+      return { x, semLanc: semLanc && !ehLider(x), info, d: comExclusao(snapshot(m, tbx, x, c, c.meses[mes - 1]), info) };
+    };
+    if (fechado) return vinc.map(x => { const f = S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id); return { x, d: f ? f.dados : null, f }; });
+    const vend = vinc.filter(x => !ehLider(x)).map(x => linha(x, infoMes(m, x, mes, sup ? null : PEND.get(chave(x.vendedor_id)))));
+    const lids = vinc.filter(ehLider).map(x => {
+      const infos = vend.map(l => l.info);
+      const completo = infos.length && infos.every(i => i && i.valor != null);
+      const exc = sum(infos.map(i => i && i.excluir ? i.excluido : 0));
+      return linha(x, completo ? { valor: sum(infos.map(i => i.valor)), excluido: exc, excluir: exc > 0, obs: '' } : { valor: null, excluido: 0, excluir: false, obs: '' });
+    });
+    return [...vend, ...lids];
+  };
   let linhas = calcLinhas();
   const pctW = v => v == null ? WAIT() : pct(v);
   const cols = [
@@ -1523,9 +1605,9 @@ function aFechamento() {
     <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-fech"><thead><tr><th>${sup ? t('Supervisor') : t('Vendedor')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado bruto')}</th><th>${t('Vendas excluídas')}${dica(t('Vendas que o vendedor preferiu deixar fora da meta (ex.: cliente com venda instável). Preencha o valor e marque a caixa: ele é subtraído do realizado bruto. Sem a caixa marcada, o valor fica só registrado e não é descontado. Use “Cliente / motivo” para identificar.'))}</th>
       ${cols.map(c => `<th class="${c[0] === 'faixa' ? '' : 'mt-num'}">${c[1]}</th>`).join('')}</tr></thead><tbody>
       ${linhas.map(l => !l.d ? `<tr><td>${esc(l.x.v.nome)}</td><td colspan="${cols.length + 3}" class="mt-muted">${t('Sem registro neste fechamento (atrelado depois).')}</td></tr>` : `<tr>
-        <td class="mt-strong">${esc(l.d.vendedor || l.x.v.nome)} <span data-sl="${l.x.vendedor_id}"></span></td>
+        <td class="mt-strong">${esc(l.d.vendedor || l.x.v.nome)}${papelBadge(l.x)} <span data-sl="${l.x.vendedor_id}"></span></td>
         <td class="mt-num">${l.d.meta == null && !fechado ? `<a href="#/adm/modulos/${m.id}" class="mt-wait" title="${t('Definir a meta no módulo')}">${t('Definir meta')} →</a>` : brlOuWait(l.d.meta)}</td>
-        ${!fechado && !sup ? `<td class="mt-num mt-tight"><input class="mt-in" data-v="${l.x.vendedor_id}" data-k="valor" value="${l.info.valor == null ? '' : num(l.info.valor)}" placeholder="R$" ${PEND.has(chave(l.x.vendedor_id)) ? 'data-pend="1"' : ''}></td>
+        ${!fechado && !sup && !ehLider(l.x) ? `<td class="mt-num mt-tight"><input class="mt-in" data-v="${l.x.vendedor_id}" data-k="valor" value="${l.info.valor == null ? '' : num(l.info.valor)}" placeholder="R$" ${PEND.has(chave(l.x.vendedor_id)) ? 'data-pend="1"' : ''}></td>
           <td class="mt-tight"><div class="mt-exc">
             <label title="${t('Excluir este valor do realizado')}"><input type="checkbox" data-v="${l.x.vendedor_id}" data-k="excluir" ${l.info.excluir ? 'checked' : ''}></label>
             <input class="mt-in" data-v="${l.x.vendedor_id}" data-k="excluido" value="${l.info.excluido ? num(l.info.excluido) : ''}" placeholder="R$">
@@ -1546,15 +1628,17 @@ function aFechamento() {
       cols.forEach(c => { const cel = $(`[data-c="${l.x.vendedor_id}|${c[0]}"]`); if (cel) cel.innerHTML = c[2](l.d); });
       const sl = $(`[data-sl="${l.x.vendedor_id}"]`); if (sl) sl.innerHTML = l.semLanc ? `<span class="fi-badge fi-badge--warning">${t('sem lançamento')}</span>` : '';
     });
-    const ok = linhas.filter(l => l.d), tot = k => sum(ok.map(l => l.d[k] || 0));
+    const ok = linhas.filter(l => l.d), okV = ok.filter(l => !ehLider(l.x) || ok.every(z => ehLider(z.x)));
+    const SO_V = ['meta', 'realizado', 'realizado_bruto', 'vendas_excluidas'];
+    const tot = k => sum((SO_V.includes(k) ? okV : ok).map(l => l.d[k] || 0));
     const T = (k, v) => { const c = $(`[data-tt="${k}"]`); if (c) c.innerHTML = v; };
-    T('meta', ok.some(l => l.d.meta == null) ? WAIT() : brl(tot('meta'))); T('bruto', brl(tot('realizado_bruto'))); T('liq', `<b>${brl(tot('realizado'))}</b>`);
+    T('meta', okV.some(l => l.d.meta == null) ? WAIT() : brl(tot('meta'))); T('bruto', brl(tot('realizado_bruto'))); T('liq', `<b>${brl(tot('realizado'))}</b>`);
     T('exc', tot('vendas_excluidas') ? `<span class="mt-neg">− ${brl(tot('vendas_excluidas'))}</span>` : '');
-    T('ating', ok.some(l => l.d.meta == null) ? WAIT() : pct(tot('meta') ? tot('realizado') / tot('meta') : null)); T('faixa', ''); T('base', brl(tot('premio_base'))); T('premio', brl(tot('premio_mes')));
+    T('ating', okV.some(l => l.d.meta == null) ? WAIT() : pct(tot('meta') ? tot('realizado') / tot('meta') : null)); T('faixa', ''); T('base', brl(tot('premio_base'))); T('premio', brl(tot('premio_mes')));
     T('tq', ''); T('rt', brl(tot('recuperacao_tri'))); T('ta', ''); T('ra', brl(tot('recuperacao_ano')));
     T('total', `<b>${brl(tot('total'))}</b>`); T('ce', pct(tot('realizado') ? tot('total') / tot('realizado') : null, 2));
     const sem = linhas.filter(l => l.semLanc).length, aviso = $('#f-semlanc');
-    const semMeta = ok.filter(l => l.d.meta == null).map(l => l.d.vendedor);
+    const semMeta = okV.filter(l => l.d.meta == null).map(l => l.d.vendedor);
     aviso.style.display = !fechado && (sem || semMeta.length) ? '' : 'none';
     aviso.innerHTML = [sem ? esc(t('{n} vendedor(es) sem lançamento em {m} — no fechamento serão considerados R$ 0,00.', { n: sem, m: MES(mes - 1) })) : '',
       semMeta.length ? esc(t('Sem meta em {m}: {n} — sem meta não há premiação.', { m: MES(mes - 1), n: semMeta.join(', ') })) + ` <a href="#/adm/modulos/${m.id}">${t('Definir meta')} →</a>` : ''].filter(Boolean).join('<br>');
@@ -1628,8 +1712,8 @@ function aFechamento() {
 }
 /* prévia de fechamento a partir dos dados gravados (sem lançamento = 0) */
 function calcLinhasDe(m, mes) {
-  const tb = byId(S.tabelas, m.tabela_id);
   return vincDe(m.id).map(x => {
+    const tb = tabelaDe(m, x);
     const real = realPart(m, x).map((v, i) => (i + 1 <= mes && v == null ? 0 : v));
     const c = calcular(tb, x.metas, x.premios, real, mes);
     return { x, d: comExclusao(snapshot(m, tb, x, c, c.meses[mes - 1]), infoMes(m, x, mes)) };
@@ -1638,7 +1722,7 @@ function calcLinhasDe(m, mes) {
 /* bruto e exclusões do mês (supervisão = soma da equipe); pend = alterações ainda não salvas */
 function infoMes(m, x, mes, pend) {
   const vazio = { valor: null, excluido: 0, excluir: false, obs: '' };
-  if (ehSup(m)) {
+  if (ehSup(m) || ehLider(x)) {
     const rs = (x.equipeV || []).map(z => rawDe(x.baseMod.id, z.vendedor_id)[mes - 1]);
     if (!rs.length || rs.some(r => !r)) return vazio;
     const exc = sum(rs.map(r => r.excluir ? r.excluido : 0));
@@ -1705,10 +1789,10 @@ function formModulo(m) {
   };
   $('#m-tipo', el).onchange = sincroniza; sincroniza();
 }
-const tipoTabela = z => ({ vendedor: 'Vendedores', supervisao: 'Supervisão', ambos: 'Ambos' })[z.tipo || 'ambos'];
+const tipoTabela = z => ({ vendedor: 'Vendedores', supervisao: 'Supervisão', gerencia: 'Gerência', ambos: 'Ambos' })[z.tipo || 'ambos'];
 
 function editorMetas(m, x, pai) {
-  const tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), fx = faixasOrd(tb), sup = ehSup(m);
+  const tb = tabelaDe(m, x), fech = fechadosDe(m.id), fx = faixasOrd(tb), sup = ehSup(m) || ehLider(x);
   const fmtIn = v => v == null ? '' : num(v);
   let corpoLinhas = '';
   for (let i = 0; i < 12; i++) {
@@ -1786,7 +1870,7 @@ const nomeArq = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(
 function modeloExcel(m) {
   if (!window.XLSX) { notify(t('Biblioteca de Excel ainda carregando, tente de novo.'), 'warning'); return; }
   const linhas = [];
-  vincDe(m.id).forEach(x => { const r = rawDe(m.id, x.vendedor_id); for (let i = 0; i < 12; i++) linhas.push({ email: x.v.email, vendedor: x.v.nome, mes: i + 1,
+  soVendedores(vincDe(m.id)).forEach(x => { const r = rawDe(m.id, x.vendedor_id); for (let i = 0; i < 12; i++) linhas.push({ email: x.v.email, vendedor: x.v.nome, mes: i + 1,
     valor: r[i] ? r[i].valor : '', vendas_excluidas: r[i] && r[i].excluir && r[i].excluido ? r[i].excluido : '', motivo_exclusao: r[i] && r[i].excluir ? r[i].obs : '' }); });
   const ws = XLSX.utils.json_to_sheet(linhas.length ? linhas : [{ email: '', vendedor: '', mes: '', valor: '', vendas_excluidas: '', motivo_exclusao: '' }]);
   ws['!cols'] = [{ wch: 30 }, { wch: 28 }, { wch: 6 }, { wch: 14 }, { wch: 16 }, { wch: 30 }];
@@ -1808,7 +1892,7 @@ function mesDe(v) {
 }
 async function importarExcel(m, file) {
   if (!window.XLSX) { notify(t('Biblioteca de Excel ainda carregando, tente de novo.'), 'warning'); return; }
-  const fech = fechadosDe(m.id), vinc = vincDe(m.id);
+  const fech = fechadosDe(m.id), vinc = soVendedores(vincDe(m.id));
   let rows;
   try { const wb = XLSX.read(await file.arrayBuffer(), { cellDates: true }); rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' }); }
   catch (e) { notify(t('Não consegui ler a planilha: {e}', { e: e.message }), 'danger'); return; }
@@ -1858,8 +1942,9 @@ function snapshot(m, tb, x, c, mm) {
     meses_recuperados_tri: mm.mes % 3 === 0 ? c.meses.slice(mm.mes - 3, mm.mes).filter(z => z.recTri).map(z => z.mes) : [],
     ano_meta: mm.mes === 12 ? c.ano.metaA : null, ano_faixa: mm.mes === 12 ? c.ano.multA : null, ano_atingimento: mm.mes === 12 ? c.ano.atingA : null, recuperacao_ano: mm.pagoAno,
     meses_recuperados_ano: mm.mes === 12 ? c.meses.filter(z => z.recAno).map(z => z.mes) : [],
-    total: mm.total, acumulado_ano: c.totalAte, tipo: ehSup(m) ? 'supervisao' : 'vendedor',
-    equipe: ehSup(m) ? (x.equipeV || []).map(z => ({ vendedor: z.v.nome, meta: z.metas[mm.mes - 1], realizado: realDe(x.baseMod.id, z.vendedor_id)[mm.mes - 1] })) : undefined,
+    total: mm.total, acumulado_ano: c.totalAte, tipo: ehSup(m) ? 'supervisao' : 'vendedor', papel: x.papel || 'vendedor',
+    tabela_usada: (tabelaDe(m, x) || {}).nome || null,
+    equipe: x.equipeV && x.baseMod ? (x.equipeV || []).map(z => ({ vendedor: z.v.nome, meta: z.metas[mm.mes - 1], realizado: realDe(x.baseMod.id, z.vendedor_id)[mm.mes - 1] })) : undefined,
     tabela: tb ? { nome: tb.nome, faixas: faixasOrd(tb), recup_tri: tb.recup_tri, recup_anual: tb.recup_anual } : null
   };
 }
@@ -1992,7 +2077,7 @@ function pdfAnexo(doc, m, x, c, mesRef, novaPagina) {
       if (d.section === 'body' && tri.has(d.row.index) && d.column.index === 5) d.cell.styles.halign = 'left';
     }
   });
-  if (ehSup(m) && x.baseMod && (x.equipeV || []).length) {
+  if (x.baseMod && (x.equipeV || []).length) {
     yFim = pdfSecao(doc, yFim + 8, t('Equipe em {m}', { m: MESL(mesRef - 1) }));
     yFim = pdfTabela(doc, { startY: yFim + 2,
       head: [[t('Vendedor'), t('Meta'), t('Realizado'), t('Atingido'), t('Acum. %')].map(pdfTxt)],
@@ -2009,22 +2094,23 @@ function pdfFechamento(m, mes, linhas, fechado, ehTri, quando) {
   const tb = byId(S.tabelas, m.tabela_id);
   const doc = pdfNovo(t('Fechamento {m}/{a} — {n}', { m: MESL(mes - 1), a: m.ano, n: m.nome }), (ehSup(m) ? t('Meta de supervisão') : t('Meta de vendedor')) + ' · ' + t('Tabela: {n}', { n: tb ? tb.nome : '' }),
     fechado && quando ? t('Fechado em {d} por {p} — valores congelados.', quando) : t('PRÉVIA — mês não fechado'));
-  const ok = linhas.filter(l => l.d), tot = k => sum(ok.map(l => l.d[k] || 0));
+  const ok = linhas.filter(l => l.d), okV = ok.filter(l => !ehLider(l.x) || ok.every(z => ehLider(z.x)));
+  const tot = k => sum((['meta', 'realizado', 'realizado_bruto', 'vendas_excluidas'].includes(k) ? okV : ok).map(l => l.d[k] || 0));
   const temExc = ok.some(l => l.d.vendas_excluidas);
   const head = [ehSup(m) ? t('Supervisor') : t('Vendedor'), t('Meta'), ...(temExc ? [t('Realizado bruto'), t('Vendas excluídas')] : []), temExc ? t('Realizado p/ meta') : t('Realizado'), t('Atingido'), t('Faixa'), t('Prêmio-base'), t('Prêmio mês')];
   if (ehTri) head.push(t('Trim. %'), t('Rec. trimestre'));
   if (mes === 12) head.push(t('Ano %'), t('Rec. ano'));
   head.push(t('Total a pagar'), t('Comissão efetiva'));
   const body = ok.map(({ d }) => {
-    const r = [d.vendedor + (temExc && d.exclusao_obs ? ' (' + t('excl.: {o}', { o: d.exclusao_obs }) + ')' : ''), d.meta == null ? t('Aguardando dados') : brl(d.meta),
+    const r = [d.vendedor + (d.papel === 'supervisor' ? ' (' + t('Supervisão') + ')' : d.papel === 'gerente' ? ' (' + t('Gerência') + ')' : '') + (temExc && d.exclusao_obs ? ' (' + t('excl.: {o}', { o: d.exclusao_obs }) + ')' : ''), d.meta == null ? t('Aguardando dados') : brl(d.meta),
       ...(temExc ? [brl(d.realizado_bruto != null ? d.realizado_bruto : d.realizado), d.vendas_excluidas ? '- ' + brl(d.vendas_excluidas) : '-'] : []), brl(d.realizado), pct(d.atingimento), multTxt(d.multiplicador), brl(d.premio_base), brl(d.premio_mes)];
     if (ehTri) r.push(d.trimestre_atingimento == null ? t('Aguardando dados') : pct(d.trimestre_atingimento), brl(d.recuperacao_tri));
     if (mes === 12) r.push(d.ano_atingimento == null ? t('Aguardando dados') : pct(d.ano_atingimento), brl(d.recuperacao_ano));
     r.push(brl(d.total), pct(d.realizado ? d.total / d.realizado : null, 2));
     return r.map(pdfTxt);
   });
-  const foot = [t('Total'), ok.some(l => l.d.meta == null) ? t('Aguardando dados') : brl(tot('meta')),
-    ...(temExc ? [brl(sum(ok.map(l => l.d.realizado_bruto != null ? l.d.realizado_bruto : l.d.realizado))), '- ' + brl(tot('vendas_excluidas'))] : []), brl(tot('realizado')), pct(tot('meta') ? tot('realizado') / tot('meta') : null), '', brl(tot('premio_base')), brl(tot('premio_mes'))];
+  const foot = [t('Total'), okV.some(l => l.d.meta == null) ? t('Aguardando dados') : brl(tot('meta')),
+    ...(temExc ? [brl(sum(okV.map(l => l.d.realizado_bruto != null ? l.d.realizado_bruto : l.d.realizado))), '- ' + brl(tot('vendas_excluidas'))] : []), brl(tot('realizado')), pct(tot('meta') ? tot('realizado') / tot('meta') : null), '', brl(tot('premio_base')), brl(tot('premio_mes'))];
   if (ehTri) foot.push('', brl(tot('recuperacao_tri')));
   if (mes === 12) foot.push('', brl(tot('recuperacao_ano')));
   foot.push(brl(tot('total')), pct(tot('realizado') ? tot('total') / tot('realizado') : null, 2));
@@ -2037,7 +2123,7 @@ function pdfFechamento(m, mes, linhas, fechado, ehTri, quando) {
   ok.forEach(({ x }) => {
     // o anexo mostra a posição na data do fechamento: meses posteriores ainda não existem
     const real = realPart(m, x).map((v, i) => (i + 1 <= mes ? (v == null ? 0 : v) : null));
-    pdfAnexo(doc, m, x, calcular(tb, x.metas, x.premios, real, mes), mes, true);
+    pdfAnexo(doc, m, x, calcular(tabelaDe(m, x), x.metas, x.premios, real, mes), mes, true);
   });
   pdfRodapes(doc);
   doc.save(`fechamento_${nomeArq(m.nome)}_${m.ano}_${String(mes).padStart(2, '0')}${fechado ? '' : '_previa'}.pdf`);
@@ -2047,7 +2133,7 @@ function pdfVendedor(m, x, mes) {
   const tb = byId(S.tabelas, m.tabela_id);
   const doc = pdfNovo(t('Demonstrativo de metas e premiação'), m.nome + ' · ' + m.ano, '');
   const y = pdfAnexo(doc, m, x, calcVinc(m, x, mes), mes, false);
-  pdfRegras(doc, y, tb);
+  pdfRegras(doc, y, tabelaDe(m, x) || tb);
   pdfRodapes(doc);
   doc.save(`demonstrativo_${nomeArq(x.v.nome)}_${nomeArq(m.nome)}_${m.ano}.pdf`);
 }
