@@ -270,6 +270,59 @@
     .fi-table{font-size:10px}
     .fi-table th,.fi-table td{padding:4px 6px}
   }
+  /* ======================= CELULAR / TELAS ESTREITAS ======================= */
+  @media (max-width:760px){
+    .fi-topbar{flex-wrap:wrap!important;gap:4px 10px!important;padding:8px 12px 0!important;min-height:0!important;height:auto!important}
+    .fi-brand{min-width:0!important;order:1!important}.fi-brand img{max-height:30px!important;width:auto!important}
+    .fi-topbar__actions{order:2!important;margin-left:auto!important;gap:5px!important}
+    .fi-topbar__actions .fi-icon-btn{width:32px!important;height:32px!important}
+    .fi-mobile-menu{display:none!important}
+    .fi-nav{order:3!important;flex-basis:100%!important;display:flex!important;position:static!important;flex-direction:row!important;align-self:auto!important;height:auto!important;gap:0!important;overflow-x:auto!important;scrollbar-width:none!important;margin:0 -12px!important;padding:0 6px!important;border-top:1px solid var(--fi-line)!important;background:transparent!important;box-shadow:none!important;transform:none!important;visibility:visible!important;opacity:1!important}
+    .fi-nav::-webkit-scrollbar{display:none!important}
+    .fi-nav a{padding:10px 12px!important;white-space:nowrap!important;font-size:.82rem!important}
+    .mt-lang button{padding:4px 8px!important;font-size:.72rem!important}
+    body.mt-a4 .fi-page,.fi-page{padding:14px 12px 90px!important}
+    .fi-page-head{flex-direction:column!important;align-items:stretch!important;gap:10px!important;margin-bottom:12px!important}
+    .fi-title{font-size:1.45rem!important;line-height:1.15!important}
+    .fi-subtitle{font-size:.8rem!important}
+    #head-acoes{flex-wrap:wrap!important}#head-acoes .fi-field,#head-acoes select{width:100%!important}
+    .fi-card__head{flex-wrap:wrap!important;gap:8px!important;padding:12px!important}
+    .fi-card__head>.mt-row,.fi-card__head>div:last-child{flex-wrap:wrap!important}
+    .fi-card__body{padding:12px!important}
+    .mt-tabs{flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none!important;padding-bottom:2px!important;-webkit-overflow-scrolling:touch!important}
+    .mt-tabs::-webkit-scrollbar{display:none!important}.mt-tab{white-space:nowrap!important;flex:0 0 auto!important}
+    .fi-grid--2,.fi-grid--3{grid-template-columns:1fr!important}.fi-grid--4{grid-template-columns:1fr 1fr!important}
+    .fi-metric{min-height:0!important;padding:12px!important}.fi-metric__value{font-size:1.15rem!important;overflow-wrap:anywhere}
+    .mt-homegrid{grid-template-columns:1fr!important;gap:10px!important}
+    .mt-hkpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+    .mt-mgrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+    .mt-kv{grid-template-columns:1fr 1fr!important}
+    .mt-dtop{grid-template-columns:1fr!important}
+    .mt-qgrid{grid-template-columns:1fr!important}
+    .mt-saldo{gap:4px 10px!important;font-size:.7rem!important}
+    .es-dist>div{padding:0 5px!important}.es-dist b{font-size:.62rem!important}.es-dist span{font-size:.58rem!important}
+    .fi-table-wrap{-webkit-overflow-scrolling:touch!important}
+    body.mt-a4 .fi-table th,body.mt-a4 .fi-table td{padding:7px 8px!important}
+    .mt-row{flex-wrap:wrap!important}
+    .mt-modal{padding:0!important;place-items:stretch!important}
+    .mt-modal__panel,.mt-modal__panel--big{width:100%!important;max-width:100%!important;height:100%!important;max-height:100%!important;border-radius:0!important;border:0!important}
+    .mt-modal__head{padding:10px 12px!important;position:sticky!important;top:0!important;background:var(--fi-surface)!important;z-index:1!important}
+    .mt-modal__body{padding:12px!important}
+    .mt-modal__foot{padding:10px 12px!important;position:sticky!important;bottom:0!important;background:var(--fi-surface)!important}
+    .mt-faixa{grid-template-columns:1fr 1fr!important}
+    .mt-edbar{right:10px!important;bottom:10px!important;left:10px!important}.mt-edbar .mt-edhint{max-width:none!important;flex-basis:100%!important}
+    .mt-edbar .fi-btn{min-height:34px!important;padding:6px 10px!important}
+    body.mt-tem-edbar .fi-toast-region{left:10px!important;right:10px!important;bottom:60px!important}
+    .mt-docname{display:none!important}
+    .mt-hide-sm{display:none!important}
+    #tb-mods td:first-child .mt-strong{min-width:0!important}
+    .mt-tip>span{position:fixed!important;left:12px!important;right:12px!important;top:auto!important;bottom:72px!important;transform:none!important;width:auto!important;z-index:400!important}
+  }
+  @media (max-width:420px){
+    .mt-mgrid{grid-template-columns:1fr 1fr;gap:5px}
+    .mt-mcard{padding:5px 6px}
+    .fi-title{font-size:1.3rem}
+  }
 </style>
 </head>
 <body>
@@ -325,7 +378,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.015', DOC_DATA = '06/10/2026';
+const DOC_VERSAO = 'V.016', DOC_DATA = '07/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -1819,8 +1872,8 @@ function aModulos() {
     <div class="fi-card__note">${t('Abra um módulo para configurar participantes, metas e prêmios de cada mês. Meta de vendedor = individual; meta de supervisão = soma da equipe.')}</div></div>
     <div class="mt-row">${fxs.length ? `<label class="mt-faixasel">${t('Prêmio na faixa')}<select class="fi-select" id="mod-faixa">${fxs.map(f => `<option value="${f}" ${f === fsel ? 'selected' : ''}>${t('atingiu ≥ {f}', { f: fxLbl(f) })}</option>`).join('')}</select>${dica(t('Escolha a faixa de atingimento da tabela de premiação. O prêmio anual e a comissão equivalente mostram quanto se paga se o módulo atingir essa faixa no ano (prêmio-base × % pago na faixa).'))}</label>` : ''}
     <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Novo módulo')}</button></div></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-mods"><thead><tr><th>${t('Módulo')}</th><th>${t('Tabela')}</th>
-      <th class="mt-num">${t('Part.')}</th><th class="mt-num">${t('Meta anual')}</th><th class="mt-num">${esc(t('Prêmio anual ({f})', { f: fxLbl(fsel) }))}</th><th class="mt-num">${esc(t('Comissão equiv. ({f})', { f: fxLbl(fsel) }))}</th><th>${t('Fechado até')}</th><th></th></tr></thead><tbody>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-mods"><thead><tr><th>${t('Módulo')}</th><th class="mt-hide-sm">${t('Tabela')}</th>
+      <th class="mt-num">${t('Part.')}</th><th class="mt-num">${t('Meta anual')}</th><th class="mt-num">${esc(t('Prêmio anual ({f})', { f: fxLbl(fsel) }))}</th><th class="mt-num mt-hide-sm">${esc(t('Comissão equiv. ({f})', { f: fxLbl(fsel) }))}</th><th class="mt-hide-sm">${t('Fechado até')}</th><th></th></tr></thead><tbody>
     ${S.modulos.map(m => {
       const v = vincDe(m.id), metasAno = soVendedores(v).map(x => somaMetas(x.metas, 1, 12));
       const meta = metasAno.length && metasAno.every(z => z != null) ? sum(metasAno) : null;
@@ -1832,11 +1885,11 @@ function aModulos() {
       const com = comis ? (meta ? prC / meta : null) : fx && meta ? pr / (meta * fx.min / 100) : null;
       return `<tr data-abrir="${m.id}" class="${m.id === aberto ? 'mt-sel' : ''}" style="cursor:pointer"><td><div class="mt-strong" style="white-space:normal;min-width:180px">${esc(m.nome)}</div>
           <div class="mt-modsub">${tipoBadge(m)}<span class="fi-badge">${m.ano}</span>${m.setor ? `<span class="fi-badge">${t(m.setor === 'bordados' ? 'Bordados' : 'Industrial')}</span>` : ''}${m.visivel ? `<span class="fi-badge fi-badge--success">${t('Liberado')}</span>` : `<span class="fi-badge">${t('Oculto')}</span>`}${m.ativo ? '' : `<span class="fi-badge fi-badge--warning">${t('Inativo')}</span>`}</div></td>
-      <td style="white-space:normal;max-width:190px">${esc(tb ? tb.nome : '—')}</td>
+      <td class="mt-hide-sm" style="white-space:normal;max-width:190px">${esc(tb ? tb.nome : '—')}</td>
       <td class="mt-num">${v.length}</td><td class="mt-num">${meta == null ? WAIT() : brl0(meta)}</td>
       <td class="mt-num" title="${esc(comis ? t('Comissão estimada sobre a meta anual') : t('Prêmio-base anual {b} × {p} pago na faixa', { b: brl0(base), p: fx ? multTxt(fx.mult) : '—' }))}">${comis ? (pr == null ? WAIT() : `${brl0(pr)}<div class="mt-small mt-muted">${t('comissão s/ vendas')}</div>`) : pr == null ? `<span class="mt-muted" title="${esc(t('A tabela deste módulo não tem essa faixa.'))}">—</span>` : `${brl0(pr)}<div class="mt-small mt-muted">${t('paga {p}', { p: multTxt(fx.mult) })}</div>`}</td>
-      <td class="mt-num">${pct(com, 2)}</td>
-      <td>${uf ? MES(uf - 1) : '—'}</td>
+      <td class="mt-num mt-hide-sm">${pct(com, 2)}</td>
+      <td class="mt-hide-sm">${uf ? MES(uf - 1) : '—'}</td>
       <td class="mt-num" style="white-space:nowrap"><button class="fi-btn" data-dup="${m.id}" title="${t('Gera um espelho deste módulo para depois alterar')}">${t('Duplicar')}</button> <button class="fi-btn ${m.id === aberto ? 'fi-btn--primary' : ''}" data-abrir-bt="${m.id}">${m.id === aberto ? t('Aberto ↓') : t('Abrir')}</button></td></tr>`; }).join('') ||
       `<tr><td colspan="8"><div class="fi-empty">${t('Nenhum módulo criado.')}</div></td></tr>`}
     </tbody></table></div></section>`;
