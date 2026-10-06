@@ -203,6 +203,17 @@
     .es-team{grid-template-columns:1fr}.es-team::before,.es-team>div::before{display:none}.es-g{grid-template-columns:80px 1fr;}.es-g>:last-child{grid-column:1/-1}.es-tl{grid-template-columns:1fr}.es-tl::after,.es-tl::before{display:none}}
   /* Início compacto (folha A4) */
   body.mt-a4 .fi-page{width:min(1123px,100%)}
+  body.mt-a4 .fi-table th,body.mt-a4 .fi-table td{padding:8px 10px}
+  body.mt-a4 .fi-table{font-size:.74rem}
+  .fi-field__help{font-size:.7rem;color:var(--fi-muted);line-height:1.35}
+  .mt-form>.fi-field{align-content:start}
+  .mt-inline{border:1px solid var(--fi-line);border-radius:8px;background:var(--fi-surface);box-shadow:var(--fi-shadow)}
+  .mt-inline .mt-modal__head{border-left:3px solid var(--mt-c1)}
+  #tb-mods tr.mt-sel td{background:var(--fi-surface-alt);box-shadow:inset 0 -1px var(--fi-line)}
+  #tb-mods tr.mt-sel td:first-child{box-shadow:inset 3px 0 var(--mt-c1)}
+  .mt-modsub{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.mt-modsub .fi-badge{font-size:.6rem}
+  .mt-faixasel{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--fi-muted);font-weight:700}
+  .mt-faixasel select{min-height:32px;padding:4px 8px;width:auto}
   .mt-homegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
   .mt-homeano{grid-column:1/-1;margin:4px 0 -4px}
   .mt-hmod .fi-card__head{display:block;padding:10px 12px}
@@ -309,7 +320,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.013', DOC_DATA = '06/10/2026';
+const DOC_VERSAO = 'V.014', DOC_DATA = '06/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -577,6 +588,10 @@ const EN = {
   'meses fecham no trimestre':'months add up to the quarter','Saldo do trimestre':'Quarter balance',
   'Em {s}, os meses de algum trimestre não fecham no valor do trimestre. Ajuste ou fixe os meses até zerar o saldo.':'In {s}, the months of some quarter do not add up to the quarter value. Adjust or lock months until the balance is zero.',
   'Cada trimestre tem sua própria barra e campo de valor, independentes. Ao fixar um trimestre (cadeado), os trimestres não fixados recebem a diferença para completar a meta do setor. O saldo mostra quanto ainda falta distribuir (positivo) ou quanto passou da meta (negativo). Os meses funcionam igual dentro de cada trimestre: barra e valor independentes, trava por mês e saldo do trimestre.':'Each quarter has its own independent slider and value field. When you lock a quarter, the unlocked quarters receive the difference needed to complete the sector target. The balance shows how much is still to be allocated (positive) or how much exceeds the target (negative). Months work the same way within each quarter: independent slider and value, a lock per month and a quarter balance.',
+  'Prêmio na faixa':'Prize at tier','atingiu ≥ {f}':'reached ≥ {f}','Part.':'Part.','Prêmio anual ({f})':'Annual prize ({f})','Comissão equiv. ({f})':'Equiv. commission ({f})',
+  'Escolha a faixa de atingimento da tabela de premiação. O prêmio anual e a comissão equivalente mostram quanto se paga se o módulo atingir essa faixa no ano (prêmio-base × % pago na faixa).':'Choose the achievement tier of the incentive table. Annual prize and equivalent commission show what is paid if the module reaches that tier for the year (base prize × % paid at the tier).',
+  'Prêmio-base anual {b} × {p} pago na faixa':'Annual base prize {b} × {p} paid at the tier','A tabela deste módulo não tem essa faixa.':'This module’s table does not have this tier.','paga {p}':'pays {p}',
+  'Duplicar':'Duplicate','Aberto ↓':'Open ↓','Fechar o módulo':'Close the module',
   'Visão geral de todos os módulos de metas.':'Overview of all target modules.',
   'Editar':'Edit','Concluir edição':'Finish editing','Salvar textos ({n})':'Save texts ({n})','Textos salvos ({n})':'Texts saved ({n})',
   'Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.':'Click any text with a dashed outline to change it. Clear it to restore the original text.',
@@ -828,16 +843,16 @@ async function carregar() {
 }
 
 /* ------------------------------ modal ------------------------------ */
-function modal({ titulo, corpo, botoes, largura }) {
+function modal({ titulo, corpo, botoes, largura, alvo, aoFechar }) {
   const el = document.createElement('div');
-  el.className = 'mt-modal';
-  el.innerHTML = `<section class="mt-modal__panel" role="dialog" aria-modal="true" style="${largura ? 'width:min(' + largura + 'px,100%)' : ''}">
+  el.className = alvo ? 'mt-inline' : 'mt-modal';
+  el.innerHTML = `<section class="${alvo ? '' : 'mt-modal__panel'}" role="${alvo ? 'region' : 'dialog'}" ${alvo ? '' : 'aria-modal="true"'} style="${largura && !alvo ? 'width:min(' + largura + 'px,100%)' : ''}">
     <div class="mt-modal__head"><span>${esc(titulo)}</span><span class="mt-sp"></span>
       <button class="fi-icon-btn" data-x aria-label="${t('Fechar')}">✕</button></div>
     <div class="mt-modal__body">${corpo}</div>
     <div class="mt-modal__foot"></div></section>`;
   const foot = $('.mt-modal__foot', el);
-  const fechar = () => el.remove();
+  const fechar = () => { el.remove(); if (aoFechar) aoFechar(); };
   (botoes || []).forEach(b => {
     const bt = document.createElement('button');
     bt.className = 'fi-btn' + (b.primario ? ' fi-btn--primary' : '') + (b.perigo ? ' fi-btn--danger' : '');
@@ -854,8 +869,8 @@ function modal({ titulo, corpo, botoes, largura }) {
   });
   $('[data-x]', el).addEventListener('click', fechar);
   el.addEventListener('keydown', e => { if (e.key === 'Escape') fechar(); });
-  $('#modal-root').appendChild(el);
-  const f = $('input,select,textarea', el); if (f) f.focus();
+  if (alvo) { alvo.innerHTML = ''; alvo.appendChild(el); } else $('#modal-root').appendChild(el);
+  const f = $('input,select,textarea', el); if (f) f.focus({ preventScroll: !!alvo });
   return el;
 }
 
@@ -902,7 +917,7 @@ function trocarIdioma(l) {
 }
 function rota() {
   const nm = ((location.hash || '#/inicio').replace(/^#\/?/, '').split('/')[0]) || 'inicio';
-  document.body.classList.toggle('mt-a4', ['inicio', 'painel', 'estrategia'].includes(nm) || !['adm', 'modulo'].includes(nm));
+  document.body.classList.add('mt-a4');   // todas as telas na largura de uma folha A4 (paisagem)
   rota0();
   if (S.editando) setTimeout(marcarEditaveis, 0);
 }
@@ -1693,27 +1708,50 @@ function reparteCents(totalC, pesos) {
 }
 
 /* ---------------------------- Módulos de metas (lista → configuração com metas mensais) ---------------------------- */
+/* faixas cadastradas nas tabelas (para escolher em qual faixa mostrar o prêmio anual) */
+function faixasCadastradas() { return [...new Set(S.tabelas.flatMap(tb => faixasOrd(tb).map(f => f.min)))].sort((a, b) => a - b); }
 function aModulos() {
-  if (S.modEdit) { const m = byId(S.modulos, S.modEdit); if (m) return aModuloEditor(m); }
+  const fxs = faixasCadastradas();
+  if (S.modFaixa == null || !fxs.includes(S.modFaixa)) S.modFaixa = fxs.includes(100) ? 100 : fxs[0];
+  const fsel = S.modFaixa, aberto = S.modEdit && S.modEdit !== 'novo' ? S.modEdit : null;
+  const fxLbl = f => `${num(f, f % 1 ? 1 : 0)}%`;
   $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Módulos de metas')}</div>
     <div class="fi-card__note">${t('Abra um módulo para configurar participantes, metas e prêmios de cada mês. Meta de vendedor = individual; meta de supervisão = soma da equipe.')}</div></div>
-    <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Novo módulo')}</button></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Módulo')}</th><th>${t('Tipo')}</th><th class="mt-num">${t('Ano')}</th><th>${t('Tabela')}</th>
-      <th class="mt-num">${t('Participantes')}</th><th class="mt-num">${t('Meta anual')}</th><th class="mt-num">${t('Prêmio-base anual')}</th><th class="mt-num">${t('Comissão equiv. (100%)')}</th><th>${t('Fechado até')}</th><th>${t('Visualização')}</th><th></th></tr></thead><tbody>
+    <div class="mt-row">${fxs.length ? `<label class="mt-faixasel">${t('Prêmio na faixa')}<select class="fi-select" id="mod-faixa">${fxs.map(f => `<option value="${f}" ${f === fsel ? 'selected' : ''}>${t('atingiu ≥ {f}', { f: fxLbl(f) })}</option>`).join('')}</select>${dica(t('Escolha a faixa de atingimento da tabela de premiação. O prêmio anual e a comissão equivalente mostram quanto se paga se o módulo atingir essa faixa no ano (prêmio-base × % pago na faixa).'))}</label>` : ''}
+    <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Novo módulo')}</button></div></div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-mods"><thead><tr><th>${t('Módulo')}</th><th>${t('Tabela')}</th>
+      <th class="mt-num">${t('Part.')}</th><th class="mt-num">${t('Meta anual')}</th><th class="mt-num">${esc(t('Prêmio anual ({f})', { f: fxLbl(fsel) }))}</th><th class="mt-num">${esc(t('Comissão equiv. ({f})', { f: fxLbl(fsel) }))}</th><th>${t('Fechado até')}</th><th></th></tr></thead><tbody>
     ${S.modulos.map(m => {
       const v = vincDe(m.id), metasAno = soVendedores(v).map(x => somaMetas(x.metas, 1, 12));
       const meta = metasAno.length && metasAno.every(z => z != null) ? sum(metasAno) : null;
-      const pr = sum(v.map(x => sum(x.premios))), uf = ultimoFechado(m.id);
-      return `<tr data-abrir="${m.id}" style="cursor:pointer"><td class="mt-strong">${esc(m.nome)}${m.ativo ? '' : ` <span class="fi-badge fi-badge--warning">${t('Inativo')}</span>`}</td>
-      <td>${tipoBadge(m)}</td><td class="mt-num">${m.ano}</td><td>${esc((byId(S.tabelas, m.tabela_id) || {}).nome || '—')}</td>
-      <td class="mt-num">${v.length}</td><td class="mt-num">${meta == null ? WAIT() : brl0(meta)}</td><td class="mt-num">${brl0(pr)}</td><td class="mt-num">${pct(meta ? pr / meta : null, 2)}</td>
-      <td>${uf ? MES(uf - 1) : '—'}</td><td>${m.visivel ? `<span class="fi-badge fi-badge--success">${t('Liberado')}</span>` : `<span class="fi-badge">${t('Oculto')}</span>`}</td>
-      <td class="mt-num" style="white-space:nowrap"><button class="fi-btn" data-dup="${m.id}" title="${t('Gera um espelho deste módulo para depois alterar')}">${t('Duplicar meta')}</button> <button class="fi-btn" data-abrir-bt="${m.id}">${t('Abrir')}</button></td></tr>`; }).join('') ||
-      `<tr><td colspan="11"><div class="fi-empty">${t('Nenhum módulo criado.')}</div></td></tr>`}
-    </tbody></table></div></section>`;
-  $('#bt-novo').onclick = () => formModulo();
-  $$('[data-abrir]').forEach(tr => tr.onclick = e => { if (e.target.closest('[data-dup]')) return; location.hash = '#/adm/modulos/' + tr.dataset.abrir; });
+      const base = sum(v.map(x => sum(x.premios))), uf = ultimoFechado(m.id), tb = byId(S.tabelas, m.tabela_id);
+      const fx = faixasOrd(tb).find(f => Math.abs(f.min - fsel) < 1e-9);
+      const pr = fx ? base * fx.mult : null;
+      const com = fx && meta ? pr / (meta * fx.min / 100) : null;
+      return `<tr data-abrir="${m.id}" class="${m.id === aberto ? 'mt-sel' : ''}" style="cursor:pointer"><td><div class="mt-strong" style="white-space:normal;min-width:180px">${esc(m.nome)}</div>
+          <div class="mt-modsub">${tipoBadge(m)}<span class="fi-badge">${m.ano}</span>${m.setor ? `<span class="fi-badge">${t(m.setor === 'bordados' ? 'Bordados' : 'Industrial')}</span>` : ''}${m.visivel ? `<span class="fi-badge fi-badge--success">${t('Liberado')}</span>` : `<span class="fi-badge">${t('Oculto')}</span>`}${m.ativo ? '' : `<span class="fi-badge fi-badge--warning">${t('Inativo')}</span>`}</div></td>
+      <td style="white-space:normal;max-width:190px">${esc(tb ? tb.nome : '—')}</td>
+      <td class="mt-num">${v.length}</td><td class="mt-num">${meta == null ? WAIT() : brl0(meta)}</td>
+      <td class="mt-num" title="${esc(t('Prêmio-base anual {b} × {p} pago na faixa', { b: brl0(base), p: fx ? multTxt(fx.mult) : '—' }))}">${pr == null ? `<span class="mt-muted" title="${esc(t('A tabela deste módulo não tem essa faixa.'))}">—</span>` : `${brl0(pr)}<div class="mt-small mt-muted">${t('paga {p}', { p: multTxt(fx.mult) })}</div>`}</td>
+      <td class="mt-num">${pct(com, 2)}</td>
+      <td>${uf ? MES(uf - 1) : '—'}</td>
+      <td class="mt-num" style="white-space:nowrap"><button class="fi-btn" data-dup="${m.id}" title="${t('Gera um espelho deste módulo para depois alterar')}">${t('Duplicar')}</button> <button class="fi-btn ${m.id === aberto ? 'fi-btn--primary' : ''}" data-abrir-bt="${m.id}">${m.id === aberto ? t('Aberto ↓') : t('Abrir')}</button></td></tr>`; }).join('') ||
+      `<tr><td colspan="8"><div class="fi-empty">${t('Nenhum módulo criado.')}</div></td></tr>`}
+    </tbody></table></div></section>
+  <div id="mod-det" class="mt-mt2"></div>`;
+  const rolar = () => { if (S.rolarDet) { S.rolarDet = false; setTimeout(() => { const d = $('#mod-det'); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 30); } };
+  $('#bt-novo').onclick = () => { S.rolarDet = true; if (S.modEdit === 'novo') { rolar(); return; } location.hash = '#/adm/modulos/novo'; };
+  const fs = $('#mod-faixa'); if (fs) fs.onchange = e => { S.modFaixa = Number(e.target.value); aModulos(); };
+  $$('[data-abrir]').forEach(tr => tr.onclick = e => {
+    if (e.target.closest('[data-dup]')) return;
+    S.rolarDet = true;
+    if (tr.dataset.abrir === aberto) { rolar(); return; }
+    location.hash = '#/adm/modulos/' + tr.dataset.abrir;
+  });
   $$('[data-dup]').forEach(b => b.onclick = () => duplicarModulo(byId(S.modulos, b.dataset.dup)));
+  if (S.modEdit === 'novo') formModulo(null, $('#mod-det'));
+  else if (aberto) { const m = byId(S.modulos, aberto); if (m) aModuloEditor(m); }
+  rolar();
 }
 
 const COLS = [1, 2, 3, 'T1', 4, 5, 6, 'T2', 7, 8, 9, 'T3', 10, 11, 12, 'T4', 'A'];
@@ -1721,7 +1759,6 @@ function aModuloEditor(m) {
   const tb = byId(S.tabelas, m.tabela_id), fech = fechadosDe(m.id), vinc = vincDe(m.id), sup = ehSup(m), campo = S.metaCampo;
   const bases = sup ? basesDe(m) : [], base = bases[0] || null, uf = ultimoFechado(m.id);
   const nomesBases = bases.map(b => b.nome).join(' + ');
-  setHead(t('Módulos de metas'), m.nome, (sup ? t('Meta de supervisão') : t('Meta de vendedor')) + ' · ' + m.ano + (tb ? ' · ' + tb.nome : ''));
   const jaDentro = new Set(vinc.map(x => x.vendedor_id));
   const funcoesAlvo = sup ? ['gerente', 'supervisor'] : ['vendedor'];
   const candidatos = S.vendedores.filter(v => v.ativo && !jaDentro.has(v.id) && funcoesAlvo.includes(v.funcao || 'vendedor'));
@@ -1746,8 +1783,10 @@ function aModuloEditor(m) {
         : `<td class="mt-num mt-qcol" data-calc="${x.vendedor_id}|${c}"></td>`).join('')}
       <td class="mt-num" style="white-space:nowrap">${sup ? `<button class="fi-btn" data-eqp="${x.vendedor_id}">${t('Equipe')}</button> ` : ''}<button class="fi-icon-btn" data-rmv="${x.vendedor_id}" title="${t('Remover do módulo')}">✕</button></td></tr>`;
   });
-  $('#adm-body').innerHTML = `
-  <div class="mt-row mt-noprint" style="margin-bottom:12px"><a class="fi-btn" href="#/adm/modulos">${t('← Todos os módulos')}</a><span class="mt-sp"></span>
+  ($('#mod-det') || $('#adm-body')).innerHTML = `
+  <div class="mt-row mt-noprint" style="margin-bottom:12px;padding-top:6px;border-top:2px solid var(--mt-c1)"><div><div class="fi-eyebrow" style="margin:0">${sup ? t('Meta de supervisão') : t('Meta de vendedor')} · ${m.ano}${tb ? ' · ' + esc(tb.nome) : ''}</div>
+      <div class="mt-strong" style="font-size:1.05rem">${esc(m.nome)}</div></div><span class="mt-sp"></span>
+    <a class="fi-btn" href="#/adm/modulos" title="${t('Fechar o módulo')}">✕ ${t('Fechar')}</a>
     <button class="fi-btn" id="me-dup">${t('Duplicar meta')}</button>
     <button class="fi-btn" id="me-dados">${t('Editar dados do módulo')}</button>
     <button class="fi-btn fi-btn--primary" id="me-fech">${t('Lançamentos e fechamento')}</button></div>
@@ -2189,11 +2228,12 @@ function comExclusao(d, info) {
   return d;
 }
 
-function formModulo(m) {
+function formModulo(m, alvo) {
   if (!S.tabelas.length) { notify(t('Cadastre antes uma tabela de premiação.'), 'warning'); return; }
   m = m || { nome: '', ano: HOJE.getFullYear(), tipo: 'vendedor', base_modulo_id: null, tabela_id: S.tabelas[0].id, regiao_id: null, descricao: '', visivel: false, ativo: true };
   const bases = S.modulos.filter(z => !ehSup(z) && z.id !== m.id);
-  const el = modal({ titulo: m.id ? t('Editar módulo de metas') : t('Novo módulo de metas'),
+  const el = modal({ titulo: m.id ? t('Editar módulo de metas') : t('Novo módulo de metas'), alvo,
+    aoFechar: alvo ? () => { if (S.modEdit === 'novo') location.hash = '#/adm/modulos'; } : null,
     corpo: `<div class="mt-form">
       <label class="fi-field mt-full"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="m-nome" value="${esc(m.nome)}" placeholder="${esc(t('Ex.: Metas de Faturamento {a}', { a: HOJE.getFullYear() }))}"></label>
       <label class="fi-field"><span class="fi-label">${t('Tipo de meta *')}</span><select class="fi-select" id="m-tipo" ${m.id && S.mv.some(x => x.modulo_id === m.id) ? 'disabled' : ''}>
@@ -2233,7 +2273,9 @@ function formModulo(m) {
         else {
           const novo = await q(S.sb.from('met_modulos').insert(d).select());
           await carregar(); notify(t('Módulo criado — agora atrele os participantes'), 'success');
+          S.rolarDet = true; S.modEdit = null;
           if (novo && novo[0]) location.hash = '#/adm/modulos/' + novo[0].id; else rota();
+          return false;
         }
       } }] });
   const sincroniza = () => {
