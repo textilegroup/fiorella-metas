@@ -118,6 +118,15 @@
   .mt-dcomp .es-dist{height:32px;border-radius:6px}.mt-dcomp .es-dist>div{padding:0 8px;font-size:.66rem}.mt-dcomp .es-dist b{font-size:.7rem}
   .mt-dcomp .mt-qmes{grid-template-columns:28px 1fr 34px;gap:4px;font-size:.68rem}.mt-dcomp .mt-qmes .mt-in{min-height:26px;padding:2px 6px;font-size:.72rem;min-width:0}
   .mt-dcomp .mt-qmeses{gap:4px}
+  .mt-distrow td{background:var(--fi-surface-alt);color:var(--fi-muted);font-size:.72rem}
+  .mt-saldorow td{font-weight:750;color:var(--fi-text)}
+  .mt-spos{color:var(--fi-warning)}.mt-sneg{color:var(--fi-danger)}.mt-sok{color:var(--fi-success)}
+  .mt-mrow{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:4px 6px;align-items:center;font-size:.68rem}
+  .mt-mrow>span{font-weight:700;color:var(--fi-muted);line-height:1.1}.mt-mrow>span small{display:block;font-weight:600;font-size:.6rem}
+  .mt-mrow .mt-in{min-height:26px;padding:2px 6px;font-size:.72rem;min-width:0}
+  .mt-mrow .mt-range{grid-column:2/3;height:12px}
+  .mt-mrow .mt-fix{min-height:22px;padding:1px 6px;font-size:.62rem}
+  .mt-qsaldo{font-size:.66rem;color:var(--fi-muted);text-align:right}.mt-qsaldo b{color:var(--fi-text)}
   @media(max-width:900px){.mt-dtop{grid-template-columns:repeat(2,minmax(0,1fr))}}
   .mt-qmeses{display:grid;gap:6px}
   .mt-qmes{display:grid;grid-template-columns:34px 1fr 40px;gap:6px;align-items:center;font-size:.74rem}
@@ -300,7 +309,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.012', DOC_DATA = '06/10/2026';
+const DOC_VERSAO = 'V.013', DOC_DATA = '06/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -556,6 +565,18 @@ const EN = {
   'Clique para soltar este trimestre':'Click to unlock this quarter','Fixa este trimestre; os não fixados recebem a diferença para completar a meta':'Locks this quarter; unlocked quarters receive the difference to complete the target',
   'Todos os trimestres estão fixados. Solte um para redistribuir.':'All quarters are locked. Unlock one to redistribute.',
   'Saldo a distribuir em {s}: {v}. Ajuste os trimestres até zerar.':'Balance to allocate in {s}: {v}. Adjust the quarters until it is zero.',
+  'Jan. até {m}':'Jan. to {m}','atual':'current','Período':'Period',
+  'Setor (distribuição) *':'Sector (allocation) *','Escolha o setor…':'Choose the sector…','As metas deste módulo são comparadas com a distribuição anual do setor.':'This module’s targets are checked against the sector’s annual allocation.',
+  'Escolha a qual setor da distribuição o módulo se aplica.':'Choose which allocation sector this module applies to.','Setor (distribuição)':'Sector (allocation)','Definir setor':'Set sector',
+  'Outros módulos do setor':'Other modules in the sector','Distribuição — {s}':'Allocation — {s}','Saldo a distribuir':'Balance to allocate','Preencher pela distribuição':'Fill from allocation',
+  'Divide o valor de cada mês aberto da distribuição entre os vendedores, na proporção das metas atuais (ou em partes iguais). Depois é só ajustar e salvar.':'Splits each open month of the allocation among the reps, in proportion to current targets (or equally). Then adjust and save.',
+  'Defina o setor em “Editar dados do módulo” para atrelar as metas à distribuição.':'Set the sector in “Edit module data” to link the targets to the allocation.',
+  'Ainda não há distribuição salva para {a} em ADM › Distribuição.':'There is no saved allocation for {a} in ADM › Allocation yet.',
+  'Metas preenchidas pela distribuição — confira e salve.':'Targets filled from the allocation — review and save.',
+  'Clique para soltar este mês':'Click to unlock this month','Fixa este mês; os meses soltos do trimestre recebem a diferença':'Locks this month; the unlocked months of the quarter receive the difference',
+  'meses fecham no trimestre':'months add up to the quarter','Saldo do trimestre':'Quarter balance',
+  'Em {s}, os meses de algum trimestre não fecham no valor do trimestre. Ajuste ou fixe os meses até zerar o saldo.':'In {s}, the months of some quarter do not add up to the quarter value. Adjust or lock months until the balance is zero.',
+  'Cada trimestre tem sua própria barra e campo de valor, independentes. Ao fixar um trimestre (cadeado), os trimestres não fixados recebem a diferença para completar a meta do setor. O saldo mostra quanto ainda falta distribuir (positivo) ou quanto passou da meta (negativo). Os meses funcionam igual dentro de cada trimestre: barra e valor independentes, trava por mês e saldo do trimestre.':'Each quarter has its own independent slider and value field. When you lock a quarter, the unlocked quarters receive the difference needed to complete the sector target. The balance shows how much is still to be allocated (positive) or how much exceeds the target (negative). Months work the same way within each quarter: independent slider and value, a lock per month and a quarter balance.',
   'Visão geral de todos os módulos de metas.':'Overview of all target modules.',
   'Editar':'Edit','Concluir edição':'Finish editing','Salvar textos ({n})':'Save texts ({n})','Textos salvos ({n})':'Texts saved ({n})',
   'Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.':'Click any text with a dashed outline to change it. Clear it to restore the original text.',
@@ -595,7 +616,6 @@ const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const UI = () => window.FiorellaUI;
 const brl = v => new Intl.NumberFormat(LOC(), { style: 'currency', currency: 'BRL' }).format(Number(v) || 0);
-const brlC = v => new Intl.NumberFormat(LOC(), { notation: 'compact', maximumFractionDigits: 1 }).format(Number(v) || 0);
 const brl0 = v => new Intl.NumberFormat(LOC(), { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(Number(v) || 0);
 const num = (v, d) => new Intl.NumberFormat(LOC(), { minimumFractionDigits: d == null ? 2 : d, maximumFractionDigits: d == null ? 2 : d }).format(Number(v) || 0);
 const pct = (v, d) => v == null || !isFinite(v) ? '—' : new Intl.NumberFormat(LOC(), { style: 'percent', minimumFractionDigits: d == null ? 1 : d, maximumFractionDigits: d == null ? 1 : d }).format(v);
@@ -942,19 +962,35 @@ function totaisEquipe(m, ate) {
   const cs = equipeUniao(m).map(z => calcVinc(z.baseMod, z, ate));
   return { meta: sum(cs.map(c => c.metaAte)), real: sum(cs.map(c => c.realAte)) };
 }
-function miniCard(m, x, c) {
-  const a = c.atingAte;
-  const dica = `${x.v.nome} — ${t('Acumulado')}: ${brl0(c.realAte)} / ${c.metaAte ? brl0(c.metaAte) : '—'} · ${t('Premiação acumulada')}: ${brl0(c.totalAte)}`;
+/* Início: cada card mostra meta × realizado do mês escolhido (padrão: mês atual) ou de jan. até o mês atual */
+const MES_ATUAL = HOJE.getMonth() + 1;
+const ateAtual = ano => ano < HOJE.getFullYear() ? 12 : ano > HOJE.getFullYear() ? 0 : MES_ATUAL;
+function resumoPer(m, x, sel) {
+  if (sel === 'ytd') { const c = calcVinc(m, x, ateAtual(m.ano)); return { meta: c.metaAte || null, real: c.metaAte ? c.realAte : null }; }
+  const mm = calcVinc(m, x, 12).meses[sel - 1];
+  return { meta: mm.meta, real: mm.real };
+}
+const atDe = r => r.meta > 0 && r.real != null ? r.real / r.meta : null;
+const brlC = v => new Intl.NumberFormat(LOC(), { notation: 'compact', maximumFractionDigits: 1 }).format(Number(v) || 0);
+function miniCard(x, r) {
+  const a = atDe(r);
+  const dica = `${x.v.nome} — ${t('Realizado')}: ${r.real == null ? '—' : brl0(r.real)} / ${t('Meta')}: ${r.meta == null ? '—' : brl0(r.meta)}`;
   return `<div class="mt-mcard" title="${esc(dica)}">
     <div class="mt-mcard__l1"><b title="${esc(x.v.nome)}">${esc(x.v.nome)}</b><strong style="color:${corAt(a)}">${pct(a)}</strong></div>
     <div class="mt-bar"><span style="width:${Math.min(100, (a || 0) / 1.1 * 100)}%"></span><i style="left:${90 / 1.1}%"></i><i style="left:${100 / 1.1}%"></i></div>
-    <div class="mt-mcard__l2"><span>${brlC(c.realAte)} / ${c.metaAte ? brlC(c.metaAte) : '—'}</span><b>${brl0(c.totalAte)}</b></div>
+    <div class="mt-mcard__l2"><span>${r.real == null ? '—' : brlC(r.real)} / ${r.meta == null ? '—' : brlC(r.meta)}</span></div>
   </div>`;
 }
-/* Início: todos os grupos de metas numa única folha (A4 paisagem), sem links — a navegação fica só no menu superior */
 function vInicio() {
+  if (S.homeMes == null) S.homeMes = MES_ATUAL;
+  const sel = S.homeMes;
+  const rotPer = sel === 'ytd' ? t('Jan. até {m}', { m: MES(MES_ATUAL - 1).toLowerCase() }) : MESL(sel - 1);
+  const opts = MESL_PT.map((_, i) => `<option value="${i + 1}" ${sel === i + 1 ? 'selected' : ''}>${MESL(i)}${i + 1 === MES_ATUAL ? ' · ' + t('atual') : ''}</option>`).join('')
+    + `<option value="ytd" ${sel === 'ytd' ? 'selected' : ''}>${t('Jan. até {m}', { m: MES(MES_ATUAL - 1).toLowerCase() })}</option>`;
   setHead(t('Comercial'), t('Metas e Premiação'),
-    S.veTudo ? t('Visão geral de todos os módulos de metas.') : t('Módulos de metas liberados para você.'));
+    S.veTudo ? t('Visão geral de todos os módulos de metas.') : t('Módulos de metas liberados para você.'),
+    `<label class="fi-field" style="gap:3px"><span class="fi-label">${t('Período')}</span><select class="fi-select" id="h-mes" style="min-height:34px;padding:4px 10px;width:auto">${opts}</select></label>`);
+  $('#h-mes').onchange = e => { S.homeMes = e.target.value === 'ytd' ? 'ytd' : Number(e.target.value); vInicio(); };
   const meusIds = new Set(meusVendedores().map(v => v.id));
   const mods = S.modulos.filter(m => S.veTudo || (m.visivel && m.ativo && S.mv.some(x => x.modulo_id === m.id && meusIds.has(x.vendedor_id))));
   if (!mods.length) {
@@ -964,39 +1000,36 @@ function vInicio() {
     return;
   }
   const anos = [...new Set(mods.map(m => m.ano))].sort((a, b) => b - a);
+  const somaR = rs => { const ok = rs.filter(r => r.meta != null); return { meta: ok.length ? sum(ok.map(r => r.meta)) : null, real: ok.some(r => r.real != null) ? sum(ok.map(r => r.real || 0)) : null }; };
   let html = '<div class="mt-homegrid">';
   anos.forEach(ano => {
     if (anos.length > 1) html += `<div class="fi-eyebrow mt-homeano">${ano}</div>`;
     mods.filter(m => m.ano === ano).forEach(m => {
       const vinc = vincDe(m.id).filter(x => S.veTudo || x.v.email === S.email);
-      const ate = Math.max(ultimoFechado(m.id), mesPadrao(m.ano));
-      const linhas = vinc.map(x => ({ x, c: calcVinc(m, x, ate) }));
+      const linhas = vinc.map(x => ({ x, r: resumoPer(m, x, sel) }));
       const soLid = linhas.every(l => ehLider(l.x));
-      let meta = 0, real = 0, premio = 0;
-      linhas.forEach(({ x, c }) => { if (!ehLider(x) || soLid) { meta += c.metaAte; real += c.realAte; } premio += c.totalAte; });
-      if (ehSup(m)) { const te = totaisEquipe(m, ate); meta = te.meta; real = te.real; }
-      const at = meta > 0 ? real / meta : null;
-      const tb = byId(S.tabelas, m.tabela_id), fech = ultimoFechado(m.id);
+      let tot = somaR(linhas.filter(l => !ehLider(l.x) || soLid).map(l => l.r));
       let equipe = '';
-      if (ehSup(m) && S.veTudo) {
-        const eq = equipeUniao(m).map(z => ({ z, c: calcVinc(z.baseMod, z, ate) }));
-        if (eq.length) equipe = `<div class="mt-hsub">${t('Painel da equipe')} · ${eq.length}<span>${t('Equipe até {m}', { m: MES(ate - 1) })}: <b style="color:${corAt(at)}">${pct(at)}</b></span></div>
-          <div class="mt-mgrid">${eq.map(({ z, c }) => miniCard(z.baseMod, z, c)).join('')}</div>`;
+      if (ehSup(m)) {
+        const eq = equipeUniao(m).map(z => ({ z, r: resumoPer(z.baseMod, z, sel) }));
+        tot = somaR(eq.map(o => o.r));
+        if (eq.length && S.veTudo) equipe = `<div class="mt-hsub">${t('Painel da equipe')} · ${eq.length}<span>${rotPer}: <b style="color:${corAt(atDe(tot))}">${pct(atDe(tot))}</b></span></div>
+          <div class="mt-mgrid">${eq.map(({ z, r }) => miniCard(z, r)).join('')}</div>`;
       }
+      const at = atDe(tot), tb = byId(S.tabelas, m.tabela_id), fech = ultimoFechado(m.id);
       html += `<section class="fi-card mt-hmod">
         <div class="fi-card__head">
           <div class="mt-hmod__tit"><div class="fi-card__title" title="${esc(m.nome)}">${esc(m.nome)}</div>
-            <div class="mt-row">${tipoBadge(m)}${S.veTudo && !m.visivel ? `<span class="fi-badge">${t('Oculto')}</span>` : ''}${!m.ativo ? `<span class="fi-badge fi-badge--warning">${t('Inativo')}</span>` : ''}</div></div>
+            <div class="mt-row">${tipoBadge(m)}${m.setor ? `<span class="fi-badge">${t(m.setor === 'bordados' ? 'Bordados' : 'Industrial')}</span>` : ''}${S.veTudo && !m.visivel ? `<span class="fi-badge">${t('Oculto')}</span>` : ''}${!m.ativo ? `<span class="fi-badge fi-badge--warning">${t('Inativo')}</span>` : ''}</div></div>
           <div class="fi-card__note">${esc(tb ? tb.nome : '—')}</div>
-          <div class="mt-hkpis">
-            <div><span>${t('Meta até {m}', { m: MES(ate - 1) })}</span><b>${meta ? brl0(meta) : '—'}</b></div>
-            <div><span>${t('Realizado')}</span><b>${brl0(real)}</b></div>
+          <div class="mt-hkpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+            <div><span>${t('Meta')} · ${rotPer}</span><b>${tot.meta != null ? brl0(tot.meta) : '—'}</b></div>
+            <div><span>${t('Realizado')}</span><b>${tot.real != null ? brl0(tot.real) : '—'}</b></div>
             <div><span>${t('Atingido')}</span><b style="color:${corAt(at)}">${pct(at)}</b></div>
-            <div><span>${t('Premiação acumulada')}</span><b>${brl0(premio)}</b></div>
             <div><span>${t('Fechado até')}</span><b>${fech ? MES(fech - 1) : '—'}</b></div>
           </div></div>
         <div class="fi-card__body"><div class="mt-mgrid">
-        ${linhas.map(({ x, c }) => miniCard(m, x, c)).join('') || `<div class="mt-muted mt-small">${t('Nenhum vendedor atrelado.')}</div>`}
+        ${linhas.map(({ x, r }) => miniCard(x, r)).join('') || `<div class="mt-muted mt-small">${t('Nenhum vendedor atrelado.')}</div>`}
         </div>${equipe}</div></section>`;
     });
   });
@@ -1455,12 +1488,23 @@ function aDistribuicao() {
                    : { planejamento: 0, bordados: 0, industrial: 0, subsidio: 0, observacao: '' };
   /* valores mensais em centavos (inteiros) para as somas fecharem exatas */
   const C = v => Math.round((Number(v) || 0) * 100);
-  const mes = {}, fix = {};
-  const qv = (k, q) => mes[k][q * 3] + mes[k][q * 3 + 1] + mes[k][q * 3 + 2];
+  /* qt = valor de cada trimestre; mes = valor de cada mês. fix = trimestres travados; fixM = meses travados */
+  const mes = {}, fix = {}, fixM = {}, qt = {};
+  const qv = (k, q) => qt[k][q];
+  const somaMes = (k, q) => mes[k][q * 3] + mes[k][q * 3 + 1] + mes[k][q * 3 + 2];
   const fixos = (k) => [0, 1, 2, 3].filter(q => fix[k][q]);
   const livres = (k) => [0, 1, 2, 3].filter(q => !fix[k][q]);
-  const saldoDe = k => C(st[k]) - sum(mes[k]);
-  const poeTri = (k, q, cents) => { reparteCents(Math.max(0, cents), mes[k].slice(q * 3, q * 3 + 3)).forEach((x, j) => { mes[k][q * 3 + j] = x; }); };
+  const saldoDe = k => C(st[k]) - sum(qt[k]);
+  const saldoQ = (k, q) => qt[k][q] - somaMes(k, q);
+  /* meses soltos do trimestre recebem a diferença para completar o valor do trimestre */
+  const completaMes = (k, q) => {
+    const ids = [0, 1, 2].map(j => q * 3 + j), lv = ids.filter(i => !fixM[k][i]); if (!lv.length) return;
+    const resto = qt[k][q] - sum(ids.filter(i => fixM[k][i]).map(i => mes[k][i]));
+    const pesos = lv.map(i => mes[k][i]), rep = reparteCents(Math.max(0, resto), sum(pesos) > 0 ? pesos : lv.map(() => 1));
+    lv.forEach((i, j) => { mes[k][i] = rep[j]; });
+  };
+  const poeTri = (k, q, cents) => { qt[k][q] = Math.max(0, cents); completaMes(k, q); };
+  const saldoMesesDe = k => [0, 1, 2, 3].reduce((a, q) => a + Math.abs(saldoQ(k, q)), 0);
   /* os trimestres não fixados recebem a diferença para completar a meta do setor */
   const completa = k => {
     const lv = livres(k); if (!lv.length) return;
@@ -1471,9 +1515,12 @@ function aDistribuicao() {
   SETORES.forEach(([k]) => {
     const arr = salvo && Array.isArray(salvo['meses_' + k]) && salvo['meses_' + k].length === 12 ? salvo['meses_' + k].map(C) : null;
     const fx = salvo && salvo.tri_fixos && Array.isArray(salvo.tri_fixos[k]) ? salvo.tri_fixos[k] : [];
+    const fxm = salvo && salvo.tri_fixos && Array.isArray(salvo.tri_fixos['meses_' + k]) ? salvo.tri_fixos['meses_' + k] : [];
     fix[k] = [0, 1, 2, 3].map(q => !!fx[q]);
+    fixM[k] = Array.from({ length: 12 }, (_, i) => !!fxm[i]);
     mes[k] = arr || reparteCents(C(st[k]), Array(12).fill(1));
-    if (sum(mes[k]) !== C(st[k])) completa(k);
+    qt[k] = [0, 1, 2, 3].map(q => somaMes(k, q));
+    if (sum(qt[k]) !== C(st[k])) completa(k);
   });
   const campo = (id, rot) => `<label class="fi-field"><span class="fi-label">${rot}</span>
       <input class="mt-cin" id="${id}" inputmode="decimal"><span class="fi-field__help" id="${id}-h"></span></label>`;
@@ -1495,7 +1542,7 @@ function aDistribuicao() {
         <span class="mt-small mt-strong">${t('Industrial')}</span></div>
     </div></section>
 
-  <section class="fi-card mt-dcomp mt-mt"><div class="fi-card__head"><div><div class="fi-card__title">${t('Distribuição por trimestre e mês')}${dica(t('Cada trimestre tem sua própria barra e campo de valor, independentes. Ao fixar um trimestre (cadeado), os trimestres não fixados recebem a diferença para completar a meta do setor. O saldo mostra quanto ainda falta distribuir (positivo) ou quanto passou da meta (negativo). Dentro do trimestre, aumentou um mês, os outros dois diminuem.'))}</div>
+  <section class="fi-card mt-dcomp mt-mt"><div class="fi-card__head"><div><div class="fi-card__title">${t('Distribuição por trimestre e mês')}${dica(t('Cada trimestre tem sua própria barra e campo de valor, independentes. Ao fixar um trimestre (cadeado), os trimestres não fixados recebem a diferença para completar a meta do setor. O saldo mostra quanto ainda falta distribuir (positivo) ou quanto passou da meta (negativo). Os meses funcionam igual dentro de cada trimestre: barra e valor independentes, trava por mês e saldo do trimestre.'))}</div>
       <div class="fi-card__note">${t('Ajuste cada trimestre e fixe os que estiverem definidos — os demais completam a meta.')}</div></div>
       <div class="mt-row"><div class="mt-tabs" style="margin:0">${SETORES.map(([k, n]) => `<button class="mt-tab" data-setor="${k}" aria-selected="${k === S.distSetor}">${t(n)}</button>`).join('')}</div>
         <button class="fi-btn" id="d-igual" style="min-height:30px">${t('Dividir igualmente')}</button></div></div>
@@ -1507,8 +1554,10 @@ function aDistribuicao() {
           <button type="button" class="mt-fix" data-fix="${q}" aria-pressed="false"></button></div>
         <input class="mt-cin" data-q="${q}" inputmode="decimal">
         <input type="range" class="mt-range" data-qr="${q}" min="0" max="1000" step="1" aria-label="${t('{q}º trimestre', { q: q + 1 })}">
-        <div class="mt-qmeses">${[0, 1, 2].map(j => { const i = q * 3 + j; return `<label class="mt-qmes"><span>${MES(i)}</span>
-          <input class="mt-in" data-mi="${i}" inputmode="decimal"><small data-mh="${i}"></small></label>`; }).join('')}</div></div>`).join('')}</div>
+        <div class="mt-qmeses">${[0, 1, 2].map(j => { const i = q * 3 + j; return `<div class="mt-mrow" data-mc="${i}"><span>${MES(i)}<small data-mh="${i}"></small></span>
+          <input class="mt-in" data-mi="${i}" inputmode="decimal" aria-label="${MESL(i)}"><button type="button" class="mt-fix" data-fixm="${i}" aria-pressed="false"></button>
+          <input type="range" class="mt-range" data-mr="${i}" min="0" max="1000" step="1" aria-label="${MESL(i)}"></div>`; }).join('')}</div>
+        <div class="mt-qsaldo" data-qs="${q}"></div></div>`).join('')}</div>
     </div></section>
 
   <section class="fi-card mt-dcomp mt-mt"><div class="fi-card__body">
@@ -1560,7 +1609,15 @@ function aDistribuicao() {
       $(`[data-qc="${q}"]`).classList.toggle('mt-fixo', f);
       $(`[data-qh="${q}"]`).textContent = meta ? pct(v / meta) : '';
     });
-    arr.forEach((v, i) => { setV($(`[data-mi="${i}"]`), v / 100); const qq = qs[Math.floor(i / 3)]; $(`[data-mh="${i}"]`).textContent = qq ? pct(v / qq, 0) : ''; });
+    arr.forEach((v, i) => {
+      const q = Math.floor(i / 3), qq = qs[q], f = fixM[k][i], inp = $(`[data-mi="${i}"]`), rg = $(`[data-mr="${i}"]`), bt = $(`[data-fixm="${i}"]`);
+      setV(inp, v / 100); inp.disabled = f; rg.disabled = f || !qq; if (!ativo(rg)) rg.value = qq ? Math.round(Math.min(1, v / qq) * 1000) : 0;
+      bt.setAttribute('aria-pressed', String(f)); bt.textContent = f ? '🔒' : '🔓';
+      bt.title = f ? t('Clique para soltar este mês') : t('Fixa este mês; os meses soltos do trimestre recebem a diferença');
+      $(`[data-mh="${i}"]`).textContent = qq ? pct(v / qq, 0) : '';
+    });
+    [0, 1, 2, 3].forEach(q => { const sq = saldoQ(k, q);
+      $(`[data-qs="${q}"]`).innerHTML = sq === 0 ? `<span class="mt-sok">✓ ${t('meses fecham no trimestre')}</span>` : `${t('Saldo do trimestre')}: <b class="${sq > 0 ? 'mt-spos' : 'mt-sneg'}">${sinal(sq)}</b>`; });
   };
   const ler = el => Math.max(0, parseNum(el.value) || 0);
   I('d-plan').addEventListener('input', () => { const rB = ratioB(); st.planejamento = ler(I('d-plan')); st.subsidio = Math.min(st.subsidio, st.planejamento); reparte(rB); mudouSetores(); marca(); render(); });
@@ -1582,12 +1639,17 @@ function aDistribuicao() {
     if (fix[k][q]) completa(k);
     marca(); render();
   }));
-  // mês: o que entra num mês sai dos outros meses do mesmo trimestre
-  $$('[data-mi]').forEach(el => el.addEventListener('input', () => {
-    const arr = mes[S.distSetor], i = Number(el.dataset.mi), q = Math.floor(i / 3), idx = [0, 1, 2].map(j => q * 3 + j);
-    const qt = sum(idx.map(z => arr[z])), novo = Math.min(C(ler(el)), qt), outros = idx.filter(z => z !== i);
-    const rep = reparteCents(qt - novo, outros.map(z => arr[z]));
-    arr[i] = novo; outros.forEach((z, j) => { arr[z] = rep[j]; });
+  // mês: valor independente (campo ou barra) — a diferença aparece no saldo do trimestre
+  $$('[data-mi]').forEach(el => el.addEventListener('input', () => { const k = S.distSetor, i = Number(el.dataset.mi); if (fixM[k][i]) return; mes[k][i] = C(ler(el)); marca(); render(); }));
+  $$('[data-mr]').forEach(el => el.addEventListener('input', () => {
+    const k = S.distSetor, i = Number(el.dataset.mr); if (fixM[k][i]) return;
+    const base = qt[k][Math.floor(i / 3)], passo = 100000;   // arredonda a barra em R$ 1.000
+    mes[k][i] = Math.round(base * Number(el.value) / 1000 / passo) * passo; marca(); render();
+  }));
+  // fixar mês: os meses soltos do trimestre recebem a diferença
+  $$('[data-fixm]').forEach(b => b.addEventListener('click', () => {
+    const k = S.distSetor, i = Number(b.dataset.fixm);
+    fixM[k][i] = !fixM[k][i]; if (fixM[k][i]) completaMes(k, Math.floor(i / 3));
     marca(); render();
   }));
   $$('#adm-body .mt-cin, #adm-body .mt-in').forEach(el => el.addEventListener('blur', render));
@@ -1595,7 +1657,8 @@ function aDistribuicao() {
   I('d-igual').onclick = () => {
     const k = S.distSetor, lv = livres(k); if (!lv.length) { notify(t('Todos os trimestres estão fixados. Solte um para redistribuir.'), 'warning'); return; }
     const rep = reparteCents(Math.max(0, C(st[k]) - sum(fixos(k).map(q => qv(k, q)))), lv.map(() => 1));
-    lv.forEach((q, j) => reparteCents(rep[j], [1, 1, 1]).forEach((x, z) => { mes[k][q * 3 + z] = x; }));
+    lv.forEach((q, j) => { qt[k][q] = rep[j]; const ids = [0, 1, 2].map(z => q * 3 + z), lm = ids.filter(i => !fixM[k][i]);
+      const r2 = reparteCents(Math.max(0, rep[j] - sum(ids.filter(i => fixM[k][i]).map(i => mes[k][i]))), lm.map(() => 1)); lm.forEach((i, z) => { mes[k][i] = r2[z]; }); });
     marca(); render();
   };
   I('d-obs').addEventListener('input', marca);
@@ -1603,9 +1666,12 @@ function aDistribuicao() {
   I('d-salvar').onclick = async () => {
     const d = { ano, planejamento: st.planejamento, bordados: st.bordados, industrial: st.industrial, subsidio: st.subsidio,
       meses_bordados: mes.bordados.map(v => v / 100), meses_industrial: mes.industrial.map(v => v / 100),
-      tri_fixos: { bordados: fix.bordados, industrial: fix.industrial },
+      tri_fixos: { bordados: fix.bordados, industrial: fix.industrial, meses_bordados: fixM.bordados, meses_industrial: fixM.industrial },
       observacao: I('d-obs').value.trim() || null, atualizado_em: new Date().toISOString(), atualizado_por: S.nome || S.email };
     if (Math.abs(d.planejamento - d.bordados - d.industrial - d.subsidio) > 0.01) { notify(t('A soma dos setores e do subsídio precisa fechar no planejamento.'), 'warning'); return; }
+    const pendM = SETORES.find(([k]) => saldoDe(k) === 0 && saldoMesesDe(k) !== 0);
+    if (pendM && !SETORES.some(([k]) => saldoDe(k) !== 0)) { S.distSetor = pendM[0]; $$('[data-setor]').forEach(z => z.setAttribute('aria-selected', String(z.dataset.setor === pendM[0]))); render();
+      notify(t('Em {s}, os meses de algum trimestre não fecham no valor do trimestre. Ajuste ou fixe os meses até zerar o saldo.', { s: t(pendM[1]) }), 'warning'); return; }
     const pend = SETORES.find(([k]) => saldoDe(k) !== 0);
     if (pend) { S.distSetor = pend[0]; $$('[data-setor]').forEach(z => z.setAttribute('aria-selected', String(z.dataset.setor === pend[0]))); render();
       notify(t('Saldo a distribuir em {s}: {v}. Ajuste os trimestres até zerar.', { s: t(pend[1]), v: sinal(saldoDe(pend[0])) }), 'warning'); return; }
@@ -1661,6 +1727,11 @@ function aModuloEditor(m) {
   const candidatos = S.vendedores.filter(v => v.ativo && !jaDentro.has(v.id) && funcoesAlvo.includes(v.funcao || 'vendedor'));
   const outros = S.vendedores.filter(v => v.ativo && !jaDentro.has(v.id) && !candidatos.includes(v));
   const editavel = !(sup && campo === 'metas');
+  /* distribuição do setor (ADM › Distribuição) — referência para as metas deste módulo */
+  const dRow = !sup && m.setor ? S.dist.find(d => d.ano === m.ano) : null;
+  const distSetor = dRow && Array.isArray(dRow['meses_' + m.setor]) && dRow['meses_' + m.setor].length === 12 && campo === 'metas' ? dRow['meses_' + m.setor].map(Number) : null;
+  const outrosSetor = distSetor ? S.modulos.filter(z => z.id !== m.id && !ehSup(z) && z.ativo && z.ano === m.ano && z.setor === m.setor) : [];
+  const outrosMes = Array.from({ length: 12 }, (_, i) => sum(outrosSetor.flatMap(z => vincDe(z.id).filter(x => !ehLider(x)).map(x => valorMeta(x.metas[i]) || 0))));
   const editavelX = x => editavel && !(ehLider(x) && campo === 'metas');
   const head = COLS.map(c => typeof c === 'number' ? `<th class="mt-num">${MES(c - 1)}${fech.has(c) ? ' 🔒' : ''}</th>`
     : `<th class="mt-num mt-qcol">${c === 'A' ? t('Ano') : t('{q}º tri', { q: c.slice(1) })}</th>`).join('');
@@ -1683,7 +1754,7 @@ function aModuloEditor(m) {
   <section class="fi-card"><div class="fi-card__body"><div class="mt-kv" style="grid-template-columns:repeat(5,minmax(0,1fr))">
     <div><span>${t('Tipo')}</span><b>${tipoBadge(m)}</b></div>
     <div><span>${t('Tabela de premiação')}</span><b title="${esc(tb ? tb.nome : '')}">${esc(tb ? tb.nome : '—')}</b><div class="mt-small">${faixasOrd(tb).map(f => `<span class="mt-pill ${classeMult(f.mult)}">≥${num(f.min, 0)}% → ${multTxt(f.mult)}</span>`).join(' ')}</div></div>
-    <div><span>${sup ? t('Módulos base (vendedores)') : t('Participantes')}</span><b>${esc(sup ? (nomesBases || '—') : String(vinc.length))}</b></div>
+    <div><span>${sup ? t('Módulos base (vendedores)') : t('Setor (distribuição)')}</span><b>${sup ? esc(nomesBases || '—') : m.setor ? esc(t(m.setor === 'bordados' ? 'Bordados' : 'Industrial')) : `<span class="fi-badge fi-badge--warning">${t('Definir setor')}</span>`}</b></div>
     <div><span>${t('Fechado até')}</span><b>${uf ? MESL(uf - 1) : '—'}</b></div>
     <div><span>${t('Visualização')}</span><label class="mt-check"><input type="checkbox" id="me-vis" ${m.visivel ? 'checked' : ''}> ${m.visivel ? t('Liberado') : t('Oculto')}</label></div>
   </div>
@@ -1718,7 +1789,13 @@ function aModuloEditor(m) {
       <span class="mt-sp"></span><span class="mt-small mt-muted">${t('Clique no nome para ver detalhes e a comissão equivalente.')}</span></div>
     <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-metas"><thead><tr><th>${sup ? t('Supervisor') : t('Vendedor')}</th>${head}<th></th></tr></thead><tbody>
       ${linhas || `<tr><td colspan="${COLS.length + 2}"><div class="fi-empty">${sup ? t('Nenhum supervisor atrelado.') : t('Nenhum vendedor atrelado a este módulo.')}</div></td></tr>`}</tbody>
-      ${vinc.length ? `<tfoot><tr><td>${t('Total')}</td>${COLS.map(c => `<td class="mt-num ${typeof c === 'number' ? '' : 'mt-qcol'}" data-tot="${c}"></td>`).join('')}<td></td></tr></tfoot>` : ''}</table></div>
+      ${vinc.length || distSetor ? `<tfoot>${vinc.length ? `<tr><td>${t('Total')}</td>${COLS.map(c => `<td class="mt-num ${typeof c === 'number' ? '' : 'mt-qcol'}" data-tot="${c}"></td>`).join('')}<td></td></tr>` : ''}
+        ${distSetor ? `${outrosSetor.length ? `<tr class="mt-distrow"><td>${t('Outros módulos do setor')}</td>${COLS.map(c => `<td class="mt-num ${typeof c === 'number' ? '' : 'mt-qcol'}" data-out="${c}"></td>`).join('')}<td></td></tr>` : ''}
+          <tr class="mt-distrow"><td>${esc(t('Distribuição — {s}', { s: t(m.setor === 'bordados' ? 'Bordados' : 'Industrial') }))}</td>${COLS.map(c => `<td class="mt-num ${typeof c === 'number' ? '' : 'mt-qcol'}" data-dist="${c}"></td>`).join('')}<td></td></tr>
+          <tr class="mt-distrow mt-saldorow"><td>${t('Saldo a distribuir')}</td>${COLS.map(c => `<td class="mt-num ${typeof c === 'number' ? '' : 'mt-qcol'}" data-sld="${c}"></td>`).join('')}<td></td></tr>` : ''}</tfoot>` : ''}</table></div>
+    ${!sup && campo === 'metas' ? (distSetor ? `<div class="fi-card__body mt-row" style="border-top:1px solid var(--fi-line)"><button class="fi-btn" id="mm-dist" ${vinc.filter(x => !ehLider(x)).length ? '' : 'disabled'}>${t('Preencher pela distribuição')}</button>
+        <span class="mt-small mt-muted">${t('Divide o valor de cada mês aberto da distribuição entre os vendedores, na proporção das metas atuais (ou em partes iguais). Depois é só ajustar e salvar.')}</span></div>`
+      : `<div class="fi-card__body"><div class="fi-alert fi-alert--warning">${!m.setor ? t('Defina o setor em “Editar dados do módulo” para atrelar as metas à distribuição.') : esc(t('Ainda não há distribuição salva para {a} em ADM › Distribuição.', { a: m.ano }))}</div></div>`) : ''}
     <div class="fi-card__foot">${t('Meta em branco = ainda não lançada. Trimestre e ano são somados automaticamente quando todos os meses do período têm meta.')}</div></section>
   ${regraHtml(tb)}`;
 
@@ -1748,6 +1825,15 @@ function aModuloEditor(m) {
       const vals = paraTotal.map(arr => somaPer(arr, a, b));
       cel.innerHTML = brlOuWait(vals.some(v => v == null) ? null : sum(vals));
     });
+    if (distSetor) COLS.forEach(c => {
+      const [a, b] = typeof c === 'number' ? [c, c] : per(c), idx = Array.from({ length: b - a + 1 }, (_, z) => a - 1 + z);
+      const dv = sum(idx.map(i => distSetor[i])), ov = sum(idx.map(i => outrosMes[i]));
+      const mv = sum(paraTotal.map(arr => sum(idx.map(i => valorMeta(arr[i]) || 0))));
+      const sd = Math.round((dv - ov - mv) * 100) / 100;
+      const set = (sel, v) => { const e = $(`[${sel}="${c}"]`); if (e) e.innerHTML = v; };
+      set('data-dist', brl(dv)); set('data-out', brl(ov));
+      set('data-sld', Math.abs(sd) < 0.01 ? '<span class="mt-sok">✓</span>' : `<span class="${sd > 0 ? 'mt-spos' : 'mt-sneg'}">${sd > 0 ? '+' : '−'}${brl(Math.abs(sd))}</span>`);
+    });
   };
   $$('#tb-metas .mt-in').forEach(i => {
     i.addEventListener('input', () => {
@@ -1775,6 +1861,18 @@ function aModuloEditor(m) {
     } catch (e) { notify(erroMsg(e), 'danger'); btS.disabled = false; }
   };
   recalc();
+  const btD = $('#mm-dist');
+  if (btD) btD.onclick = () => {
+    const vend = vinc.filter(x => !ehLider(x)); let n = 0;
+    for (let i = 0; i < 12; i++) {
+      if (fech.has(i + 1)) continue;
+      const alvo = Math.max(0, Math.round((distSetor[i] - outrosMes[i]) * 100));
+      const atuais = vend.map(x => valorMeta(parseNum($(`#tb-metas .mt-in[data-v="${x.vendedor_id}"][data-m="${i + 1}"]`).value)) || 0);
+      const rep = reparteCents(alvo, sum(atuais) > 0 ? atuais.map(v => Math.round(v * 100)) : vend.map(() => 1));
+      vend.forEach((x, j) => { const inp = $(`#tb-metas .mt-in[data-v="${x.vendedor_id}"][data-m="${i + 1}"]`); if (!inp) return; inp.value = num(rep[j] / 100); inp.dispatchEvent(new Event('input')); n++; });
+    }
+    notify(t('Metas preenchidas pela distribuição — confira e salve.'), 'success');
+  };
 
   // participantes
   const vincular = async ids => {
@@ -1840,7 +1938,7 @@ function duplicarModulo(m) {
       if (!nome) { notify(t('Informe o nome do módulo.'), 'warning'); return false; }
       if (!(ano >= 2020 && ano <= 2100)) { notify(t('Ano inválido.'), 'warning'); return false; }
       const novo = await q(S.sb.from('met_modulos').insert({ nome, ano, tipo: m.tipo || 'vendedor', base_modulo_id: m.base_modulo_id || null, base_modulos: m.base_modulos || [], tabela_id: m.tabela_id,
-        tabela_supervisor_id: m.tabela_supervisor_id || null, tabela_gerente_id: m.tabela_gerente_id || null, regiao_id: m.regiao_id || null,
+        tabela_supervisor_id: m.tabela_supervisor_id || null, tabela_gerente_id: m.tabela_gerente_id || null, regiao_id: m.regiao_id || null, setor: m.setor || null,
         descricao: m.descricao || null, visivel: false, ativo: true }).select());
       const nid = novo && novo[0] && novo[0].id;
       const parts = S.mv.filter(x => x.modulo_id === m.id).map(x => ({ modulo_id: nid, vendedor_id: x.vendedor_id, papel: x.papel || 'vendedor', equipe: x.equipe || [],
@@ -2105,7 +2203,10 @@ function formModulo(m) {
       <div class="fi-field mt-full" id="m-base-w"><span class="fi-label">${t('Módulos base (vendedores) *')}</span>
         <div style="display:grid;gap:6px;padding:8px 10px;border:1px solid var(--fi-line);border-radius:7px;max-height:170px;overflow:auto">
         ${bases.map(z => `<label class="mt-check"><input type="checkbox" data-base="${z.id}" ${basesDe(m).some(b => b.id === z.id) ? 'checked' : ''}> ${esc(z.nome)} · ${z.ano}</label>`).join('') || `<span class="mt-muted mt-small">${t('Nenhum módulo de vendedores.')}</span>`}</div>
-        <span class="fi-field__help">${t('De onde vêm as metas e o realizado da equipe de cada supervisor.')}</span></label>
+        <span class="fi-field__help">${t('De onde vêm as metas e o realizado da equipe de cada supervisor.')}</span></div>
+      <label class="fi-field" id="m-setor-w"><span class="fi-label">${t('Setor (distribuição) *')}</span><select class="fi-select" id="m-setor">
+        <option value="">${t('Escolha o setor…')}</option>${SETORES.map(([k, n]) => `<option value="${k}" ${m.setor === k ? 'selected' : ''}>${t(n)}</option>`).join('')}</select>
+        <span class="fi-field__help">${t('As metas deste módulo são comparadas com a distribuição anual do setor.')}</span></label>
       <label class="fi-field"><span class="fi-label">${t('Tabela de premiação *')}</span><select class="fi-select" id="m-tab"></select></label>
       <div style="display:grid;gap:8px;align-content:end" class="mt-full">
         <label class="mt-check"><input type="checkbox" id="m-vis" ${m.visivel ? 'checked' : ''}> ${t('Liberar visualização aos vendedores')}</label>
@@ -2120,10 +2221,12 @@ function formModulo(m) {
         const tipo = $('#m-tipo').value;
         const d = { nome: $('#m-nome').value.trim(), ano: Number($('#m-ano').value), tipo, tabela_id: $('#m-tab').value, regiao_id: null,
                     base_modulos: tipo === 'supervisao' ? $$('[data-base]').filter(c => c.checked).map(c => c.dataset.base) : [],
+                    setor: tipo === 'vendedor' ? ($('#m-setor').value || null) : null,
                     descricao: $('#m-desc').value.trim() || null, visivel: $('#m-vis').checked, ativo: $('#m-ativo').checked };
         if (!d.nome) { notify(t('Informe o nome do módulo.'), 'warning'); return false; }
         d.base_modulo_id = d.base_modulos[0] || null;
         if (tipo === 'supervisao' && !d.base_modulo_id) { notify(t('Escolha o módulo base (vendedores).'), 'warning'); return false; }
+        if (tipo === 'vendedor' && !d.setor) { notify(t('Escolha a qual setor da distribuição o módulo se aplica.'), 'warning'); return false; }
         if (!d.tabela_id) { notify(t('Cadastre antes uma tabela de premiação.'), 'warning'); return false; }
         if (!(d.ano >= 2020 && d.ano <= 2100)) { notify(t('Ano inválido.'), 'warning'); return false; }
         if (m.id) { await q(S.sb.from('met_modulos').update(d).eq('id', m.id)); await recarregar(t('Módulo salvo')); }
@@ -2136,6 +2239,7 @@ function formModulo(m) {
   const sincroniza = () => {
     const tipo = $('#m-tipo', el).value, atual = $('#m-tab', el).value || m.tabela_id;
     $('#m-base-w', el).style.display = tipo === 'supervisao' ? '' : 'none';
+    $('#m-setor-w', el).style.display = tipo === 'supervisao' ? 'none' : '';
     const tabs = S.tabelas.filter(z => (z.tipo || 'ambos') === 'ambos' || (z.tipo === 'vendedor' && tipo === 'vendedor') || (z.tipo === 'supervisao' && tipo === 'supervisao'));
     $('#m-tab', el).innerHTML = tabs.map(z => `<option value="${z.id}" ${z.id === atual ? 'selected' : ''}>${esc(z.nome)} — ${t(tipoTabela(z))}</option>`).join('') || `<option value="">${t('Nenhuma tabela para este tipo')}</option>`;
   };
