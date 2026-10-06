@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="light" data-fi-version="off">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -56,7 +56,13 @@
   .mt-m2{background:color-mix(in srgb,var(--fi-success) 13%,transparent);color:var(--fi-success)}
   .mt-m3{background:color-mix(in srgb,var(--fi-brand) 14%,transparent);color:var(--fi-brand)}
   .mt-bar{position:relative;height:8px;border-radius:999px;background:var(--fi-surface-alt);overflow:visible;min-width:90px}
-  .mt-bar>span{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--fi-brand);max-width:100%}
+  /* gráficos: tons de cinza a preto (acompanham o tema claro/escuro) */
+  :root{--mt-c1:var(--fi-text);--mt-c2:color-mix(in srgb,var(--fi-text) 72%,var(--fi-surface));--mt-c3:color-mix(in srgb,var(--fi-text) 48%,var(--fi-surface));--mt-c4:color-mix(in srgb,var(--fi-text) 26%,var(--fi-surface))}
+  .mt-g1{background:var(--mt-c1)!important;color:var(--fi-surface)!important}.mt-g2{background:var(--mt-c2)!important;color:var(--fi-surface)!important}
+  .mt-g3{background:var(--mt-c3)!important;color:var(--fi-surface)!important}.mt-g4{background:var(--mt-c4)!important;color:var(--fi-text)!important}
+  .mt-gsaldo{background:repeating-linear-gradient(135deg,var(--fi-surface-alt) 0 6px,var(--fi-surface) 6px 12px)!important;color:var(--fi-text)!important;border-left:1px dashed var(--fi-line-strong)}
+  .mt-bar>span{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--mt-c1);max-width:100%}
+  .fi-progress>span{background:var(--mt-c1)!important}
   .mt-bar>i{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--fi-line-strong)}
   .mt-modal{position:fixed;inset:0;z-index:210;display:grid;place-items:center;padding:18px;background:rgba(9,12,16,.55)}
   .mt-modal__panel{width:min(760px,100%);max-height:calc(100vh - 36px);display:flex;flex-direction:column;border:1px solid var(--fi-line);border-radius:9px;background:var(--fi-surface);box-shadow:0 24px 64px rgba(0,0,0,.28)}
@@ -93,7 +99,26 @@
   .mt-pcard__ln{display:flex;justify-content:space-between;gap:6px;color:var(--fi-muted);font-size:.68rem;font-variant-numeric:tabular-nums}
   .mt-pcard__ln b{color:var(--fi-text)}
   .mt-qgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-  .mt-qcard{display:grid;gap:10px;padding:12px;border:1px solid var(--fi-line);border-radius:8px;background:var(--fi-surface-alt)}
+  .mt-qcard{display:grid;gap:6px;padding:8px 10px;border:1px solid var(--fi-line);border-radius:7px;background:var(--fi-surface-alt)}
+  .mt-qcard.mt-fixo{border-color:var(--mt-c1);box-shadow:inset 0 0 0 1px var(--mt-c1)}
+  .mt-qhead{display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .mt-qhead b{font-size:.74rem}.mt-qhead small{color:var(--fi-muted);font-size:.66rem;margin-left:4px}
+  .mt-fix{display:inline-flex;align-items:center;gap:4px;min-height:24px;padding:2px 8px;border:1px solid var(--fi-line-strong);border-radius:999px;background:var(--fi-surface);color:var(--fi-text);font-size:.66rem;font-weight:750;cursor:pointer}
+  .mt-fix[aria-pressed="true"]{background:var(--mt-c1);border-color:var(--mt-c1);color:var(--fi-surface)}
+  .mt-cin{width:100%;min-height:32px;padding:5px 9px;border:1px solid var(--fi-line);border-radius:6px;background:var(--fi-surface);color:var(--fi-text);font-size:.86rem;font-weight:750;text-align:right;font-variant-numeric:tabular-nums}
+  .mt-cin:disabled{background:var(--fi-surface-alt);color:var(--fi-text);opacity:1}
+  .mt-range{width:100%;margin:0;accent-color:var(--mt-c1);height:16px}
+  .mt-dtop{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .mt-dtop .fi-field{gap:3px}.mt-dtop .fi-label{font-size:.68rem}.mt-dtop .fi-field__help{font-size:.64rem;color:var(--fi-muted)}
+  .mt-saldo{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;font-size:.74rem;color:var(--fi-muted)}
+  .mt-saldo b{color:var(--fi-text);font-variant-numeric:tabular-nums}
+  .mt-saldo .mt-sv{padding:3px 10px;border-radius:999px;border:1px solid var(--fi-line-strong);color:var(--fi-text);font-weight:800}
+  .mt-saldo .mt-sv.mt-zero{background:var(--mt-c1);color:var(--fi-surface);border-color:var(--mt-c1)}
+  .mt-dcomp .fi-card__head{padding:10px 14px}.mt-dcomp .fi-card__body{padding:12px 14px}.mt-dcomp .fi-card__title{font-size:.86rem}.mt-dcomp .fi-card__note{font-size:.68rem}
+  .mt-dcomp .es-dist{height:32px;border-radius:6px}.mt-dcomp .es-dist>div{padding:0 8px;font-size:.66rem}.mt-dcomp .es-dist b{font-size:.7rem}
+  .mt-dcomp .mt-qmes{grid-template-columns:28px 1fr 34px;gap:4px;font-size:.68rem}.mt-dcomp .mt-qmes .mt-in{min-height:26px;padding:2px 6px;font-size:.72rem;min-width:0}
+  .mt-dcomp .mt-qmeses{gap:4px}
+  @media(max-width:900px){.mt-dtop{grid-template-columns:repeat(2,minmax(0,1fr))}}
   .mt-qmeses{display:grid;gap:6px}
   .mt-qmes{display:grid;grid-template-columns:34px 1fr 40px;gap:6px;align-items:center;font-size:.74rem}
   .mt-qmes span{font-weight:700;color:var(--fi-muted)}.mt-qmes small{color:var(--fi-muted);text-align:right;font-size:.68rem}
@@ -101,7 +126,9 @@
   @media(max-width:700px){.mt-qgrid{grid-template-columns:1fr}.mt-modkpis{gap:12px}}
   .mt-docname{display:flex;flex-direction:column;justify-content:center;min-width:0;padding-left:14px;border-left:1px solid var(--fi-line);margin-left:-10px}
   .mt-docname b{font-size:.9rem;font-weight:750;letter-spacing:-.01em;white-space:nowrap}
-  .mt-docname small{color:var(--fi-muted);font-size:.7rem;white-space:nowrap}
+  .mt-docname small{color:var(--fi-muted);font-size:.7rem;line-height:1.3;white-space:nowrap}
+  .mt-docname b{line-height:1.3}
+  .fi-ui-version{display:none!important}
   @media(max-width:700px){.mt-docname{display:none}}
   .fi-table tr.mt-lider td{background:color-mix(in srgb,var(--fi-info) 7%,var(--fi-surface))}
   .fi-table tr.mt-lider:first-of-type td,.fi-table tr:not(.mt-lider)+tr.mt-lider td{border-top:2px solid var(--fi-line-strong)}
@@ -138,7 +165,7 @@
   .es-yes{color:var(--fi-success);font-weight:750}.es-no{color:var(--fi-danger);font-weight:750}
   .es-rules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
   .es-rule{position:relative;padding:16px 14px 14px;border:1px solid var(--fi-line);border-radius:10px;background:var(--fi-surface);box-shadow:var(--fi-shadow);display:grid;gap:6px;align-content:start}
-  .es-rule .es-n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--fi-brand);color:#fff;font-weight:800;font-size:.8rem}
+  .es-rule .es-n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--mt-c1);color:var(--fi-surface);font-weight:800;font-size:.8rem}
   .es-rule h3{margin:2px 0 0;font-size:.86rem}
   .es-rule p{margin:0;color:var(--fi-muted);font-size:.76rem;line-height:1.45}
   .es-tag{justify-self:start;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:var(--fi-surface-alt);color:var(--fi-muted)}
@@ -154,9 +181,9 @@
   .es-tl>div:first-child{background:color-mix(in srgb,var(--fi-info) 10%,var(--fi-surface));border-radius:8px 0 0 8px}
   .es-tl>div:last-child{background:color-mix(in srgb,var(--fi-success) 10%,var(--fi-surface));border-radius:0 8px 8px 0}
   .es-tl::before{content:attr(data-vig);position:absolute;left:50%;top:-24px;transform:translateX(-50%);font-size:.66rem;font-weight:800;color:var(--fi-brand);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
-  .es-tl::after{content:"";position:absolute;left:50%;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;background:var(--fi-brand);border-radius:2px}
+  .es-tl::after{content:"";position:absolute;left:50%;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;background:var(--mt-c2);border-radius:2px}
   .es-dist{display:flex;height:58px;border-radius:9px;overflow:hidden;border:1px solid var(--fi-line)}
-  .es-dist>div{display:flex;flex-direction:column;justify-content:center;padding:0 12px;color:#fff;min-width:0;overflow:hidden;white-space:nowrap;font-size:.74rem;transition:flex .2s}
+  .es-dist>div{display:flex;flex-direction:column;justify-content:center;padding:0 12px;color:var(--fi-surface);background:var(--mt-c1);min-width:0;overflow:hidden;white-space:nowrap;font-size:.74rem;transition:flex .2s}
   .es-dist b{font-size:.8rem}
   .es-gauge{display:grid;gap:8px}
   .es-g{display:grid;grid-template-columns:110px 1fr 120px;gap:10px;align-items:center;font-size:.76rem}
@@ -183,7 +210,7 @@
   .mt-mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:6px}
   .mt-mcard>*{min-width:0}
   .mt-mcard__l2 span{overflow:hidden;text-overflow:ellipsis}
-  .mt-mcard{overflow:hidden;display:grid;gap:3px;padding:6px 8px;border:1px solid var(--fi-line);border-left:3px solid var(--fi-line-strong);border-radius:6px;background:var(--fi-surface);min-width:0}
+  .mt-mcard{overflow:hidden;display:grid;gap:3px;padding:6px 8px;border:1px solid var(--fi-line);border-left:3px solid var(--mt-c1);border-radius:6px;background:var(--fi-surface);min-width:0}
   .mt-mcard__l1{display:flex;justify-content:space-between;align-items:baseline;gap:6px;min-width:0}
   .mt-mcard__l1 b{font-size:.7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .mt-mcard__l1 strong{font-size:.86rem;font-variant-numeric:tabular-nums}
@@ -223,7 +250,7 @@
 <body>
 <header class="fi-topbar">
   <a class="fi-brand" href="#/inicio"><img data-fi-logo></a>
-  <div class="mt-docname"><b data-t="Metas e Premiação">Metas e Premiação</b><small id="docVersao"></small></div>
+  <div class="mt-docname"><b data-t="Metas e Premiação">Metas e Premiação</b><small id="uiVersao"></small><small id="docVersao"></small></div>
   <nav class="fi-nav" id="nav">
     <a href="#/inicio" data-r="inicio" data-t="Início">Início</a>
     <a href="#/painel" data-r="painel" id="nav-painel" data-t="Meu painel">Meu painel</a>
@@ -273,7 +300,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.011', DOC_DATA = '06/10/2026';
+const DOC_VERSAO = 'V.012', DOC_DATA = '06/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -521,6 +548,14 @@ const EN = {
   'Todos os vendedores ({n})':'All sales reps ({n})','Atrelar Supervisão 1 / Supervisão 2…':'Assign Supervision 1 / Supervision 2…',
   'Todos os vendedores dos módulos base (automático — quem entrar depois já conta)':'All sales reps in the base modules (automatic — new reps count too)',
   'Painel da equipe':'Team dashboard','Equipe até {m}':'Team to {m}',
+  'Planejamento → setores → trimestres → meses.':'Plan → sectors → quarters → months.',
+  'Cada trimestre tem sua própria barra e campo de valor, independentes. Ao fixar um trimestre (cadeado), os trimestres não fixados recebem a diferença para completar a meta do setor. O saldo mostra quanto ainda falta distribuir (positivo) ou quanto passou da meta (negativo). Dentro do trimestre, aumentou um mês, os outros dois diminuem.':'Each quarter has its own independent slider and value field. When you lock a quarter, the unlocked quarters receive the difference needed to complete the sector target. The balance shows how much is still to be allocated (positive) or how much exceeds the target (negative). Within a quarter, raising one month lowers the other two.',
+  'Ajuste cada trimestre e fixe os que estiverem definidos — os demais completam a meta.':'Adjust each quarter and lock the ones that are settled — the others complete the target.',
+  '{p} do planejamento':'{p} of the plan','Saldo':'Balance','Meta do setor':'Sector target','Distribuído nos trimestres':'Allocated to quarters','Fixados':'Locked',
+  'Saldo zerado':'Balance is zero','Saldo a distribuir: {v}':'Balance to allocate: {v}','Fixado':'Locked','Fixar':'Lock',
+  'Clique para soltar este trimestre':'Click to unlock this quarter','Fixa este trimestre; os não fixados recebem a diferença para completar a meta':'Locks this quarter; unlocked quarters receive the difference to complete the target',
+  'Todos os trimestres estão fixados. Solte um para redistribuir.':'All quarters are locked. Unlock one to redistribute.',
+  'Saldo a distribuir em {s}: {v}. Ajuste os trimestres até zerar.':'Balance to allocate in {s}: {v}. Adjust the quarters until it is zero.',
   'Visão geral de todos os módulos de metas.':'Overview of all target modules.',
   'Editar':'Edit','Concluir edição':'Finish editing','Salvar textos ({n})':'Save texts ({n})','Textos salvos ({n})':'Texts saved ({n})',
   'Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.':'Click any text with a dashed outline to change it. Clear it to restore the original text.',
@@ -819,9 +854,18 @@ function navAtivo(r) {
     if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
 }
+/* versão da Fiorella UI: a da biblioteca carregada, ou a do ?v= do script */
+function versaoUI() {
+  const F = window.FiorellaUI || {};
+  let v = F.VERSION || F.version || '';
+  if (!v) { const sc = document.querySelector('script[src*="fiorella-ui.js"]'); const m = sc && /[?&]v=([\w.\-]+)/.exec(sc.src); v = m ? m[1] : ''; }
+  return v ? 'v' + String(v).replace(/^v/i, '') : '';
+}
+document.addEventListener('DOMContentLoaded', () => { const uv = document.getElementById('uiVersao'); if (uv) uv.textContent = 'Fiorella UI ' + versaoUI(); });
 function aplicarIdioma() {
   document.documentElement.lang = LANG === 'en' ? 'en' : 'pt-BR';
   const dv = $('#docVersao');
+  const uv = $('#uiVersao'); if (uv) uv.textContent = 'Fiorella UI ' + versaoUI();
   if (dv) { dv.textContent = t('Documento {v}', { v: DOC_VERSAO }); dv.title = t('Versão deste arquivo HTML ({d}). Aumenta a cada atualização entregue.', { d: DOC_DATA }); }
   document.title = t('Metas e Premiação') + ' · Fiorella';
   $$('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
@@ -868,10 +912,10 @@ function rota0() {
 const corAt = a => a == null ? 'var(--fi-line-strong)' : a >= 1 ? 'var(--fi-success)' : a >= 0.9 ? 'var(--fi-warning)' : 'var(--fi-danger)';
 function cardPessoa(m, x, c, ate) {
   const mm = c.meses[ate - 1], a = c.atingAte;
-  return `<article class="mt-pcard" data-pm="${m.id}" data-pv="${x.vendedor_id}" tabindex="0" style="border-left-color:${corAt(a)}">
+  return `<article class="mt-pcard" data-pm="${m.id}" data-pv="${x.vendedor_id}" tabindex="0">
     <div class="mt-pcard__top"><b title="${esc(x.v.nome)}">${esc(x.v.nome)}</b>${papelBadge(x)}</div>
     <div class="mt-pcard__pct" style="color:${corAt(a)}">${pct(a)}</div>
-    <div class="mt-bar"><span style="width:${Math.min(100, (a || 0) / 1.1 * 100)}%;background:${corAt(a)}"></span><i style="left:${90 / 1.1}%"></i><i style="left:${100 / 1.1}%"></i></div>
+    <div class="mt-bar"><span style="width:${Math.min(100, (a || 0) / 1.1 * 100)}%"></span><i style="left:${90 / 1.1}%"></i><i style="left:${100 / 1.1}%"></i></div>
     <div class="mt-pcard__ln"><span>${t('Acumulado')}</span><span>${brl0(c.realAte)} / ${c.metaAte ? brl0(c.metaAte) : '—'}</span></div>
     <div class="mt-pcard__ln"><span>${MES(ate - 1)} <span class="mt-pill ${classeMult(mm.mult)}">${mm.apurado ? multTxt(mm.mult) : '—'}</span></span><b>${brl0(c.totalAte)}</b></div>
   </article>`;
@@ -901,9 +945,9 @@ function totaisEquipe(m, ate) {
 function miniCard(m, x, c) {
   const a = c.atingAte;
   const dica = `${x.v.nome} — ${t('Acumulado')}: ${brl0(c.realAte)} / ${c.metaAte ? brl0(c.metaAte) : '—'} · ${t('Premiação acumulada')}: ${brl0(c.totalAte)}`;
-  return `<div class="mt-mcard" title="${esc(dica)}" style="border-left-color:${corAt(a)}">
+  return `<div class="mt-mcard" title="${esc(dica)}">
     <div class="mt-mcard__l1"><b title="${esc(x.v.nome)}">${esc(x.v.nome)}</b><strong style="color:${corAt(a)}">${pct(a)}</strong></div>
-    <div class="mt-bar"><span style="width:${Math.min(100, (a || 0) / 1.1 * 100)}%;background:${corAt(a)}"></span><i style="left:${90 / 1.1}%"></i><i style="left:${100 / 1.1}%"></i></div>
+    <div class="mt-bar"><span style="width:${Math.min(100, (a || 0) / 1.1 * 100)}%"></span><i style="left:${90 / 1.1}%"></i><i style="left:${100 / 1.1}%"></i></div>
     <div class="mt-mcard__l2"><span>${brlC(c.realAte)} / ${c.metaAte ? brlC(c.metaAte) : '—'}</span><b>${brl0(c.totalAte)}</b></div>
   </div>`;
 }
@@ -1409,52 +1453,66 @@ function aDistribuicao() {
   const salvo = S.dist.find(d => d.ano === ano);
   const st = salvo ? { planejamento: +salvo.planejamento, bordados: +salvo.bordados, industrial: +salvo.industrial, subsidio: +salvo.subsidio, observacao: salvo.observacao || '' }
                    : { planejamento: 0, bordados: 0, industrial: 0, subsidio: 0, observacao: '' };
-  /* distribuição mensal em centavos (inteiros) para a soma sempre fechar exata */
+  /* valores mensais em centavos (inteiros) para as somas fecharem exatas */
   const C = v => Math.round((Number(v) || 0) * 100);
-  const mes = {};
+  const mes = {}, fix = {};
+  const qv = (k, q) => mes[k][q * 3] + mes[k][q * 3 + 1] + mes[k][q * 3 + 2];
+  const fixos = (k) => [0, 1, 2, 3].filter(q => fix[k][q]);
+  const livres = (k) => [0, 1, 2, 3].filter(q => !fix[k][q]);
+  const saldoDe = k => C(st[k]) - sum(mes[k]);
+  const poeTri = (k, q, cents) => { reparteCents(Math.max(0, cents), mes[k].slice(q * 3, q * 3 + 3)).forEach((x, j) => { mes[k][q * 3 + j] = x; }); };
+  /* os trimestres não fixados recebem a diferença para completar a meta do setor */
+  const completa = k => {
+    const lv = livres(k); if (!lv.length) return;
+    const resto = C(st[k]) - sum(fixos(k).map(q => qv(k, q)));
+    const pesos = lv.map(q => qv(k, q)), rep = reparteCents(Math.max(0, resto), sum(pesos) > 0 ? pesos : lv.map(() => 1));
+    lv.forEach((q, j) => poeTri(k, q, rep[j]));
+  };
   SETORES.forEach(([k]) => {
     const arr = salvo && Array.isArray(salvo['meses_' + k]) && salvo['meses_' + k].length === 12 ? salvo['meses_' + k].map(C) : null;
-    mes[k] = arr && sum(arr) === C(st[k]) ? arr : reparteCents(C(st[k]), arr || Array(12).fill(1));
+    const fx = salvo && salvo.tri_fixos && Array.isArray(salvo.tri_fixos[k]) ? salvo.tri_fixos[k] : [];
+    fix[k] = [0, 1, 2, 3].map(q => !!fx[q]);
+    mes[k] = arr || reparteCents(C(st[k]), Array(12).fill(1));
+    if (sum(mes[k]) !== C(st[k])) completa(k);
   });
-  const campo = (id, rot, help) => `<label class="fi-field"><span class="fi-label">${rot}</span>
-      <input class="fi-input mt-num" id="${id}" inputmode="decimal" style="font-size:1.05rem;font-weight:750"><span class="fi-field__help" id="${id}-h">${help || ''}</span></label>`;
+  const campo = (id, rot) => `<label class="fi-field"><span class="fi-label">${rot}</span>
+      <input class="mt-cin" id="${id}" inputmode="decimal"><span class="fi-field__help" id="${id}-h"></span></label>`;
   $('#adm-body').innerHTML = `
-  <section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Distribuição do planejamento anual')}${dica(t('O planejamento anual é dividido entre os setores Bordados e Industrial. O subsídio (vendas da diretoria) entra para completar a meta. Diminuiu um setor, o outro aumenta — a soma sempre fecha no planejamento.'))}</div>
-      <div class="fi-card__note">${t('Planejamento → setores → trimestres → meses. Em cada nível, tirar de um lado coloca no outro.')}</div></div>
-      <div class="mt-row"><select class="fi-select" id="d-ano" style="width:auto">${anos.map(a => `<option value="${a}" ${a === ano ? 'selected' : ''}>${a}</option>`).join('')}</select>
+  <section class="fi-card mt-dcomp"><div class="fi-card__head"><div><div class="fi-card__title">${t('Distribuição do planejamento anual')}${dica(t('O planejamento anual é dividido entre os setores Bordados e Industrial. O subsídio (vendas da diretoria) entra para completar a meta. Diminuiu um setor, o outro aumenta — a soma sempre fecha no planejamento.'))}</div>
+      <div class="fi-card__note">${t('Planejamento → setores → trimestres → meses.')}</div></div>
+      <div class="mt-row"><span id="d-status"></span><select class="fi-select" id="d-ano" style="width:auto;min-height:32px;padding:4px 8px">${anos.map(a => `<option value="${a}" ${a === ano ? 'selected' : ''}>${a}</option>`).join('')}</select>
       <button class="fi-btn fi-btn--primary" id="d-salvar" disabled>${t('Salvar')}</button></div></div>
-    <div class="fi-card__body" style="display:grid;gap:16px">
-      <div class="mt-form" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
+    <div class="fi-card__body" style="display:grid;gap:10px">
+      <div class="mt-dtop">
         ${campo('d-plan', t('Planejamento anual (R$) *'))}
-        <div class="fi-field"><span class="fi-label">${t('Situação')}</span><div id="d-status" style="min-height:42px;display:flex;align-items:center"></div></div>
+        ${campo('d-bordados', t('Bordados — setor de vendas'))}
+        ${campo('d-industrial', t('Industrial — setor de vendas'))}
+        ${campo('d-subsidio', t('Subsídio — vendas da diretoria'))}
       </div>
-      <div><div class="es-dist" id="d-barra"></div>
-        <div class="mt-row mt-mt"><span class="mt-small mt-strong">${t('Bordados')}</span>
-          <input type="range" id="d-slider" min="0" max="1000" step="1" style="flex:1;accent-color:var(--fi-brand)">
-          <span class="mt-small mt-strong">${t('Industrial')}</span></div></div>
-      <div class="fi-grid fi-grid--3">
-        <div class="fi-card fi-metric fi-metric--brand" style="min-height:0">${campo('d-bordados', t('Bordados — setor de vendas'))}</div>
-        <div class="fi-card fi-metric" style="min-height:0">${campo('d-industrial', t('Industrial — setor de vendas'))}</div>
-        <div class="fi-card fi-metric" style="min-height:0">${campo('d-subsidio', t('Subsídio — vendas da diretoria'), t('Opcional: vendas da diretoria incluídas para bater a meta.'))}</div>
-      </div>
+      <div class="es-dist" id="d-barra"></div>
+      <div class="mt-row"><span class="mt-small mt-strong">${t('Bordados')}</span>
+        <input type="range" class="mt-range" id="d-slider" min="0" max="1000" step="1" style="flex:1">
+        <span class="mt-small mt-strong">${t('Industrial')}</span></div>
     </div></section>
 
-  <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Distribuição por trimestre e mês')}${dica(t('O valor do setor é dividido em 4 trimestres e cada trimestre em 3 meses. Aumentou um trimestre, os outros diminuem na mesma proporção (a soma continua igual ao setor). Dentro do trimestre, aumentou um mês, os outros dois meses diminuem.'))}</div>
-      <div class="fi-card__note">${t('Tire de um trimestre e coloque em outro; depois ajuste os meses dentro de cada trimestre.')}</div></div>
+  <section class="fi-card mt-dcomp mt-mt"><div class="fi-card__head"><div><div class="fi-card__title">${t('Distribuição por trimestre e mês')}${dica(t('Cada trimestre tem sua própria barra e campo de valor, independentes. Ao fixar um trimestre (cadeado), os trimestres não fixados recebem a diferença para completar a meta do setor. O saldo mostra quanto ainda falta distribuir (positivo) ou quanto passou da meta (negativo). Dentro do trimestre, aumentou um mês, os outros dois diminuem.'))}</div>
+      <div class="fi-card__note">${t('Ajuste cada trimestre e fixe os que estiverem definidos — os demais completam a meta.')}</div></div>
       <div class="mt-row"><div class="mt-tabs" style="margin:0">${SETORES.map(([k, n]) => `<button class="mt-tab" data-setor="${k}" aria-selected="${k === S.distSetor}">${t(n)}</button>`).join('')}</div>
-        <button class="fi-btn" id="d-igual">${t('Dividir igualmente')}</button></div></div>
-    <div class="fi-card__body" style="display:grid;gap:14px">
-      <div class="es-dist" id="d-qbarra" style="height:44px"></div>
-      <div class="mt-qgrid">${[0, 1, 2, 3].map(q => `<div class="mt-qcard">
-        <label class="fi-field"><span class="fi-label mt-strong" style="color:var(--fi-brand)">${t('{q}º trimestre', { q: q + 1 })}</span>
-          <input class="fi-input mt-num" data-q="${q}" inputmode="decimal" style="font-weight:750"><span class="fi-field__help" data-qh="${q}"></span></label>
+        <button class="fi-btn" id="d-igual" style="min-height:30px">${t('Dividir igualmente')}</button></div></div>
+    <div class="fi-card__body" style="display:grid;gap:10px">
+      <div class="mt-saldo" id="d-saldo"></div>
+      <div class="es-dist" id="d-qbarra"></div>
+      <div class="mt-qgrid" style="gap:8px">${[0, 1, 2, 3].map(q => `<div class="mt-qcard" data-qc="${q}">
+        <div class="mt-qhead"><span><b>${t('{q}º trimestre', { q: q + 1 })}</b><small data-qh="${q}"></small></span>
+          <button type="button" class="mt-fix" data-fix="${q}" aria-pressed="false"></button></div>
+        <input class="mt-cin" data-q="${q}" inputmode="decimal">
+        <input type="range" class="mt-range" data-qr="${q}" min="0" max="1000" step="1" aria-label="${t('{q}º trimestre', { q: q + 1 })}">
         <div class="mt-qmeses">${[0, 1, 2].map(j => { const i = q * 3 + j; return `<label class="mt-qmes"><span>${MES(i)}</span>
           <input class="mt-in" data-mi="${i}" inputmode="decimal"><small data-mh="${i}"></small></label>`; }).join('')}</div></div>`).join('')}</div>
-      <div class="mt-small mt-muted" id="d-qstatus"></div>
     </div></section>
 
-  <section class="fi-card mt-mt2"><div class="fi-card__body">
-    <label class="fi-field"><span class="fi-label">${t('Observação')}</span><textarea class="fi-textarea" id="d-obs" style="min-height:60px">${esc(st.observacao)}</textarea></label></div>
+  <section class="fi-card mt-dcomp mt-mt"><div class="fi-card__body">
+    <label class="fi-field"><span class="fi-label">${t('Observação')}</span><textarea class="fi-textarea" id="d-obs" style="min-height:44px">${esc(st.observacao)}</textarea></label></div>
     ${salvo ? `<div class="fi-card__foot">${esc(t('Última alteração: {d} por {p}', { d: new Date(salvo.atualizado_em).toLocaleString(LOC()), p: salvo.atualizado_por || '—' }))}</div>` : ''}
   </section>`;
 
@@ -1466,47 +1524,62 @@ function aDistribuicao() {
   const resto = () => Math.max(0, st.planejamento - st.subsidio);
   const ratioB = () => { const r = st.bordados + st.industrial; return r > 0 ? st.bordados / r : 0.5; };
   const reparte = rB => { const r = resto(); st.bordados = Math.round(r * rB * 100) / 100; st.industrial = Math.round((r - st.bordados) * 100) / 100; };
-  const sincMeses = () => SETORES.forEach(([k]) => { if (sum(mes[k]) !== C(st[k])) mes[k] = reparteCents(C(st[k]), mes[k]); });
+  const mudouSetores = () => SETORES.forEach(([k]) => completa(k));
+  const sinal = c => (c > 0 ? '+' : c < 0 ? '−' : '') + brl(Math.abs(c) / 100);
   const render = () => {
-    sincMeses();
     setV(I('d-plan'), st.planejamento); setV(I('d-bordados'), st.bordados); setV(I('d-industrial'), st.industrial); setV(I('d-subsidio'), st.subsidio);
     const P = st.planejamento || 0, p = v => P ? pct(v / P) : '—';
-    I('d-bordados-h').textContent = t('{p} do planejamento · {m}/mês', { p: p(st.bordados), m: brl0(st.bordados / 12) });
-    I('d-industrial-h').textContent = t('{p} do planejamento · {m}/mês', { p: p(st.industrial), m: brl0(st.industrial / 12) });
+    I('d-bordados-h').textContent = t('{p} do planejamento', { p: p(st.bordados) });
+    I('d-industrial-h').textContent = t('{p} do planejamento', { p: p(st.industrial) });
+    I('d-subsidio-h').textContent = t('{p} do planejamento', { p: p(st.subsidio) });
     I('d-plan-h').textContent = P ? t('equivale a {m}/mês', { m: brl0(P / 12) }) : '';
-    const partes = [['bordados', 'Bordados', 'var(--fi-brand)'], ['industrial', 'Industrial', 'var(--fi-info)'], ['subsidio', 'Subsídio', 'var(--fi-warning)']];
-    I('d-barra').innerHTML = P ? partes.filter(([k]) => st[k] > 0).map(([k, n, c]) => `<div style="flex:${st[k]};background:${c}" title="${t(n)} ${brl0(st[k])}">
-        <b>${t(n)}</b><span>${pct(st[k] / P)} · ${brl0(st[k])}</span></div>`).join('') : `<div style="flex:1;background:var(--fi-surface-alt);color:var(--fi-muted)"><span>${t('Informe o planejamento anual')}</span></div>`;
+    const partes = [['bordados', 'Bordados', 'mt-g1'], ['industrial', 'Industrial', 'mt-g3'], ['subsidio', 'Subsídio', 'mt-g4']];
+    I('d-barra').innerHTML = P ? partes.filter(([k]) => st[k] > 0).map(([k, n, c]) => `<div class="${c}" style="flex:${st[k]}" title="${t(n)} ${brl0(st[k])}">
+        <b>${t(n)}</b><span>${pct(st[k] / P)} · ${brl0(st[k])}</span></div>`).join('') : `<div class="mt-gsaldo" style="flex:1"><span>${t('Informe o planejamento anual')}</span></div>`;
     I('d-slider').disabled = !resto();
     if (!ativo(I('d-slider'))) I('d-slider').value = Math.round((resto() ? st.bordados / resto() : 0.5) * 1000);
     const soma = st.bordados + st.industrial + st.subsidio, dif = Math.round((P - soma) * 100) / 100;
-    I('d-status').innerHTML = !P ? `<span class="mt-muted">—</span>` : Math.abs(dif) < 0.01
+    I('d-status').innerHTML = !P ? '' : Math.abs(dif) < 0.01
       ? `<span class="fi-badge fi-badge--success">✓ ${t('Distribuição fecha no planejamento')}</span>`
       : `<span class="fi-badge fi-badge--warning">${dif > 0 ? t('Falta distribuir {v}', { v: brl(dif) }) : t('Excede o planejamento em {v}', { v: brl(-dif) })}</span>`;
     // trimestres e meses do setor escolhido
-    const k = S.distSetor, arr = mes[k], tot = sum(arr);
-    const qs = [0, 1, 2, 3].map(q => arr[q * 3] + arr[q * 3 + 1] + arr[q * 3 + 2]);
-    const cores = ['var(--fi-brand)', 'var(--fi-info)', 'var(--fi-success)', 'var(--fi-warning)'];
-    I('d-qbarra').innerHTML = tot ? qs.map((v, q) => v > 0 ? `<div style="flex:${v};background:${cores[q]}"><b>${t('{q}º tri', { q: q + 1 })}</b><span>${pct(v / tot)} · ${brl0(v / 100)}</span></div>` : '').join('')
-      : `<div style="flex:1;background:var(--fi-surface-alt);color:var(--fi-muted)"><span>${t('Defina o valor do setor acima')}</span></div>`;
-    qs.forEach((v, q) => { setV($(`[data-q="${q}"]`), v / 100); $(`[data-qh="${q}"]`).textContent = tot ? t('{p} do setor', { p: pct(v / tot) }) : ''; });
-    arr.forEach((v, i) => { setV($(`[data-mi="${i}"]`), v / 100); const qv = qs[Math.floor(i / 3)]; $(`[data-mh="${i}"]`).textContent = qv ? pct(v / qv, 0) : ''; });
-    I('d-qstatus').textContent = t('{s}: {v} distribuídos em 12 meses.', { s: t(SETORES.find(z => z[0] === k)[1]), v: brl(tot / 100) });
+    const k = S.distSetor, arr = mes[k], meta = C(st[k]), qs = [0, 1, 2, 3].map(q => qv(k, q)), saldo = saldoDe(k);
+    const g = ['mt-g1', 'mt-g2', 'mt-g3', 'mt-g4'], base = Math.max(meta, sum(qs));
+    I('d-qbarra').innerHTML = base ? qs.map((v, q) => v > 0 ? `<div class="${g[q]}" style="flex:${v}"><b>${fix[k][q] ? '🔒 ' : ''}${t('{q}º tri', { q: q + 1 })}</b><span>${meta ? pct(v / meta) : '—'} · ${brl0(v / 100)}</span></div>` : '').join('')
+        + (saldo > 0 ? `<div class="mt-gsaldo" style="flex:${saldo}"><b>${t('Saldo')}</b><span>${brl0(saldo / 100)}</span></div>` : '')
+      : `<div class="mt-gsaldo" style="flex:1"><span>${t('Defina o valor do setor acima')}</span></div>`;
+    I('d-saldo').innerHTML = `<span>${t('Meta do setor')}: <b>${brl(meta / 100)}</b></span><span>${t('Distribuído nos trimestres')}: <b>${brl(sum(qs) / 100)}</b></span>
+      <span>${t('Fixados')}: <b>${fixos(k).length}/4</b></span>
+      <span class="mt-sv ${saldo === 0 ? 'mt-zero' : ''}" id="d-saldo-v">${saldo === 0 ? '✓ ' + t('Saldo zerado') : t('Saldo a distribuir: {v}', { v: sinal(saldo) })}</span>`;
+    qs.forEach((v, q) => {
+      const f = fix[k][q], inp = $(`[data-q="${q}"]`), rg = $(`[data-qr="${q}"]`), bt = $(`[data-fix="${q}"]`);
+      setV(inp, v / 100); inp.disabled = f;
+      rg.disabled = f || !meta; if (!ativo(rg)) rg.value = meta ? Math.round(Math.min(1, v / meta) * 1000) : 0;
+      bt.setAttribute('aria-pressed', String(f)); bt.textContent = f ? '🔒 ' + t('Fixado') : '🔓 ' + t('Fixar');
+      bt.title = f ? t('Clique para soltar este trimestre') : t('Fixa este trimestre; os não fixados recebem a diferença para completar a meta');
+      $(`[data-qc="${q}"]`).classList.toggle('mt-fixo', f);
+      $(`[data-qh="${q}"]`).textContent = meta ? pct(v / meta) : '';
+    });
+    arr.forEach((v, i) => { setV($(`[data-mi="${i}"]`), v / 100); const qq = qs[Math.floor(i / 3)]; $(`[data-mh="${i}"]`).textContent = qq ? pct(v / qq, 0) : ''; });
   };
   const ler = el => Math.max(0, parseNum(el.value) || 0);
-  I('d-plan').addEventListener('input', () => { const rB = ratioB(); st.planejamento = ler(I('d-plan')); st.subsidio = Math.min(st.subsidio, st.planejamento); reparte(rB); marca(); render(); });
-  I('d-subsidio').addEventListener('input', () => { const rB = ratioB(); st.subsidio = Math.min(ler(I('d-subsidio')), st.planejamento); reparte(rB); marca(); render(); });
-  I('d-bordados').addEventListener('input', () => { st.bordados = Math.min(ler(I('d-bordados')), resto()); st.industrial = Math.round((resto() - st.bordados) * 100) / 100; marca(); render(); });
-  I('d-industrial').addEventListener('input', () => { st.industrial = Math.min(ler(I('d-industrial')), resto()); st.bordados = Math.round((resto() - st.industrial) * 100) / 100; marca(); render(); });
-  I('d-slider').addEventListener('input', () => { reparte(Number(I('d-slider').value) / 1000); marca(); render(); });
-  // trimestre: o que entra num trimestre sai dos outros, na proporção deles; os meses acompanham
-  $$('[data-q]').forEach(el => el.addEventListener('input', () => {
-    const k = S.distSetor, arr = mes[k], tot = sum(arr), q = Number(el.dataset.q);
-    const qs = [0, 1, 2, 3].map(z => arr[z * 3] + arr[z * 3 + 1] + arr[z * 3 + 2]);
-    const novo = Math.min(C(ler(el)), tot), outros = [0, 1, 2, 3].filter(z => z !== q);
-    const rep = reparteCents(tot - novo, outros.map(z => qs[z]));
-    const alvo = qs.slice(); alvo[q] = novo; outros.forEach((z, j) => { alvo[z] = rep[j]; });
-    alvo.forEach((v, z) => { const ms = reparteCents(v, arr.slice(z * 3, z * 3 + 3)); ms.forEach((x, j) => { arr[z * 3 + j] = x; }); });
+  I('d-plan').addEventListener('input', () => { const rB = ratioB(); st.planejamento = ler(I('d-plan')); st.subsidio = Math.min(st.subsidio, st.planejamento); reparte(rB); mudouSetores(); marca(); render(); });
+  I('d-subsidio').addEventListener('input', () => { const rB = ratioB(); st.subsidio = Math.min(ler(I('d-subsidio')), st.planejamento); reparte(rB); mudouSetores(); marca(); render(); });
+  I('d-bordados').addEventListener('input', () => { st.bordados = Math.min(ler(I('d-bordados')), resto()); st.industrial = Math.round((resto() - st.bordados) * 100) / 100; mudouSetores(); marca(); render(); });
+  I('d-industrial').addEventListener('input', () => { st.industrial = Math.min(ler(I('d-industrial')), resto()); st.bordados = Math.round((resto() - st.industrial) * 100) / 100; mudouSetores(); marca(); render(); });
+  I('d-slider').addEventListener('input', () => { reparte(Number(I('d-slider').value) / 1000); mudouSetores(); marca(); render(); });
+  // trimestre: valor independente (campo ou barra) — a diferença aparece no saldo
+  $$('[data-q]').forEach(el => el.addEventListener('input', () => { const k = S.distSetor, q = Number(el.dataset.q); if (fix[k][q]) return; poeTri(k, q, C(ler(el))); marca(); render(); }));
+  $$('[data-qr]').forEach(el => el.addEventListener('input', () => {
+    const k = S.distSetor, q = Number(el.dataset.qr); if (fix[k][q]) return;
+    const meta = C(st[k]), passo = 100000;                // arredonda a barra em R$ 1.000
+    poeTri(k, q, Math.round(meta * Number(el.value) / 1000 / passo) * passo); marca(); render();
+  }));
+  // fixar: os trimestres soltos recebem a diferença para completar a meta do setor
+  $$('[data-fix]').forEach(b => b.addEventListener('click', () => {
+    const k = S.distSetor, q = Number(b.dataset.fix);
+    fix[k][q] = !fix[k][q];
+    if (fix[k][q]) completa(k);
     marca(); render();
   }));
   // mês: o que entra num mês sai dos outros meses do mesmo trimestre
@@ -1517,17 +1590,25 @@ function aDistribuicao() {
     arr[i] = novo; outros.forEach((z, j) => { arr[z] = rep[j]; });
     marca(); render();
   }));
-  $$('#adm-body .fi-input, #adm-body .mt-in').forEach(el => el.addEventListener('blur', render));
+  $$('#adm-body .mt-cin, #adm-body .mt-in').forEach(el => el.addEventListener('blur', render));
   $$('[data-setor]').forEach(b => b.onclick = () => { S.distSetor = b.dataset.setor; $$('[data-setor]').forEach(z => z.setAttribute('aria-selected', String(z === b))); render(); });
-  I('d-igual').onclick = () => { const k = S.distSetor; mes[k] = reparteCents(C(st[k]), Array(12).fill(1)); marca(); render(); };
+  I('d-igual').onclick = () => {
+    const k = S.distSetor, lv = livres(k); if (!lv.length) { notify(t('Todos os trimestres estão fixados. Solte um para redistribuir.'), 'warning'); return; }
+    const rep = reparteCents(Math.max(0, C(st[k]) - sum(fixos(k).map(q => qv(k, q)))), lv.map(() => 1));
+    lv.forEach((q, j) => reparteCents(rep[j], [1, 1, 1]).forEach((x, z) => { mes[k][q * 3 + z] = x; }));
+    marca(); render();
+  };
   I('d-obs').addEventListener('input', marca);
   I('d-ano').onchange = e => { if (sujo && !window.confirm(t('Há alterações não salvas. Descartar?'))) { e.target.value = ano; return; } S.distAno = Number(e.target.value); aDistribuicao(); };
   I('d-salvar').onclick = async () => {
-    sincMeses();
     const d = { ano, planejamento: st.planejamento, bordados: st.bordados, industrial: st.industrial, subsidio: st.subsidio,
       meses_bordados: mes.bordados.map(v => v / 100), meses_industrial: mes.industrial.map(v => v / 100),
+      tri_fixos: { bordados: fix.bordados, industrial: fix.industrial },
       observacao: I('d-obs').value.trim() || null, atualizado_em: new Date().toISOString(), atualizado_por: S.nome || S.email };
     if (Math.abs(d.planejamento - d.bordados - d.industrial - d.subsidio) > 0.01) { notify(t('A soma dos setores e do subsídio precisa fechar no planejamento.'), 'warning'); return; }
+    const pend = SETORES.find(([k]) => saldoDe(k) !== 0);
+    if (pend) { S.distSetor = pend[0]; $$('[data-setor]').forEach(z => z.setAttribute('aria-selected', String(z.dataset.setor === pend[0]))); render();
+      notify(t('Saldo a distribuir em {s}: {v}. Ajuste os trimestres até zerar.', { s: t(pend[1]), v: sinal(saldoDe(pend[0])) }), 'warning'); return; }
     I('d-salvar').disabled = true;
     try { await q(S.sb.from('met_distribuicao').upsert(d, { onConflict: 'ano' })); await recarregar(t('Distribuição salva')); }
     catch (e) { notify(erroMsg(e), 'danger'); I('d-salvar').disabled = false; }
