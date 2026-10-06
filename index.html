@@ -207,6 +207,11 @@
   body.mt-a4 .fi-table{font-size:.74rem}
   .fi-field__help{font-size:.7rem;color:var(--fi-muted);line-height:1.35}
   .mt-form>.fi-field{align-content:start}
+  .mt-modal__panel--big{width:min(1123px,100%);min-width:0;max-width:100%}
+  #mod-modal{grid-template-columns:minmax(0,1fr);justify-items:center}
+  #mod-modal .mt-modal__body{min-width:0;overflow:auto}
+  .mt-modal{grid-template-columns:minmax(0,1fr);justify-items:center}
+  #mod-modal .mt-modal__body{display:block}
   .mt-inline{border:1px solid var(--fi-line);border-radius:8px;background:var(--fi-surface);box-shadow:var(--fi-shadow)}
   .mt-inline .mt-modal__head{border-left:3px solid var(--mt-c1)}
   #tb-mods tr.mt-sel td{background:var(--fi-surface-alt);box-shadow:inset 0 -1px var(--fi-line)}
@@ -320,7 +325,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.014', DOC_DATA = '06/10/2026';
+const DOC_VERSAO = 'V.015', DOC_DATA = '06/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -592,6 +597,20 @@ const EN = {
   'Escolha a faixa de atingimento da tabela de premiação. O prêmio anual e a comissão equivalente mostram quanto se paga se o módulo atingir essa faixa no ano (prêmio-base × % pago na faixa).':'Choose the achievement tier of the incentive table. Annual prize and equivalent commission show what is paid if the module reaches that tier for the year (base prize × % paid at the tier).',
   'Prêmio-base anual {b} × {p} pago na faixa':'Annual base prize {b} × {p} paid at the tier','A tabela deste módulo não tem essa faixa.':'This module’s table does not have this tier.','paga {p}':'pays {p}',
   'Duplicar':'Duplicate','Aberto ↓':'Open ↓','Fechar o módulo':'Close the module',
+  'Módulo de metas':'Target module','vendas':'sales','Forma':'Type','Comissões':'Commissions','Metas':'Targets',
+  'Duas formas de premiação: Metas (faixas de atingimento mínimo que pagam um % do prêmio-base) ou Comissões (% sobre o total de vendas).':'Two incentive types: Targets (minimum achievement tiers that pay a % of the base prize) or Commissions (% of total sales).',
+  'Comissão sobre o total de vendas.':'Commission on total sales.','Cada mês paga o percentual sobre o realizado líquido (já sem as vendas excluídas), independentemente da meta.':'Each month pays the percentage on net actual sales (excluded sales already removed), regardless of the target.',
+  'Vendas do mês a partir de {v} → comissão de {p} sobre o total.':'Monthly sales from {v} → {p} commission on the total.','Comissão de {p} sobre o total de vendas do mês.':'{p} commission on the month’s total sales.',
+  'Na forma comissão não há recuperação trimestral nem anual; o prêmio-base não é usado.':'Commission tables have no quarterly or annual recovery; the base prize is not used.',
+  'Vendas do mês a partir de (R$)':'Monthly sales from (R$)','Comissão (%) sobre o total':'Commission (%) on the total','Exemplo':'Example',
+  'Forma de premiação *':'Incentive type *','Metas — atingimento mínimo':'Targets — minimum achievement','Comissões — % sobre o total de vendas':'Commissions — % of total sales',
+  'Comissão = total de vendas do mês (realizado líquido) × percentual. Para escalonar, inclua faixas: a partir de certo valor vendido no mês, vale outro percentual sobre o total.':'Commission = month’s total sales (net actual) × percentage. To scale it, add tiers: from a certain monthly sales amount, another percentage applies to the total.',
+  '+ Faixa de comissão':'+ Commission tier','Informe o percentual de comissão.':'Enter the commission percentage.','vendeu {v} → comissão {c}':'sold {v} → commission {c}',
+  'Comissão estimada sobre a meta anual':'Estimated commission on the annual target','comissão s/ vendas':'commission on sales',
+  'Metas (módulos) desta pessoa':'Targets (modules) for this person',
+  'Marque todos os módulos de metas em que a pessoa participa — pode ser mais de um. Vendedores entram em metas de vendedor; Supervisão 1 e 2 em metas de supervisão. As metas mensais de cada módulo são lançadas em ADM › Módulos de metas.':'Tick every target module this person takes part in — more than one is allowed. Sales reps join rep targets; Supervision 1 and 2 join supervision targets. Monthly targets are entered in ADM › Target modules.',
+  'Remover de metas':'Remove from targets','{n} será removido(a) de {k} módulo(s): {m}. As metas dele nesses módulos são apagadas; lançamentos e fechamentos já gravados permanecem.':'{n} will be removed from {k} module(s): {m}. Their targets in those modules are deleted; recorded actuals and closings remain.',
+  'Pessoa salva — {e} meta(s) atrelada(s), {s} removida(s)':'Person saved — {e} target(s) assigned, {s} removed','Nenhum módulo criado ainda.':'No module created yet.',
   'Visão geral de todos os módulos de metas.':'Overview of all target modules.',
   'Editar':'Edit','Concluir edição':'Finish editing','Salvar textos ({n})':'Save texts ({n})','Textos salvos ({n})':'Texts saved ({n})',
   'Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.':'Click any text with a dashed outline to change it. Clear it to restore the original text.',
@@ -634,7 +653,7 @@ const brl = v => new Intl.NumberFormat(LOC(), { style: 'currency', currency: 'BR
 const brl0 = v => new Intl.NumberFormat(LOC(), { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(Number(v) || 0);
 const num = (v, d) => new Intl.NumberFormat(LOC(), { minimumFractionDigits: d == null ? 2 : d, maximumFractionDigits: d == null ? 2 : d }).format(Number(v) || 0);
 const pct = (v, d) => v == null || !isFinite(v) ? '—' : new Intl.NumberFormat(LOC(), { style: 'percent', minimumFractionDigits: d == null ? 1 : d, maximumFractionDigits: d == null ? 1 : d }).format(v);
-const multTxt = m => num((Number(m) || 0) * 100, 0) + '%';   // multiplicador exibido como % do prêmio-base
+const multTxt = m => { const v = (Number(m) || 0) * 100; return num(v, Math.abs(v - Math.round(v)) > 1e-9 ? 2 : 0) + '%'; };   // multiplicador exibido como % do prêmio-base
 const dica = txt => `<span class="mt-tip" tabindex="0" aria-label="${esc(txt)}">?<span role="tooltip">${esc(txt)}</span></span>`;
 const WAIT = () => `<span class="mt-wait">${t('Aguardando dados')}</span>`;
 const brlOuWait = v => v == null ? WAIT() : brl(v);
@@ -676,7 +695,23 @@ const valorMeta = v => v == null || v === '' ? null : Number(v);
      nada é estornado).
    - Recuperação anual (dez): mesma lógica com o atingimento do ano, descontando o já pago no mês e na
      recuperação trimestral. */
+/* forma "comissão": % sobre o total de vendas do mês, por faixa de valor vendido (a partir de R$ X → Y%) */
+const ehComissao = tb => !!tb && tb.modo === 'comissao';
+const pctN = v => new Intl.NumberFormat(typeof LOC === 'function' ? LOC() : 'pt-BR', { maximumFractionDigits: 2 }).format(Number(v) || 0);
+function comissoesOrd(tb) {
+  return ((tb && tb.comissoes) || []).map(c => ({ min: Number(c.min) || 0, pct: Number(c.pct) }))
+    .filter(c => isFinite(c.pct)).sort((a, b) => a.min - b.min);
+}
+function taxaComissao(tb, venda) {
+  let p = 0; for (const c of comissoesOrd(tb)) if ((Number(venda) || 0) >= c.min - 1e-9) p = c.pct;
+  return p / 100;
+}
+function pillsTabela(tb) {
+  if (ehComissao(tb)) return comissoesOrd(tb).map(c => `<span class="mt-pill mt-m2">${c.min > 0 ? '≥ ' + brl0(c.min) : t('vendas')} → ${pctN(c.pct)}%</span>`).join(' ');
+  return faixasOrd(tb).map(f => `<span class="mt-pill ${classeMult(f.mult)}">≥${num(f.min, f.min % 1 ? 1 : 0)}% → ${multTxt(f.mult)}</span>`).join(' ');
+}
 function faixasOrd(tb) {
+  if (ehComissao(tb)) return [];
   return ((tb && tb.faixas) || []).map(f => ({ min: Number(f.min), mult: Number(f.mult) }))
     .filter(f => isFinite(f.min) && isFinite(f.mult)).sort((a, b) => a.min - b.min);
 }
@@ -696,10 +731,11 @@ function calcular(tb, metas, premios, real, ate) {
   for (let i = 0; i < 12; i++) {
     const meta = valorMeta(metas && metas[i]), base = Number(premios && premios[i]) || 0;
     const r = real[i] == null ? null : Number(real[i]);
-    const apurado = i + 1 <= ate && r != null && meta != null;
+    const comis = ehComissao(tb);
+    const apurado = i + 1 <= ate && r != null && (comis || meta != null);
     const ating = meta != null && meta > 0 && r != null ? r / meta : null;
-    const mult = apurado ? multDe(tb, ating) : 0;
-    meses.push({ mes: i + 1, meta, base, real: r, apurado, ating, mult, premio: base * mult,
+    const mult = !apurado ? 0 : comis ? taxaComissao(tb, r) : multDe(tb, ating);   // comissão: mult = taxa sobre a venda
+    meses.push({ mes: i + 1, meta, base, real: r, apurado, ating, mult, premio: comis ? (r || 0) * mult : base * mult, comissao: comis,
                  recTri: 0, recAno: 0, pagoTri: 0, pagoAno: 0, total: 0 });
   }
   const tri = [];
@@ -711,7 +747,7 @@ function calcular(tb, metas, premios, real, ate) {
     const atingQ = metaQ != null && metaQ > 0 && realCompleto ? realQ / metaQ : null;
     const apurado = ate >= fim && realCompleto && metaQ != null;
     // faixa atingida no trimestre: cada mês passa a valer prêmio-base × essa faixa, descontado o que já recebeu
-    const multQ = (tb && tb.recup_tri) && apurado ? multDe(tb, atingQ) : 0;
+    const multQ = (tb && tb.recup_tri && !ehComissao(tb)) && apurado ? multDe(tb, atingQ) : 0;
     if (multQ > 0) ms.forEach(m => { m.recTri = Math.max(0, m.base * multQ - m.premio); });
     const valor = sum(ms.map(m => m.recTri));
     meses[fim - 1].pagoTri = valor;
@@ -722,7 +758,7 @@ function calcular(tb, metas, premios, real, ate) {
   const realA = sum(meses.map(m => m.real || 0));
   const atingA = metaA != null && metaA > 0 && realCompA ? realA / metaA : null;
   const anoApurado = ate >= 12 && realCompA && metaA != null;
-  const multA = (tb && tb.recup_anual) && anoApurado ? multDe(tb, atingA) : 0;
+  const multA = (tb && tb.recup_anual && !ehComissao(tb)) && anoApurado ? multDe(tb, atingA) : 0;
   const recA = multA > 0;
   if (recA) meses.forEach(m => { m.recAno = Math.max(0, m.base * multA - m.premio - m.recTri); });
   meses[11].pagoAno = sum(meses.map(m => m.recAno));
@@ -1136,6 +1172,16 @@ function vModulo(id, mesSel, regSel) {
 function multPct(x) { return multTxt(x.mult); }
 function regraHtml(tb) {
   if (!tb) return '';
+  if (ehComissao(tb)) {
+    const cs = comissoesOrd(tb);
+    return `<section class="fi-card mt-mt2"><div class="fi-card__head"><div class="fi-card__title">${esc(t('Regras da tabela “{n}”', { n: tb.nome }))}</div></div>
+    <div class="fi-card__body"><div class="mt-rule">
+    <div><b>${t('Comissão sobre o total de vendas.')}</b> ${t('Cada mês paga o percentual sobre o realizado líquido (já sem as vendas excluídas), independentemente da meta.')}</div>
+    ${cs.map(c => `<div>${c.min > 0 ? t('Vendas do mês a partir de {v} → comissão de {p} sobre o total.', { v: '<b>' + brl0(c.min) + '</b>', p: '<b>' + pctN(c.pct) + '%</b>' }) : t('Comissão de {p} sobre o total de vendas do mês.', { p: '<b>' + pctN(c.pct) + '%</b>' })}</div>`).join('')}
+    <div class="mt-muted">${t('Na forma comissão não há recuperação trimestral nem anual; o prêmio-base não é usado.')}</div>
+    ${tb.observacao ? `<div class="mt-muted">${esc(tb.observacao)}</div>` : ''}
+    </div></div></section>`;
+  }
   const f = faixasOrd(tb);
   return `<section class="fi-card mt-mt2"><div class="fi-card__head"><div class="fi-card__title">${esc(t('Regras da tabela “{n}”', { n: tb.nome }))}</div></div>
     <div class="fi-card__body"><div class="mt-rule">
@@ -1414,7 +1460,9 @@ function formVendedor(v) {
         <option value="gerente" ${v.funcao === 'gerente' ? 'selected' : ''}>${t('Supervisão 1 — premiação pela meta do grupo')}</option></select></label>
       <label class="fi-field"><span class="fi-label">${t('E-mail (login da Central) *')}</span><input class="fi-input" id="v-email" type="email" value="${esc(v.email)}" placeholder="nome@fiorella.ind.br"></label>
       <label class="fi-field"><span class="fi-label">${t('Telefone')}</span><input class="fi-input" id="v-tel" value="${esc(v.telefone || '')}"></label>
-      <label class="mt-check" style="align-self:end"><input type="checkbox" id="v-ativo" ${v.ativo ? 'checked' : ''}> ${t('Ativo')}</label></div>`,
+      <label class="mt-check" style="align-self:end"><input type="checkbox" id="v-ativo" ${v.ativo ? 'checked' : ''}> ${t('Ativo')}</label>
+      <div class="fi-field mt-full"><span class="fi-label">${t('Metas (módulos) desta pessoa')}${dica(t('Marque todos os módulos de metas em que a pessoa participa — pode ser mais de um. Vendedores entram em metas de vendedor; Supervisão 1 e 2 em metas de supervisão. As metas mensais de cada módulo são lançadas em ADM › Módulos de metas.'))}</span>
+        <div id="v-mods" style="display:grid;gap:6px;padding:8px 10px;border:1px solid var(--fi-line);border-radius:7px;max-height:200px;overflow:auto"></div></div></div>`,
     botoes: [
       ...(v.id ? [{ texto: t('Excluir'), perigo: true, esquerda: true, acao: async () => {
         if (!await confirmar({ title: t('Excluir vendedor'), message: t('Remove também as metas, lançamentos e fechamentos dele em todos os módulos. Prefira inativar.'), confirmText: t('Excluir'), danger: true })) return false;
@@ -1425,29 +1473,56 @@ function formVendedor(v) {
                     telefone: $('#v-tel').value.trim() || null, ativo: $('#v-ativo').checked, funcao: $('#v-funcao').value };
         if (!d.nome) { notify(t('Informe o nome.'), 'warning'); return false; }
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) { notify(t('Informe um e-mail válido — ele é o login do vendedor.'), 'warning'); return false; }
-        if (v.id) await q(S.sb.from('met_vendedores').update(d).eq('id', v.id)); else await q(S.sb.from('met_vendedores').insert(d));
-        await recarregar(t('Vendedor salvo'));
+        const quer = new Set($$('#v-mods [data-vm]').filter(c => c.checked && !c.disabled).map(c => c.dataset.vm));
+        const tem = new Set(v.id ? S.mv.filter(x => x.vendedor_id === v.id).map(x => x.modulo_id) : []);
+        const sai = [...tem].filter(id => !quer.has(id) && compat(byId(S.modulos, id), d.funcao)), entra = [...quer].filter(id => !tem.has(id));
+        if (sai.length && !await confirmar({ title: t('Remover de metas'), message: t('{n} será removido(a) de {k} módulo(s): {m}. As metas dele nesses módulos são apagadas; lançamentos e fechamentos já gravados permanecem.', { n: d.nome, k: sai.length, m: sai.map(id => (byId(S.modulos, id) || {}).nome).join(', ') }), confirmText: t('Remover'), danger: true })) return false;
+        let id = v.id;
+        if (id) await q(S.sb.from('met_vendedores').update(d).eq('id', id));
+        else { const r = await q(S.sb.from('met_vendedores').insert(d).select()); id = r && r[0] && r[0].id; }
+        if (id && entra.length) await q(S.sb.from('met_modulo_vendedores').insert(entra.map(mid => ({ modulo_id: mid, vendedor_id: id, papel: d.funcao === 'vendedor' ? 'vendedor' : d.funcao, equipe: [] }))));
+        for (const mid of sai) await q(S.sb.from('met_modulo_vendedores').delete().eq('modulo_id', mid).eq('vendedor_id', id));
+        await recarregar(entra.length || sai.length ? t('Pessoa salva — {e} meta(s) atrelada(s), {s} removida(s)', { e: entra.length, s: sai.length }) : t('Vendedor salvo'));
       } }] });
+  /* lista de módulos: compatíveis com a função ficam habilitados */
+  function compat(m, funcao) { return !!m && ((funcao || 'vendedor') === 'vendedor' ? !ehSup(m) : ehSup(m)); }
+  const desenhaMods = () => {
+    const f = $('#v-funcao').value, atuais = new Set(v.id ? S.mv.filter(x => x.vendedor_id === v.id).map(x => x.modulo_id) : []);
+    const marcados = new Set($$('#v-mods [data-vm]').length ? $$('#v-mods [data-vm]').filter(c => c.checked).map(c => c.dataset.vm) : atuais);
+    const mods = S.modulos.slice().sort((a, b) => (b.ano - a.ano) || a.nome.localeCompare(b.nome, 'pt-BR'));
+    $('#v-mods').innerHTML = mods.map(m => { const ok = compat(m, f);
+      return `<label class="mt-check" style="${ok ? '' : 'opacity:.45'}"><input type="checkbox" data-vm="${m.id}" ${marcados.has(m.id) && ok ? 'checked' : ''} ${ok ? '' : 'disabled'}>
+        <span>${esc(m.nome)} <span class="mt-small mt-muted">· ${m.ano} · ${ehSup(m) ? t('Meta de supervisão') : t('Meta de vendedor')}${m.setor ? ' · ' + t(m.setor === 'bordados' ? 'Bordados' : 'Industrial') : ''}${m.ativo ? '' : ' · ' + t('Inativo')}</span></span></label>`; }).join('')
+      || `<span class="mt-muted mt-small">${t('Nenhum módulo criado ainda.')}</span>`;
+  };
+  $('#v-funcao').addEventListener('change', desenhaMods); desenhaMods();
 }
 
 /* --------------------------- Tabelas de premiação --------------------------- */
 function aTabelas() {
   $('#adm-body').innerHTML = `<section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Tabelas de graduação de premiação')}</div>
-    <div class="fi-card__note">${t('Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago. Crie tabelas próprias para vendedores (premiação menor, pois já recebem comissão) e para a supervisão.')}</div></div>
+    <div class="fi-card__note">${t('Duas formas de premiação: Metas (faixas de atingimento mínimo que pagam um % do prêmio-base) ou Comissões (% sobre o total de vendas).')}</div></div>
     <button class="fi-btn fi-btn--primary" id="bt-novo">${t('Nova tabela')}</button></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Tabela')}</th><th>${t('Para')}</th><th>${t('Faixas')}</th><th>${t('Recupera trimestre')}</th><th>${t('Recupera ano')}</th><th class="mt-num">${t('Módulos')}</th><th></th></tr></thead><tbody>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table"><thead><tr><th>${t('Tabela')}</th><th>${t('Para')}</th><th>${t('Forma')}</th><th>${t('Faixas')}</th><th>${t('Recupera trimestre')}</th><th>${t('Recupera ano')}</th><th class="mt-num">${t('Módulos')}</th><th></th></tr></thead><tbody>
     ${S.tabelas.map(tb => `<tr><td class="mt-strong">${esc(tb.nome)}</td><td><span class="fi-badge ${tb.tipo === 'supervisao' ? 'fi-badge--info' : ''}">${t(tipoTabela(tb))}</span></td>
-      <td>${faixasOrd(tb).map(f => `<span class="mt-pill ${classeMult(f.mult)}">≥${num(f.min, f.min % 1 ? 1 : 0)}% → ${multTxt(f.mult)}</span>`).join(' ')}</td>
-      <td>${tb.recup_tri ? t('Sim') : t('Não')}</td><td>${tb.recup_anual ? t('Sim') : t('Não')}</td>
+      <td><span class="fi-badge">${ehComissao(tb) ? t('Comissões') : t('Metas')}</span></td>
+      <td style="white-space:normal">${pillsTabela(tb)}</td>
+      <td>${ehComissao(tb) ? '—' : tb.recup_tri ? t('Sim') : t('Não')}</td><td>${ehComissao(tb) ? '—' : tb.recup_anual ? t('Sim') : t('Não')}</td>
       <td class="mt-num">${S.modulos.filter(m => m.tabela_id === tb.id).length}</td>
       <td class="mt-num"><button class="fi-btn" data-ed="${tb.id}">${t('Editar')}</button></td></tr>`).join('') ||
-      `<tr><td colspan="7"><div class="fi-empty">${t('Nenhuma tabela.')}</div></td></tr>`}
+      `<tr><td colspan="8"><div class="fi-empty">${t('Nenhuma tabela.')}</div></td></tr>`}
     </tbody></table></div></section>`;
   $('#bt-novo').onclick = () => formTabela();
   $$('[data-ed]').forEach(b => b.onclick = () => formTabela(byId(S.tabelas, b.dataset.ed)));
 }
 function formTabela(tb) {
-  tb = tb || { nome: '', tipo: 'ambos', faixas: [{ min: 90, mult: 0.5 }, { min: 100, mult: 1 }, { min: 105, mult: 2 }], recup_tri: true, recup_anual: true, observacao: '' };
+  tb = tb || { nome: '', tipo: 'ambos', modo: 'meta', faixas: [{ min: 90, mult: 0.5 }, { min: 100, mult: 1 }, { min: 105, mult: 2 }], comissoes: [], recup_tri: true, recup_anual: true, observacao: '' };
+  const linhaCom = c => `<div class="mt-faixa" data-com>
+      <label class="fi-field"><span class="fi-label">${t('Vendas do mês a partir de (R$)')}</span><input class="fi-input" data-cmin value="${num(c.min || 0)}"></label>
+      <label class="fi-field"><span class="fi-label">${t('Comissão (%) sobre o total')}</span><input class="fi-input" data-cpct value="${c.pct == null ? '' : pctN(c.pct)}"></label>
+      <div class="fi-field"><span class="fi-label">${t('Exemplo')}</span><div class="mt-small mt-muted" data-ceq style="min-height:38px;display:flex;align-items:center"></div></div>
+      <button class="fi-icon-btn" data-rmc title="${t('Remover faixa')}">✕</button></div>`;
+  const comIni = comissoesOrd(tb).length ? comissoesOrd(tb) : [{ min: 0, pct: 1 }];
   const emUso = tb.id && S.modulos.some(m => m.tabela_id === tb.id);
   const linhaFaixa = f => `<div class="mt-faixa" data-faixa>
       <label class="fi-field"><span class="fi-label">${t('Atingimento mínimo (%)')}</span><input class="fi-input" data-min value="${num(f.min, f.min % 1 ? 1 : 0)}"></label>
@@ -1458,24 +1533,36 @@ function formTabela(tb) {
     corpo: `<div class="mt-form"><label class="fi-field"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="t-nome" value="${esc(tb.nome)}" placeholder="${t('Ex.: Vendedores — premiação reduzida')}"></label>
       <label class="fi-field"><span class="fi-label">${t('Para quem')}</span><select class="fi-select" id="t-tipo">
         ${['vendedor', 'supervisao', 'gerencia', 'ambos'].map(k => `<option value="${k}" ${(tb.tipo || 'ambos') === k ? 'selected' : ''}>${t(tipoTabela({ tipo: k }))}</option>`).join('')}</select></label></div>
+      <div class="fi-field"><span class="fi-label">${t('Forma de premiação *')}</span>
+        <div class="mt-tabs" style="margin:0"><button type="button" class="mt-tab" data-modo="meta" aria-selected="${!ehComissao(tb)}">${t('Metas — atingimento mínimo')}</button><button type="button" class="mt-tab" data-modo="comissao" aria-selected="${ehComissao(tb)}">${t('Comissões — % sobre o total de vendas')}</button></div></div>
       ${emUso ? `<div class="fi-alert fi-alert--warning">${t('Tabela em uso: mudanças valem para os meses ainda não fechados dos módulos que a usam.')}</div>` : ''}
+      <div id="t-modo-com" style="display:grid;gap:8px">
+        <div class="mt-help">${t('Comissão = total de vendas do mês (realizado líquido) × percentual. Para escalonar, inclua faixas: a partir de certo valor vendido no mês, vale outro percentual sobre o total.')}</div>
+        <div id="t-coms" style="display:grid;gap:8px">${comIni.map(linhaCom).join('')}</div>
+        <div><button class="fi-btn" id="t-addc">${t('+ Faixa de comissão')}</button></div></div>
+      <div id="t-modo-meta" style="display:grid;gap:12px">
       <div id="t-faixas" style="display:grid;gap:8px">${faixasOrd(tb).map(linhaFaixa).join('')}</div>
       <div><button class="fi-btn" id="t-add">${t('+ Faixa')}</button></div>
       <label class="mt-check"><input type="checkbox" id="t-tri" ${tb.recup_tri ? 'checked' : ''}> ${t('Recuperação trimestral — a faixa atingida no trimestre vale para os 3 meses, descontando o que cada mês já recebeu')}</label>
       <label class="mt-check"><input type="checkbox" id="t-ano" ${tb.recup_anual ? 'checked' : ''}> ${t('Recuperação anual — a faixa atingida no ano vale para os 12 meses, descontando o que cada mês já recebeu')}</label>
-      <label class="fi-field"><span class="fi-label">${t('Observação')}</span><textarea class="fi-textarea" id="t-obs">${esc(tb.observacao || '')}</textarea></label>
-      <div class="mt-help">${t('Exemplo de leitura: meta R$ 100.000 e prêmio-base R$ 1.000 → a faixa de 100% (paga 100%) paga R$ 1.000 sobre R$ 100.000 vendidos = 1,00% de comissão; a de 90% (paga 50%) paga R$ 500 sobre R$ 90.000 = 0,56%; a de 105% (paga 200%) paga R$ 2.000 sobre R$ 105.000 = 1,90%.')}</div>`,
+      <div class="mt-help">${t('Exemplo de leitura: meta R$ 100.000 e prêmio-base R$ 1.000 → a faixa de 100% (paga 100%) paga R$ 1.000 sobre R$ 100.000 vendidos = 1,00% de comissão; a de 90% (paga 50%) paga R$ 500 sobre R$ 90.000 = 0,56%; a de 105% (paga 200%) paga R$ 2.000 sobre R$ 105.000 = 1,90%.')}</div></div>
+      <label class="fi-field"><span class="fi-label">${t('Observação')}</span><textarea class="fi-textarea" id="t-obs">${esc(tb.observacao || '')}</textarea></label>`,
     botoes: [
       ...(tb.id && !emUso ? [{ texto: t('Excluir'), perigo: true, esquerda: true, acao: async () => {
         if (!await confirmar({ title: t('Excluir tabela'), message: t('Excluir esta tabela de premiação?'), confirmText: t('Excluir'), danger: true })) return false;
         await q(S.sb.from('met_tabelas').delete().eq('id', tb.id)); await recarregar(t('Tabela excluída')); } }] : []),
       { texto: t('Cancelar') },
       { texto: t('Salvar'), primario: true, acao: async () => {
-        const faixas = $$('[data-faixa]', el).map(r => ({ min: parseNum($('[data-min]', r).value), mult: (parseNum($('[data-mult]', r).value) || 0) / 100 }))
+        const modo = $('[data-modo][aria-selected="true"]', el).dataset.modo;
+        const faixas = $$('#t-faixas [data-faixa]', el).map(r => ({ min: parseNum($('[data-min]', r).value), mult: (parseNum($('[data-mult]', r).value) || 0) / 100 }))
           .filter(f => f.min != null).sort((a, b) => a.min - b.min);
-        const d = { nome: $('#t-nome').value.trim(), tipo: $('#t-tipo').value, faixas, recup_tri: $('#t-tri').checked, recup_anual: $('#t-ano').checked, observacao: $('#t-obs').value.trim() || null };
+        const comissoes = $$('[data-com]', el).map(r => ({ min: parseNum($('[data-cmin]', r).value) || 0, pct: parseNum($('[data-cpct]', r).value) }))
+          .filter(c => c.pct != null && c.pct >= 0).sort((a, b) => a.min - b.min);
+        const d = { nome: $('#t-nome').value.trim(), tipo: $('#t-tipo').value, modo, faixas: modo === 'meta' ? faixas : [], comissoes: modo === 'comissao' ? comissoes : [],
+                    recup_tri: modo === 'meta' && $('#t-tri').checked, recup_anual: modo === 'meta' && $('#t-ano').checked, observacao: $('#t-obs').value.trim() || null };
         if (!d.nome) { notify(t('Informe o nome da tabela.'), 'warning'); return false; }
-        if (!faixas.length) { notify(t('Inclua ao menos uma faixa.'), 'warning'); return false; }
+        if (modo === 'meta' && !faixas.length) { notify(t('Inclua ao menos uma faixa.'), 'warning'); return false; }
+        if (modo === 'comissao' && !comissoes.length) { notify(t('Informe o percentual de comissão.'), 'warning'); return false; }
         if (tb.id) await q(S.sb.from('met_tabelas').update(d).eq('id', tb.id)); else await q(S.sb.from('met_tabelas').insert(d));
         await recarregar(t('Tabela salva'));
       } }] });
@@ -1486,6 +1573,19 @@ function formTabela(tb) {
   const liga = () => { $$('[data-rm]', el).forEach(b => b.onclick = () => { b.closest('[data-faixa]').remove(); }); $$('input', $('#t-faixas', el)).forEach(i => i.oninput = atualizaEq); atualizaEq(); };
   $('#t-add', el).onclick = () => { $('#t-faixas', el).insertAdjacentHTML('beforeend', linhaFaixa({ min: 110, mult: 2 })); liga(); };
   liga();
+  const atualizaCom = () => $$('[data-com]', el).forEach(r => {
+    const mi = parseNum($('[data-cmin]', r).value) || 0, p = parseNum($('[data-cpct]', r).value);
+    const ex = Math.max(mi, 100000);
+    $('[data-ceq]', r).textContent = p == null ? '' : t('vendeu {v} → comissão {c}', { v: brl0(ex), c: brl0(ex * p / 100) });
+  });
+  const ligaCom = () => { $$('[data-rmc]', el).forEach(b => b.onclick = () => { b.closest('[data-com]').remove(); }); $$('input', $('#t-coms', el)).forEach(i => i.oninput = atualizaCom); atualizaCom(); };
+  $('#t-addc', el).onclick = () => { const ult = comissoesOrd({ comissoes: $$('[data-com]', el).map(r => ({ min: parseNum($('[data-cmin]', r).value) || 0, pct: parseNum($('[data-cpct]', r).value) || 0 })) }).pop();
+    $('#t-coms', el).insertAdjacentHTML('beforeend', linhaCom({ min: (ult ? ult.min : 0) + 100000, pct: ult ? ult.pct + 0.5 : 1 })); ligaCom(); };
+  ligaCom();
+  const modoUI = () => { const md = $('[data-modo][aria-selected="true"]', el).dataset.modo;
+    $('#t-modo-com', el).style.display = md === 'comissao' ? 'grid' : 'none'; $('#t-modo-meta', el).style.display = md === 'meta' ? 'grid' : 'none'; };
+  $$('[data-modo]', el).forEach(b => b.onclick = () => { $$('[data-modo]', el).forEach(z => z.setAttribute('aria-selected', String(z === b))); modoUI(); });
+  modoUI();
 }
 
 /* ---------------------------- Distribuição do planejamento anual ---------------------------- */
@@ -1709,7 +1809,7 @@ function reparteCents(totalC, pesos) {
 
 /* ---------------------------- Módulos de metas (lista → configuração com metas mensais) ---------------------------- */
 /* faixas cadastradas nas tabelas (para escolher em qual faixa mostrar o prêmio anual) */
-function faixasCadastradas() { return [...new Set(S.tabelas.flatMap(tb => faixasOrd(tb).map(f => f.min)))].sort((a, b) => a - b); }
+function faixasCadastradas() { return [...new Set(S.tabelas.filter(tb => !ehComissao(tb)).flatMap(tb => faixasOrd(tb).map(f => f.min)))].sort((a, b) => a - b); }
 function aModulos() {
   const fxs = faixasCadastradas();
   if (S.modFaixa == null || !fxs.includes(S.modFaixa)) S.modFaixa = fxs.includes(100) ? 100 : fxs[0];
@@ -1725,33 +1825,48 @@ function aModulos() {
       const v = vincDe(m.id), metasAno = soVendedores(v).map(x => somaMetas(x.metas, 1, 12));
       const meta = metasAno.length && metasAno.every(z => z != null) ? sum(metasAno) : null;
       const base = sum(v.map(x => sum(x.premios))), uf = ultimoFechado(m.id), tb = byId(S.tabelas, m.tabela_id);
-      const fx = faixasOrd(tb).find(f => Math.abs(f.min - fsel) < 1e-9);
-      const pr = fx ? base * fx.mult : null;
-      const com = fx && meta ? pr / (meta * fx.min / 100) : null;
+      const comis = ehComissao(tb);
+      const fx = comis ? null : faixasOrd(tb).find(f => Math.abs(f.min - fsel) < 1e-9);
+      const prC = comis && meta != null ? sum(soVendedores(v).flatMap(x => (x.metas || []).map(mv => (valorMeta(mv) || 0) * taxaComissao(tb, valorMeta(mv) || 0)))) : null;
+      const pr = comis ? prC : fx ? base * fx.mult : null;
+      const com = comis ? (meta ? prC / meta : null) : fx && meta ? pr / (meta * fx.min / 100) : null;
       return `<tr data-abrir="${m.id}" class="${m.id === aberto ? 'mt-sel' : ''}" style="cursor:pointer"><td><div class="mt-strong" style="white-space:normal;min-width:180px">${esc(m.nome)}</div>
           <div class="mt-modsub">${tipoBadge(m)}<span class="fi-badge">${m.ano}</span>${m.setor ? `<span class="fi-badge">${t(m.setor === 'bordados' ? 'Bordados' : 'Industrial')}</span>` : ''}${m.visivel ? `<span class="fi-badge fi-badge--success">${t('Liberado')}</span>` : `<span class="fi-badge">${t('Oculto')}</span>`}${m.ativo ? '' : `<span class="fi-badge fi-badge--warning">${t('Inativo')}</span>`}</div></td>
       <td style="white-space:normal;max-width:190px">${esc(tb ? tb.nome : '—')}</td>
       <td class="mt-num">${v.length}</td><td class="mt-num">${meta == null ? WAIT() : brl0(meta)}</td>
-      <td class="mt-num" title="${esc(t('Prêmio-base anual {b} × {p} pago na faixa', { b: brl0(base), p: fx ? multTxt(fx.mult) : '—' }))}">${pr == null ? `<span class="mt-muted" title="${esc(t('A tabela deste módulo não tem essa faixa.'))}">—</span>` : `${brl0(pr)}<div class="mt-small mt-muted">${t('paga {p}', { p: multTxt(fx.mult) })}</div>`}</td>
+      <td class="mt-num" title="${esc(comis ? t('Comissão estimada sobre a meta anual') : t('Prêmio-base anual {b} × {p} pago na faixa', { b: brl0(base), p: fx ? multTxt(fx.mult) : '—' }))}">${comis ? (pr == null ? WAIT() : `${brl0(pr)}<div class="mt-small mt-muted">${t('comissão s/ vendas')}</div>`) : pr == null ? `<span class="mt-muted" title="${esc(t('A tabela deste módulo não tem essa faixa.'))}">—</span>` : `${brl0(pr)}<div class="mt-small mt-muted">${t('paga {p}', { p: multTxt(fx.mult) })}</div>`}</td>
       <td class="mt-num">${pct(com, 2)}</td>
       <td>${uf ? MES(uf - 1) : '—'}</td>
       <td class="mt-num" style="white-space:nowrap"><button class="fi-btn" data-dup="${m.id}" title="${t('Gera um espelho deste módulo para depois alterar')}">${t('Duplicar')}</button> <button class="fi-btn ${m.id === aberto ? 'fi-btn--primary' : ''}" data-abrir-bt="${m.id}">${m.id === aberto ? t('Aberto ↓') : t('Abrir')}</button></td></tr>`; }).join('') ||
       `<tr><td colspan="8"><div class="fi-empty">${t('Nenhum módulo criado.')}</div></td></tr>`}
-    </tbody></table></div></section>
-  <div id="mod-det" class="mt-mt2"></div>`;
-  const rolar = () => { if (S.rolarDet) { S.rolarDet = false; setTimeout(() => { const d = $('#mod-det'); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 30); } };
-  $('#bt-novo').onclick = () => { S.rolarDet = true; if (S.modEdit === 'novo') { rolar(); return; } location.hash = '#/adm/modulos/novo'; };
+    </tbody></table></div></section>`;
+  $('#bt-novo').onclick = () => { location.hash = '#/adm/modulos/novo'; };
   const fs = $('#mod-faixa'); if (fs) fs.onchange = e => { S.modFaixa = Number(e.target.value); aModulos(); };
   $$('[data-abrir]').forEach(tr => tr.onclick = e => {
     if (e.target.closest('[data-dup]')) return;
-    S.rolarDet = true;
-    if (tr.dataset.abrir === aberto) { rolar(); return; }
+    if (tr.dataset.abrir === aberto) { const m = byId(S.modulos, aberto); if (m && !$('#mod-modal')) janelaModulo(m); return; }
     location.hash = '#/adm/modulos/' + tr.dataset.abrir;
   });
   $$('[data-dup]').forEach(b => b.onclick = () => duplicarModulo(byId(S.modulos, b.dataset.dup)));
-  if (S.modEdit === 'novo') formModulo(null, $('#mod-det'));
-  else if (aberto) { const m = byId(S.modulos, aberto); if (m) aModuloEditor(m); }
-  rolar();
+  const velho = $('#mod-modal'), rolagem = velho ? $('.mt-modal__body', velho).scrollTop : 0;
+  if (velho) velho.remove();
+  if (S.modEdit === 'novo') { if (!$('#modal-root .mt-modal')) formModulo(null); }
+  else if (aberto) { const m = byId(S.modulos, aberto); if (m) janelaModulo(m, rolagem); }
+}
+/* módulo aberto em janela secundária sobre a lista */
+function janelaModulo(m, rolagem) {
+  const el = document.createElement('div');
+  el.className = 'mt-modal'; el.id = 'mod-modal';
+  el.innerHTML = `<section class="mt-modal__panel mt-modal__panel--big" role="dialog" aria-modal="true">
+    <div class="mt-modal__head"><span>${esc(t('Módulo de metas'))}</span><span class="mt-sp"></span><button class="fi-icon-btn" data-x aria-label="${t('Fechar')}">✕</button></div>
+    <div class="mt-modal__body" id="mod-det"></div></section>`;
+  const fechar = () => { location.hash = '#/adm/modulos'; };
+  $('[data-x]', el).addEventListener('click', fechar);
+  el.addEventListener('mousedown', e => { if (e.target === el) fechar(); });
+  el.addEventListener('keydown', e => { if (e.key === 'Escape' && !e.target.closest('.mt-modal:not(#mod-modal)')) fechar(); });
+  $('#modal-root').prepend(el);          // janelas abertas a partir do módulo ficam por cima
+  aModuloEditor(m);
+  if (rolagem) $('.mt-modal__body', el).scrollTop = rolagem;
 }
 
 const COLS = [1, 2, 3, 'T1', 4, 5, 6, 'T2', 7, 8, 9, 'T3', 10, 11, 12, 'T4', 'A'];
@@ -1786,13 +1901,13 @@ function aModuloEditor(m) {
   ($('#mod-det') || $('#adm-body')).innerHTML = `
   <div class="mt-row mt-noprint" style="margin-bottom:12px;padding-top:6px;border-top:2px solid var(--mt-c1)"><div><div class="fi-eyebrow" style="margin:0">${sup ? t('Meta de supervisão') : t('Meta de vendedor')} · ${m.ano}${tb ? ' · ' + esc(tb.nome) : ''}</div>
       <div class="mt-strong" style="font-size:1.05rem">${esc(m.nome)}</div></div><span class="mt-sp"></span>
-    <a class="fi-btn" href="#/adm/modulos" title="${t('Fechar o módulo')}">✕ ${t('Fechar')}</a>
+
     <button class="fi-btn" id="me-dup">${t('Duplicar meta')}</button>
     <button class="fi-btn" id="me-dados">${t('Editar dados do módulo')}</button>
     <button class="fi-btn fi-btn--primary" id="me-fech">${t('Lançamentos e fechamento')}</button></div>
   <section class="fi-card"><div class="fi-card__body"><div class="mt-kv" style="grid-template-columns:repeat(5,minmax(0,1fr))">
     <div><span>${t('Tipo')}</span><b>${tipoBadge(m)}</b></div>
-    <div><span>${t('Tabela de premiação')}</span><b title="${esc(tb ? tb.nome : '')}">${esc(tb ? tb.nome : '—')}</b><div class="mt-small">${faixasOrd(tb).map(f => `<span class="mt-pill ${classeMult(f.mult)}">≥${num(f.min, 0)}% → ${multTxt(f.mult)}</span>`).join(' ')}</div></div>
+    <div><span>${t('Tabela de premiação')}</span><b title="${esc(tb ? tb.nome : '')}">${esc(tb ? tb.nome : '—')}</b><div class="mt-small">${pillsTabela(tb)}</div></div>
     <div><span>${sup ? t('Módulos base (vendedores)') : t('Setor (distribuição)')}</span><b>${sup ? esc(nomesBases || '—') : m.setor ? esc(t(m.setor === 'bordados' ? 'Bordados' : 'Industrial')) : `<span class="fi-badge fi-badge--warning">${t('Definir setor')}</span>`}</b></div>
     <div><span>${t('Fechado até')}</span><b>${uf ? MESL(uf - 1) : '—'}</b></div>
     <div><span>${t('Visualização')}</span><label class="mt-check"><input type="checkbox" id="me-vis" ${m.visivel ? 'checked' : ''}> ${m.visivel ? t('Liberado') : t('Oculto')}</label></div>
@@ -2233,7 +2348,7 @@ function formModulo(m, alvo) {
   m = m || { nome: '', ano: HOJE.getFullYear(), tipo: 'vendedor', base_modulo_id: null, tabela_id: S.tabelas[0].id, regiao_id: null, descricao: '', visivel: false, ativo: true };
   const bases = S.modulos.filter(z => !ehSup(z) && z.id !== m.id);
   const el = modal({ titulo: m.id ? t('Editar módulo de metas') : t('Novo módulo de metas'), alvo,
-    aoFechar: alvo ? () => { if (S.modEdit === 'novo') location.hash = '#/adm/modulos'; } : null,
+    aoFechar: () => { if (!m.id && S.modEdit === 'novo') location.hash = '#/adm/modulos'; },
     corpo: `<div class="mt-form">
       <label class="fi-field mt-full"><span class="fi-label">${t('Nome *')}</span><input class="fi-input" id="m-nome" value="${esc(m.nome)}" placeholder="${esc(t('Ex.: Metas de Faturamento {a}', { a: HOJE.getFullYear() }))}"></label>
       <label class="fi-field"><span class="fi-label">${t('Tipo de meta *')}</span><select class="fi-select" id="m-tipo" ${m.id && S.mv.some(x => x.modulo_id === m.id) ? 'disabled' : ''}>
@@ -2273,7 +2388,7 @@ function formModulo(m, alvo) {
         else {
           const novo = await q(S.sb.from('met_modulos').insert(d).select());
           await carregar(); notify(t('Módulo criado — agora atrele os participantes'), 'success');
-          S.rolarDet = true; S.modEdit = null;
+          S.modEdit = null;
           if (novo && novo[0]) location.hash = '#/adm/modulos/' + novo[0].id; else rota();
           return false;
         }
