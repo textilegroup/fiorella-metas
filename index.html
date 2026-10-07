@@ -378,7 +378,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.020', DOC_DATA = '07/10/2026';
+const DOC_VERSAO = 'V.021', DOC_DATA = '07/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -704,6 +704,7 @@ const EN = {
   'Por pessoa, com todas as metas — {m}/{a}.':'Per person, with all targets — {m}/{a}.','Metas':'Targets','Ninguém atrelado a metas neste ano.':'Nobody assigned to targets this year.',
   'Fechamento do módulo':'Module closing','PDF do fechamento de um módulo (com anexos por pessoa) e planilha do mês.':'Closing PDF of a module (with per-person annexes) and month spreadsheet.',
   'Todas as metas':'All targets','Especial':'Special','Rec. trimestral':'Quarterly rec.','Rec. anual':'Annual rec.','Valor':'Amount','Gerado em {d}':'Generated on {d}',
+  'Total do vendedor':'Rep total',
   'Visão geral de todos os módulos de metas.':'Overview of all target modules.',
   'Editar':'Edit','Concluir edição':'Finish editing','Salvar textos ({n})':'Save texts ({n})','Textos salvos ({n})':'Texts saved ({n})',
   'Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.':'Click any text with a dashed outline to change it. Clear it to restore the original text.',
@@ -2773,7 +2774,7 @@ function exportarModulo(m, mes, linhas) {
 
 /* ============================== PDF ============================== */
 const pdfTxt = s => String(s == null ? '' : s).replace(/[—–]/g, '-').replace(/[“”]/g, '"').replace(/[‘’]/g, "'")
-  .replace(/≥/g, '>=').replace(/×/g, 'x').replace(/→/g, '->').replace(/…/g, '...').replace(/[  ]/g, ' ').replace(/🔒/g, '');
+  .replace(/≥/g, '>=').replace(/×/g, 'x').replace(/→/g, '->').replace(/…/g, '...').replace(/[−‒]/g, '-').replace(/[•]/g, '-').replace(/[  ]/g, ' ').replace(/🔒/g, '');
 const COR = { brand: [181, 18, 27], soft: [251, 228, 231], brandTxt: [141, 14, 21], cinza: [102, 112, 124], linha: [223, 228, 232], alt: [246, 248, 250], verde: [22, 115, 75] };
 function pdfPronto() {
   const ok = !!(window.jspdf && window.jspdf.jsPDF && window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable);
@@ -3009,7 +3010,7 @@ function paginaPessoa(doc, v, ano, mes, fs) {
   y = pdfTabela(doc, { startY: y + 1.5, styles: stl, headStyles: hst,
     head: [[t('Meta'), t('Tipo'), t('Meta R$'), t('Realizado'), t('Ating.'), t('Faixa'), t('Prêmio-base'), t('Prêmio'), t('Rec. tri'), t('Rec. ano'), t('Total')].map(pdfTxt)],
     body: body.map(rw => rw.map(c => typeof c === 'object' ? c : pdfTxt(c))),
-    foot: [[t('Total da pessoa'), '', '', '', '', '', '', brl(sm('premio_mes')), brl(sm('recuperacao_tri')), brl(sm('recuperacao_ano')), brl(r.total)].map(pdfTxt)],
+    foot: [[t('Total do vendedor'), '', '', '', '', '', '', brl(sm('premio_mes')), brl(sm('recuperacao_tri')), brl(sm('recuperacao_ano')), brl(r.total)].map(pdfTxt)],
     footStyles: { fillColor: [32, 36, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: fs }, columnStyles: cR,
     didParseCell: dd => { if (dd.section === 'foot' && dd.column.index >= 2) dd.cell.styles.halign = 'right'; } });
   const exc = ativos.filter(o => o.l.d.vendas_excluidas);
@@ -3087,36 +3088,37 @@ function pdfPagamentos(ano, mes, modo, mods, rows) {
   const status = prev.length ? t('ATENÇÃO: contém prévia (meses não fechados) — {n} linha(s) marcadas com *.', { n: prev.length }) : t('Todos os valores são de meses fechados (congelados).');
   const pessoas = [...new Set(rows.map(r => r.pessoa))];
   const montar = fs => {
-    const doc = pdfNovo(t('Relatório de pagamentos — {p}', { p: per }), t('{n} módulo(s): {m}', { n: mods.length, m: mods.map(z => z.nome).join(', ') }).slice(0, 150), status, 'landscape');
+    const doc = pdfNovo(t('Relatório de pagamentos — {p}', { p: per }), '', status, 'landscape');
     const W = doc.internal.pageSize.getWidth(), larg = W - 24;
     let y = pdfCaixas(doc, 31, [
       { r: t('Pessoas'), v: String(pessoas.length) }, { r: t('Prêmios / comissões'), v: brl(sum(rows.map(r => r.premio))) },
       { r: t('Rec. trimestre'), v: brl(sum(rows.map(r => r.rtri))) }, { r: t('Rec. ano'), v: brl(sum(rows.map(r => r.rano))) },
       { r: t('Total a pagar'), v: brl(sum(rows.map(r => r.total))), destaque: true }], 5, larg);
     const body = [], sub = new Set();
-    pessoas.forEach(p => {
+    const SEP = 10;
+    pessoas.forEach((p, ip) => {
+      if (ip) body.push([{ content: '', colSpan: SEP, styles: { minCellHeight: 2.6, cellPadding: 0, lineWidth: 0, fillColor: [255, 255, 255] } }]);   // linha em branco entre vendedores
       const rs = rows.filter(r => r.pessoa === p);
       rs.forEach((r, k) => body.push([k ? '' : r.pessoa, r.modulo + (r.fechado ? '' : ' *'), r.meta == null ? '-' : brl(r.meta), brl(r.real), pct(r.ating), modo === 'mes' ? faixaTxt(r.faixa) : '', brl(r.premio), r.rtri ? brl(r.rtri) : '', r.rano ? brl(r.rano) : '', brl(r.total)]));
       if (rs.length > 1) { sub.add(body.length); body.push([t('Subtotal {n}', { n: p }), '', '', '', '', '', brl(sum(rs.map(r => r.premio))), brl(sum(rs.map(r => r.rtri))), brl(sum(rs.map(r => r.rano))), brl(sum(rs.map(r => r.total)))]); }
     });
     const cols = {}; for (let k = 2; k <= 9; k++) cols[k] = { halign: 'right' };
     y = pdfTabela(doc, { startY: y + 1, head: [[t('Pessoa'), t('Módulo'), t('Meta'), t('Realizado'), t('Atingido'), modo === 'mes' ? t('Faixa / %') : '', t('Prêmio / comissão'), t('Rec. tri'), t('Rec. ano'), t('Total a pagar')].map(pdfTxt)],
-      body: body.map(r => r.map(pdfTxt)), foot: [[t('Total geral'), '', '', '', '', '', brl(sum(rows.map(r => r.premio))), brl(sum(rows.map(r => r.rtri))), brl(sum(rows.map(r => r.rano))), brl(sum(rows.map(r => r.total)))].map(pdfTxt)],
+      body: body.map(r => r.map(c => typeof c === 'object' ? c : pdfTxt(c))), foot: [[t('Total geral'), '', '', '', '', '', brl(sum(rows.map(r => r.premio))), brl(sum(rows.map(r => r.rtri))), brl(sum(rows.map(r => r.rano))), brl(sum(rows.map(r => r.total)))].map(pdfTxt)],
       columnStyles: Object.assign(cols, { 9: { halign: 'right', fontStyle: 'bold' } }),
       styles: { font: 'helvetica', fontSize: fs, cellPadding: 1, lineColor: COR.linha, lineWidth: 0.1, textColor: [32, 36, 42], overflow: 'linebreak' }, headStyles: { fillColor: COR.alt, textColor: COR.cinza, fontStyle: 'bold', fontSize: fs - 0.3 },
       footStyles: { fillColor: [32, 36, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: fs + 0.3 },
-      didParseCell: d => { if (d.section === 'body' && sub.has(d.row.index)) { d.cell.styles.fillColor = [236, 238, 241]; d.cell.styles.fontStyle = 'bold'; } } });
+      didParseCell: d => { if (d.section === 'foot' && d.column.index >= 2) d.cell.styles.halign = 'right'; if (d.section === 'body' && sub.has(d.row.index)) { d.cell.styles.fillColor = [236, 238, 241]; d.cell.styles.fontStyle = 'bold'; } } });
     // resumo por módulo
     const resumo = mods.map(m => { const rs = rows.filter(r => r.modulo === m.nome); const me = rs.every(r => r.meta != null) ? sum(rs.map(r => r.meta || 0)) : null, re = sum(rs.map(r => r.real));
       return [m.nome, tipoNome(m), String(rs.length), me == null ? '-' : brl(me), brl(re), pct(me ? re / me : null), brl(sum(rs.map(r => r.total)))]; });
     y = pdfSecao(doc, y + 5, t('Resumo por módulo'));
     y = pdfTabela(doc, { startY: y + 1, head: [[t('Módulo'), t('Tipo'), t('Pessoas'), t('Meta'), t('Realizado'), t('Atingido'), t('Total a pagar')].map(pdfTxt)], body: resumo.map(r => r.map(pdfTxt)),
       columnStyles: { 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { halign: 'right', fontStyle: 'bold' } },
-      styles: { font: 'helvetica', fontSize: fs, cellPadding: 1, lineColor: COR.linha, lineWidth: 0.1, textColor: [32, 36, 42] }, headStyles: { fillColor: COR.alt, textColor: COR.cinza, fontStyle: 'bold', fontSize: fs - 0.3 }, margin: { left: 12, right: 12, top: 31, bottom: 30 } });
+      styles: { font: 'helvetica', fontSize: fs, cellPadding: 1, lineColor: COR.linha, lineWidth: 0.1, textColor: [32, 36, 42] }, headStyles: { fillColor: COR.alt, textColor: COR.cinza, fontStyle: 'bold', fontSize: fs - 0.3 }, margin: { left: 12, right: 12, top: 31, bottom: 14 } });
     doc.setFont('helvetica', 'italic'); doc.setFontSize(6.4); doc.setTextColor(...COR.cinza);
     doc.text(pdfTxt(t('* prévia: mês ainda não fechado — valor pode mudar. Faixa/% = faixa de premiação atingida ou % de comissão.')), 12, y + 3.5);
-    pdfAssinaturas(doc, [t('Elaborado por'), t('Aprovado — Diretoria'), t('Financeiro')]);
-    pdfRodapes(doc);
+    pdfRodapes(doc, true);
     return doc;
   };
   const doc = pdfUmaPagina(montar);
