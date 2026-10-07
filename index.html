@@ -378,7 +378,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.017', DOC_DATA = '07/10/2026';
+const DOC_VERSAO = 'V.018', DOC_DATA = '07/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -676,6 +676,22 @@ const EN = {
   'Aplicar padrão {v}':'Apply default {v}','Premiação':'Incentive','fora da distribuição':'outside the allocation','Prêmio-base padrão {v}/mês':'Default base prize {v}/month',
   'Tabela antiga de comissão: a comissão agora é definida dentro da Meta especial, em Módulos de metas. Pode excluir esta tabela se não estiver em uso.':'Old commission table: commission is now set inside the Special target, in Target modules. You may delete this table if it is not in use.',
   'Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago. Comissão sobre vendas é definida na Meta especial, em Módulos de metas.':'Each tier sets the minimum achievement % and how much of the base prize is paid. Commission on sales is set in the Special target, in Target modules.',
+  'Relatórios':'Reports','PDFs e planilhas deste mês: ADM › Relatórios.':'PDFs and spreadsheets for this month: ADM › Reports.','Fechar {m}':'Close {m}','{m} fechado':'{m} closed',
+  'Congela os valores de {n} participante(s) — total a pagar {v}. Os lançamentos deste mês ficam travados. Os PDFs ficam em ADM › Relatórios.':'Freezes the values of {n} participant(s) — total payable {v}. This month’s actuals become locked. PDFs are in ADM › Reports.',
+  'Meta de {m}':'{m} target','Comissão':'Commission','Comissão do mês':'Month commission','Realizado bruto {v}':'Gross actual {v}','vendas excluídas − {v}':'excluded sales − {v}','prêmio-base {v}':'base prize {v}',
+  'trimestre {p}':'quarter {p}','ano {p}':'year {p}','Evolução no ano':'Year to date','Ano (até {m})':'Year (to {m})','Rec. tri':'Q. rec.','Total':'Total','* mês deste fechamento':'* month of this closing',
+  'Gestão comercial':'Sales management','Fechamento individual — {m}/{a}':'Individual closing — {m}/{a}','Jan. a {m}/{a}':'Jan. to {m}/{a}','{m}/{a}':'{m}/{a}',
+  'ATENÇÃO: contém prévia (meses não fechados) — {n} linha(s) marcadas com *.':'WARNING: contains preview (months not closed) — {n} row(s) marked with *.','Todos os valores são de meses fechados (congelados).':'All values are from closed (frozen) months.',
+  'Relatório de pagamentos — {p}':'Payments report — {p}','{n} módulo(s): {m}':'{n} module(s): {m}','Pessoas':'People','Prêmios / comissões':'Prizes / commissions','Subtotal {n}':'Subtotal {n}',
+  'Pessoa':'Person','Módulo':'Module','Faixa / %':'Tier / %','Prêmio / comissão':'Prize / commission','Total geral':'Grand total','Resumo por módulo':'Summary by module',
+  '* prévia: mês ainda não fechado — valor pode mudar. Faixa/% = faixa de premiação atingida ou % de comissão.':'* preview: month not closed yet — value may change. Tier/% = incentive tier reached or commission %.',
+  'Elaborado por':'Prepared by','Aprovado — Diretoria':'Approved — Board','Financeiro':'Finance','Situação':'Status','Prévia':'Preview','Pagamentos':'Payments',
+  'Relatório geral de pagamentos':'General payments report','Junta todos os módulos escolhidos, pessoa a pessoa, com prêmio ou comissão, recuperações e total a pagar. O PDF é ajustado para caber em uma folha A4. Meses fechados usam os valores congelados; meses abertos entram como prévia (marcados com *).':'Combines all chosen modules, person by person, with prize or commission, recoveries and total payable. The PDF is fitted to one A4 page. Closed months use frozen values; open months appear as preview (marked with *).',
+  'Para conferência e envio ao financeiro — cabe em uma folha A4.':'For review and sending to finance — fits one A4 page.','Gerar PDF de pagamentos':'Generate payments PDF','Só o mês':'Month only',
+  'Só quem tem valor a pagar':'Only people with an amount payable','{n} linha(s) com mês ainda não fechado entram como prévia (*).':'{n} row(s) with a month not yet closed appear as preview (*).','prévia':'preview',
+  'Nada a mostrar com esses filtros.':'Nothing to show with these filters.','Fechamento por módulo e individual':'Closing by module and individual',
+  'PDF do fechamento do módulo (com anexos por pessoa), planilha do mês e fechamento individual em uma folha A4.':'Module closing PDF (with per-person annexes), month spreadsheet and individual closing on one A4 page.',
+  '{m} ainda aberto — sai como prévia':'{m} still open — comes out as preview','PDF do fechamento do módulo':'Module closing PDF','Excel do fechamento':'Closing Excel','PDFs individuais (todos)':'Individual PDFs (all)','PDF individual':'Individual PDF',
   'Visão geral de todos os módulos de metas.':'Overview of all target modules.',
   'Editar':'Edit','Concluir edição':'Finish editing','Salvar textos ({n})':'Save texts ({n})','Textos salvos ({n})':'Texts saved ({n})',
   'Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.':'Click any text with a dashed outline to change it. Clear it to restore the original text.',
@@ -1381,7 +1397,7 @@ function vPainel() {
   $('#view').innerHTML = html;
   $$('[data-pdfv]').forEach(b => b.onclick = () => {
     const [mid, vid, mes] = b.dataset.pdfv.split('|'), m = byId(S.modulos, mid);
-    pdfVendedor(m, vincDe(mid).find(z => z.vendedor_id === vid), Number(mes));
+    const x = vincDe(mid).find(z => z.vendedor_id === vid); if (x) pdfIndividual(m, [dadosMes(m, x, Number(mes))], Number(mes));
   });
 }
 
@@ -1462,7 +1478,7 @@ function vEstrategia() {
 
 /* ============================ ADMINISTRAÇÃO ============================ */
 const ADM_TABS = [['distribuicao', 'Distribuição'], ['modulos', 'Módulos de metas'], ['fechamento', 'Lançamentos e fechamento'],
-                  ['vendedores', 'Vendedores e supervisores'], ['tabelas', 'Tabelas de premiação'], ['acessos', 'Acessos']];
+                  ['relatorios', 'Relatórios'], ['vendedores', 'Vendedores e supervisores'], ['tabelas', 'Tabelas de premiação'], ['acessos', 'Acessos']];
 function vAdm() {
   const abas = ADM_TABS.filter(([k]) => pode('adm-' + k));
   const tab = abas.find(x => x[0] === S.admTab) || abas[0];
@@ -1470,7 +1486,7 @@ function vAdm() {
   $('#view').innerHTML = `<div class="mt-tabs" role="tablist">${abas.map(([k, n]) =>
     `<button class="mt-tab" role="tab" aria-selected="${k === tab[0]}" data-tab="${k}">${t(n)}</button>`).join('')}</div><div id="adm-body"></div>`;
   $$('[data-tab]').forEach(b => b.addEventListener('click', () => { location.hash = '#/adm/' + b.dataset.tab; }));
-  ({ distribuicao: aDistribuicao, modulos: aModulos, fechamento: aFechamento, acessos: aAcessos, vendedores: aVendedores, tabelas: aTabelas }[tab[0]])();
+  ({ distribuicao: aDistribuicao, modulos: aModulos, fechamento: aFechamento, relatorios: aRelatorios, acessos: aAcessos, vendedores: aVendedores, tabelas: aTabelas }[tab[0]])();
 }
 async function recarregar(msg) { await carregar(); if (msg) notify(msg, 'success'); rota(); }
 const badgeAtivo = (a, fem) => a ? `<span class="fi-badge fi-badge--success">${t(fem ? 'Ativa' : 'Ativo')}</span>` : `<span class="fi-badge">${t(fem ? 'Inativa' : 'Inativo')}</span>`;
@@ -2274,12 +2290,11 @@ function aFechamento() {
       <div class="mt-small">${esc(t('Tabela: {n}', { n: tb ? tb.nome : '' }))} · ${fechado && quando ? t('Fechado em {d} por {p}', quando) : t('PRÉVIA — mês não fechado')}</div></div>
     <section class="fi-card mt-noprint"><div class="fi-card__body" style="display:grid;gap:10px">
       <div class="mt-row">${seletorModulo(m.id, 'f-mod')} ${tipoBadge(m)}<span class="mt-sp"></span>
-        ${fechado ? `<button class="fi-btn fi-btn--primary" id="f-pdf">${t('PDF do fechamento')}</button><button class="fi-btn" id="f-xls">${t('Exportar Excel')}</button><button class="fi-btn" id="f-print">${t('Imprimir')}</button>
+        ${fechado ? `<span class="mt-small mt-muted">${t('PDFs e planilhas deste mês: ADM › Relatórios.')}</span>
                      <button class="fi-btn fi-btn--danger" id="f-reabrir" ${mes !== uf ? `disabled title="${t('Reabra primeiro os meses posteriores')}"` : ''}>${t('Reabrir {m}', { m: MES(mes - 1) })}</button>`
           : `${!sup ? `<button class="fi-btn" id="l-modelo">${t('Modelo Excel')}</button><label class="fi-btn" style="cursor:pointer">${t('Importar Excel')}<input type="file" id="l-file" accept=".xlsx,.xls,.csv" hidden></label>
              <button class="fi-btn" id="l-salvar" ${nPend ? '' : 'disabled'}>${nPend ? t('Salvar lançamentos ({n})', { n: nPend }) : t('Salvar lançamentos')}</button>` : ''}
-             <button class="fi-btn" id="f-xls">${t('Prévia em Excel')}</button>
-             <button class="fi-btn fi-btn--primary" id="f-fechar" ${podeFechar ? '' : 'disabled'}>🔒 ${t('Fechar {m} e gerar PDF', { m: MESL(mes - 1) })}</button>`}</div>
+             <button class="fi-btn fi-btn--primary" id="f-fechar" ${podeFechar ? '' : 'disabled'}>🔒 ${t('Fechar {m}', { m: MESL(mes - 1) })}</button>`}</div>
       <div class="mt-tabs" style="margin:0">${Array.from({ length: 12 }, (_, i) => `<button class="mt-tab" data-fm="${i + 1}" aria-selected="${i + 1 === mes}">${MES(i)}${fech.has(i + 1) ? ' 🔒' : ''}</button>`).join('')}</div>
       ${!fechado && mes !== uf + 1 ? `<div class="fi-alert fi-alert--info">${t('Os meses são fechados em sequência. Próximo a fechar: {m}.', { m: '<b>' + (uf < 12 ? MESL(uf) : '—') + '</b>' })} ${!sup ? t('Você pode lançar o realizado deste mês desde já.') : ''}</div>` : ''}
       ${!fechado && sup && !baseOk ? `<div class="fi-alert fi-alert--warning">${esc(t('O realizado da supervisão vem da equipe: feche antes {m} no módulo “{b}”.', { m: MESL(mes - 1), b: (basesAbertas.length ? basesAbertas : bases).map(z => z.nome).join(' + ') || '—' }))}</div>` : ''}
@@ -2379,9 +2394,6 @@ function aFechamento() {
   const bS = $('#l-salvar'); if (bS) bS.onclick = async () => { bS.disabled = true; try { await salvarPendentes(); await recarregar(t('Lançamentos salvos')); } catch (e) { notify(erroMsg(e), 'danger'); bS.disabled = false; } };
   const bM = $('#l-modelo'); if (bM) bM.onclick = () => modeloExcel(m);
   const bF = $('#l-file'); if (bF) bF.onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) importarExcel(m, f); };
-  const bP = $('#f-print'); if (bP) bP.onclick = () => window.print();
-  $('#f-xls').onclick = () => exportarFechamento(m, mes, linhas, fechado, ehTri);
-  const bPdf = $('#f-pdf'); if (bPdf) bPdf.onclick = () => pdfFechamento(m, mes, linhas, true, ehTri, quando);
   const bf = $('#f-fechar');
   if (bf) bf.onclick = async () => {
     bf.disabled = true;
@@ -2389,14 +2401,11 @@ function aFechamento() {
       await salvarPendentes(); await carregar();
       const atuais = calcLinhasDe(m, mes);
       const total = sum(atuais.map(l => l.d.total));
-      if (!await confirmar({ title: t('Fechar {m}/{a}', { m: MESL(mes - 1), a: m.ano }), message: t('Congela os valores de {n} participante(s) — total a pagar {v}. Os lançamentos deste mês ficam travados e o PDF do fechamento é gerado em seguida.', { n: atuais.length, v: brl(total) }), confirmText: t('Fechar mês') })) { await recarregar(); return; }
+      if (!await confirmar({ title: t('Fechar {m}/{a}', { m: MESL(mes - 1), a: m.ano }), message: t('Congela os valores de {n} participante(s) — total a pagar {v}. Os lançamentos deste mês ficam travados. Os PDFs ficam em ADM › Relatórios.', { n: atuais.length, v: brl(total) }), confirmText: t('Fechar mês') })) { await recarregar(); return; }
       const quem = S.nome || S.email;
       await q(S.sb.from('met_fechamentos').insert(atuais.map(l => ({ modulo_id: m.id, mes, vendedor_id: l.x.vendedor_id, dados: l.d, fechado_por: quem }))));
       await carregar(); rota();
-      const fechadas = vincDe(m.id).map(x => ({ x, d: (S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id) || {}).dados, f: S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id) }));
-      const f0 = fechadas.find(l => l.f);
-      pdfFechamento(m, mes, fechadas, true, ehTri, f0 ? { d: new Date(f0.f.fechado_em).toLocaleString(LOC()), p: esc(f0.f.fechado_por || '') } : null);
-      notify(t('{m} fechado — PDF gerado', { m: MESL(mes - 1) }), 'success');
+      notify(t('{m} fechado', { m: MESL(mes - 1) }), 'success');
     } catch (e) { notify(erroMsg(e), 'danger'); bf.disabled = false; }
   };
   const br = $('#f-reabrir');
@@ -2406,15 +2415,27 @@ function aFechamento() {
     catch (e) { notify(erroMsg(e), 'danger'); }
   };
 }
-/* prévia de fechamento a partir dos dados gravados (sem lançamento = 0) */
+/* cálculo de prévia até o mês (sem lançamento = 0); meta especial respeita o período */
+function calcPrevia(m, x, mes) {
+  const dentro = i => noPer(m, i + 1);
+  const real = realPart(m, x).map((v, i) => (!dentro(i) || i + 1 > mes ? null : v == null ? 0 : v));   // posição na data: meses seguintes ainda não existem
+  return calcular(tabelaDe(m, x), (x.metas || []).map((v, i) => dentro(i) ? v : null), (x.premios || []).map((v, i) => dentro(i) ? v : 0), real, mes);
+}
+/* prévia de fechamento a partir dos dados gravados */
 function calcLinhasDe(m, mes) {
   return vincDe(m.id).map(x => {
-    const tb = tabelaDe(m, x);
-    const real = realPart(m, x).map((v, i) => (i + 1 <= mes && v == null ? 0 : v));
-    const c = calcular(tb, x.metas, x.premios, real, mes);
+    const tb = tabelaDe(m, x), c = calcPrevia(m, x, mes);
     return { x, d: comExclusao(snapshot(m, tb, x, c, c.meses[mes - 1]), infoMes(m, x, mes)) };
   });
 }
+/* dados de uma pessoa num mês: fechado = valores congelados; aberto = prévia */
+function dadosMes(m, x, mes) {
+  const f = S.fechamentos.find(z => z.modulo_id === m.id && z.mes === mes && z.vendedor_id === x.vendedor_id);
+  if (f && f.dados) return { x, d: f.dados, f, fechado: true };
+  const tb = tabelaDe(m, x), c = calcPrevia(m, x, mes);
+  return { x, d: comExclusao(snapshot(m, tb, x, c, c.meses[mes - 1]), infoMes(m, x, mes)), f: null, fechado: false };
+}
+const quandoDe = l => l && l.f ? { d: new Date(l.f.fechado_em).toLocaleString(LOC()), p: l.f.fechado_por || '' } : null;
 /* bruto e exclusões do mês (supervisão = soma da equipe); pend = alterações ainda não salvas */
 function infoMes(m, x, mes, pend) {
   const vazio = { valor: null, excluido: 0, excluir: false, obs: '' };
@@ -2746,8 +2767,8 @@ function pdfCabecalho(doc) {
   doc.text(pdfTxt(doc.__sub), W - 12, 17.5, { align: 'right' });
   if (doc.__status) { doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...COR.brand); doc.text(pdfTxt(doc.__status), 12, 27); }
 }
-function pdfNovo(titulo, sub, status) {
-  const doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+function pdfNovo(titulo, sub, status, orient) {
+  const doc = new window.jspdf.jsPDF({ orientation: orient || 'landscape', unit: 'mm', format: 'a4' });
   Object.assign(doc, { __titulo: titulo, __sub: sub, __status: status });
   pdfCabecalho(doc);
   return doc;
@@ -2892,10 +2913,240 @@ function pdfVendedor(m, x, mes) {
   doc.save(`demonstrativo_${nomeArq(x.v.nome)}_${nomeArq(m.nome)}_${m.ano}.pdf`);
 }
 
+/* monta o documento com fontes cada vez menores até caber em 1 folha A4 */
+function pdfUmaPagina(montar) {
+  let doc = null;
+  for (const fs of [7.4, 6.9, 6.4, 5.9, 5.5, 5.1, 4.7]) { doc = montar(fs); if (doc.getNumberOfPages() === 1) break; }
+  return doc;
+}
+function pdfCaixas(doc, y, itens, cols, larg) {
+  const x0 = 12, gap = 2.5, w = (larg - gap * (cols - 1)) / cols, h = 13;
+  itens.forEach((it, k) => {
+    const cx = x0 + (k % cols) * (w + gap), cy = y + Math.floor(k / cols) * (h + gap);
+    doc.setDrawColor(...COR.linha); doc.setLineWidth(0.2);
+    if (it.destaque) { doc.setFillColor(32, 36, 42); doc.rect(cx, cy, w, h, 'F'); } else { doc.setFillColor(...COR.alt); doc.rect(cx, cy, w, h, 'FD'); }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(6.3); doc.setTextColor(...(it.destaque ? [220, 224, 228] : COR.cinza));
+    doc.text(pdfTxt(String(it.r).toUpperCase()), cx + 2.5, cy + 4.6);
+    doc.setFontSize(it.destaque ? 11 : 9.6); doc.setTextColor(...(it.destaque ? [255, 255, 255] : [32, 36, 42]));
+    doc.text(pdfTxt(it.v), cx + 2.5, cy + 10.4);
+  });
+  return y + Math.ceil(itens.length / cols) * (h + gap);
+}
+function pdfAssinaturas(doc, nomes) {
+  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), w = (W - 24 - 10 * (nomes.length - 1)) / nomes.length, y = H - 22;
+  doc.setDrawColor(120, 126, 134); doc.setLineWidth(0.2); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.4); doc.setTextColor(...COR.cinza);
+  nomes.forEach((n, k) => { const x = 12 + k * (w + 10); doc.line(x, y, x + w, y); doc.text(pdfTxt(n), x + w / 2, y + 4, { align: 'center' }); });
+}
+const faixaTxt = d => d == null ? '-' : multTxt(d);
+
+/* ---------- Fechamento individual: 1 folha A4 (retrato) por pessoa ---------- */
+function paginaIndividual(doc, m, l, mes, fs) {
+  const { x, d } = l, W = doc.internal.pageSize.getWidth(), larg = W - 24;
+  const comis = ehComissao(tabelaDe(m, x)), quando = quandoDe(l);
+  let y = 33;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.setTextColor(32, 36, 42); doc.text(pdfTxt(x.v.nome), 12, y);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...COR.cinza);
+  doc.text(pdfTxt([x.v.email, m.nome, tipoNome(m), t('Tabela: {n}', { n: (tabelaDe(m, x) || {}).nome || '-' })].filter(Boolean).join('  ·  ')), 12, y + 5, { maxWidth: larg });
+  doc.setFont('helvetica', 'bold'); doc.setTextColor(...(l.fechado ? COR.verde : COR.brand));
+  doc.text(pdfTxt(l.fechado ? t('Fechado em {d} por {p} — valores congelados.', quando || { d: '-', p: '-' }) : t('PRÉVIA — mês não fechado')), 12, y + 10);
+  y += 14;
+  const itens = [
+    { r: t('Meta de {m}', { m: MESL(mes - 1) }), v: d.meta == null ? (comis ? '-' : t('Aguardando dados')) : brl(d.meta) },
+    { r: t('Realizado p/ meta'), v: brl(d.realizado) },
+    { r: t('Atingido'), v: pct(d.atingimento) },
+    { r: comis ? t('Comissão') : t('Faixa'), v: faixaTxt(d.multiplicador) },
+    { r: comis ? t('Comissão do mês') : t('Prêmio do mês'), v: brl(d.premio_mes) },
+    { r: t('Rec. trimestre'), v: brl(d.recuperacao_tri) },
+    { r: t('Rec. ano'), v: brl(d.recuperacao_ano) },
+    { r: t('Total a pagar'), v: brl(d.total), destaque: true }];
+  y = pdfCaixas(doc, y, itens, 4, larg);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7.4); doc.setTextColor(...COR.cinza);
+  const det = [t('Realizado bruto {v}', { v: brl(d.realizado_bruto != null ? d.realizado_bruto : d.realizado) })];
+  if (d.vendas_excluidas) det.push(t('vendas excluídas − {v}', { v: brl(d.vendas_excluidas) }) + (d.exclusao_obs ? ' (' + d.exclusao_obs + ')' : ''));
+  if (!comis) det.push(t('prêmio-base {v}', { v: brl(d.premio_base) }));
+  if (d.trimestre_atingimento != null) det.push(t('trimestre {p}', { p: pct(d.trimestre_atingimento) }));
+  if (d.ano_atingimento != null) det.push(t('ano {p}', { p: pct(d.ano_atingimento) }));
+  doc.text(pdfTxt(det.join('  ·  ')), 12, y + 2, { maxWidth: larg }); y += 6;
+  // evolução no ano (posição até o mês)
+  const c = calcPrevia(m, x, mes), Wd = v => v == null ? '-' : brl(v), body = [], tri = new Set();
+  c.meses.forEach(mm => {
+    const fut = mm.mes > mes, fora = !noPer(m, mm.mes);
+    body.push([MES(mm.mes - 1) + (mm.mes === mes ? ' *' : ''), fora ? '-' : Wd(mm.meta), fut || fora ? '-' : brl(mm.real || 0), fut || fora ? '-' : pct(mm.ating), mm.apurado && !fut ? multTxt(mm.mult) : '-',
+      fut || fora ? '-' : brl(mm.premio), !fut && mm.pagoTri ? brl(mm.pagoTri) : '', !fut && mm.pagoAno ? brl(mm.pagoAno) : '', fut ? '-' : brl(mm.total)]);
+    if (mm.mes % 3 === 0) { const q = c.tri[mm.mes / 3 - 1]; tri.add(body.length);
+      body.push([t('{q}º tri', { q: q.q }), Wd(q.metaQ), Wd(q.realQ), q.atingQ == null ? '-' : pct(q.atingQ), q.recuperou ? multTxt(q.multQ) : '-', brl(q.premio), q.valor ? brl(q.valor) : '', '', brl(sum(c.meses.slice(mm.mes - 3, mm.mes).map(z => z.mes <= mes ? z.total : 0)))]); }
+  });
+  const foot = [[t('Ano (até {m})', { m: MES(mes - 1) }), Wd(c.metaAte), brl(c.realAte), pct(c.atingAte), '', brl(sum(c.meses.filter(z => z.mes <= mes).map(z => z.premio))), brl(sum(c.meses.filter(z => z.mes <= mes).map(z => z.pagoTri))), brl(sum(c.meses.filter(z => z.mes <= mes).map(z => z.pagoAno))), brl(c.totalAte)]];
+  y = pdfSecao(doc, y + 4, t('Evolução no ano')) ;
+  const cols = {}; for (let k = 1; k <= 8; k++) cols[k] = { halign: 'right' };
+  y = pdfTabela(doc, { startY: y + 1.5, head: [[t('Mês'), t('Meta'), t('Realizado'), t('Atingido'), comis ? t('Comissão') : t('Faixa'), comis ? t('Comissão') : t('Prêmio'), t('Rec. tri'), t('Rec. ano'), t('Total')].map(pdfTxt)],
+    body: body.map(r => r.map(pdfTxt)), foot: foot.map(r => r.map(pdfTxt)), columnStyles: cols,
+    styles: { font: 'helvetica', fontSize: fs, cellPadding: 0.9, lineColor: COR.linha, lineWidth: 0.1, textColor: [32, 36, 42] }, headStyles: { fillColor: COR.alt, textColor: COR.cinza, fontStyle: 'bold', fontSize: fs - 0.4 },
+    didParseCell: dd => { if (dd.section === 'body' && tri.has(dd.row.index)) { dd.cell.styles.fillColor = [236, 238, 241]; dd.cell.styles.fontStyle = 'bold'; } } });
+  doc.setFont('helvetica', 'italic'); doc.setFontSize(6.4); doc.setTextColor(...COR.cinza); doc.text(pdfTxt(t('* mês deste fechamento')), 12, y + 3);
+  // regras resumidas
+  const tmp = document.createElement('div'); tmp.innerHTML = regraHtml(tabelaDe(m, x));
+  const regras = $$('.mt-rule > div', tmp).map(z => pdfTxt('• ' + z.textContent.trim()));
+  y = pdfSecao(doc, y + 9, t('Regras aplicadas')) + 2;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(fs); doc.setTextColor(60, 66, 74);
+  regras.forEach(r => { const pts = doc.splitTextToSize(r, larg); doc.text(pts, 12, y); y += pts.length * fs * 0.42 + 0.6; });
+  pdfAssinaturas(doc, [x.v.nome, t('Gestão comercial')]);
+  return y;
+}
+function pdfIndividual(m, lista, mes) {
+  if (!pdfPronto() || !lista.length) return;
+  const H = 297 - 30;    // espaço útil antes das assinaturas
+  const fsDe = l => { for (const fs of [7.4, 6.8, 6.2, 5.6, 5.1]) { const tmp = pdfNovo('', '', '', 'portrait'); const y = paginaIndividual(tmp, m, l, mes, fs); if (tmp.getNumberOfPages() === 1 && y < H) return fs; } return 5.1; };
+  const titulo = t('Fechamento individual — {m}/{a}', { m: MESL(mes - 1), a: m.ano });
+  const doc = pdfNovo(titulo, m.nome, '', 'portrait');
+  lista.forEach((l, k) => { if (k) { doc.addPage('a4', 'portrait'); pdfCabecalho(doc); } paginaIndividual(doc, m, l, mes, fsDe(l)); });
+  pdfRodapes(doc);
+  doc.save(lista.length === 1 ? `fechamento_individual_${nomeArq(lista[0].x.v.nome)}_${nomeArq(m.nome)}_${m.ano}_${String(mes).padStart(2, '0')}.pdf`
+                              : `fechamentos_individuais_${nomeArq(m.nome)}_${m.ano}_${String(mes).padStart(2, '0')}.pdf`);
+}
+
+/* ---------- Relatório geral de pagamentos: 1 folha A4 (paisagem) ---------- */
+function linhasPagamento(ano, mes, modo, mods, soComValor) {
+  const out = [];
+  mods.forEach(m => vincDe(m.id).forEach(x => {
+    const meses = modo === 'acum' ? Array.from({ length: mes }, (_, i) => i + 1) : [mes];
+    const ds = meses.filter(k => noPer(m, k)).map(k => dadosMes(m, x, k));
+    if (!ds.length) return;
+    const sm = k => sum(ds.map(z => Number(z.d[k]) || 0));
+    const metaOk = ds.every(z => z.d.meta != null);
+    const r = { pessoa: x.v.nome, email: x.v.email, papel: x.papel, modulo: m.nome, tipo: tipoNome(m), comis: ehComissao(tabelaDe(m, x)),
+      meta: metaOk ? sm('meta') : null, real: sm('realizado'), premio: sm('premio_mes'), rtri: sm('recuperacao_tri'), rano: sm('recuperacao_ano'), total: sm('total'),
+      faixa: modo === 'mes' ? ds[0].d.multiplicador : null, fechado: ds.every(z => z.fechado), pendentes: ds.filter(z => !z.fechado).length };
+    r.ating = r.meta ? r.real / r.meta : null;
+    if (!soComValor || r.total > 0) out.push(r);
+  }));
+  return out.sort((a, b) => a.pessoa.localeCompare(b.pessoa, 'pt-BR') || a.modulo.localeCompare(b.modulo, 'pt-BR'));
+}
+function pdfPagamentos(ano, mes, modo, mods, rows) {
+  if (!pdfPronto()) return;
+  const per = modo === 'acum' ? t('Jan. a {m}/{a}', { m: MESL(mes - 1), a: ano }) : t('{m}/{a}', { m: MESL(mes - 1), a: ano });
+  const prev = rows.filter(r => !r.fechado);
+  const status = prev.length ? t('ATENÇÃO: contém prévia (meses não fechados) — {n} linha(s) marcadas com *.', { n: prev.length }) : t('Todos os valores são de meses fechados (congelados).');
+  const pessoas = [...new Set(rows.map(r => r.pessoa))];
+  const montar = fs => {
+    const doc = pdfNovo(t('Relatório de pagamentos — {p}', { p: per }), t('{n} módulo(s): {m}', { n: mods.length, m: mods.map(z => z.nome).join(', ') }).slice(0, 150), status, 'landscape');
+    const W = doc.internal.pageSize.getWidth(), larg = W - 24;
+    let y = pdfCaixas(doc, 31, [
+      { r: t('Pessoas'), v: String(pessoas.length) }, { r: t('Prêmios / comissões'), v: brl(sum(rows.map(r => r.premio))) },
+      { r: t('Rec. trimestre'), v: brl(sum(rows.map(r => r.rtri))) }, { r: t('Rec. ano'), v: brl(sum(rows.map(r => r.rano))) },
+      { r: t('Total a pagar'), v: brl(sum(rows.map(r => r.total))), destaque: true }], 5, larg);
+    const body = [], sub = new Set();
+    pessoas.forEach(p => {
+      const rs = rows.filter(r => r.pessoa === p);
+      rs.forEach((r, k) => body.push([k ? '' : r.pessoa, r.modulo + (r.fechado ? '' : ' *'), r.meta == null ? '-' : brl(r.meta), brl(r.real), pct(r.ating), modo === 'mes' ? faixaTxt(r.faixa) : '', brl(r.premio), r.rtri ? brl(r.rtri) : '', r.rano ? brl(r.rano) : '', brl(r.total)]));
+      if (rs.length > 1) { sub.add(body.length); body.push([t('Subtotal {n}', { n: p }), '', '', '', '', '', brl(sum(rs.map(r => r.premio))), brl(sum(rs.map(r => r.rtri))), brl(sum(rs.map(r => r.rano))), brl(sum(rs.map(r => r.total)))]); }
+    });
+    const cols = {}; for (let k = 2; k <= 9; k++) cols[k] = { halign: 'right' };
+    y = pdfTabela(doc, { startY: y + 1, head: [[t('Pessoa'), t('Módulo'), t('Meta'), t('Realizado'), t('Atingido'), modo === 'mes' ? t('Faixa / %') : '', t('Prêmio / comissão'), t('Rec. tri'), t('Rec. ano'), t('Total a pagar')].map(pdfTxt)],
+      body: body.map(r => r.map(pdfTxt)), foot: [[t('Total geral'), '', '', '', '', '', brl(sum(rows.map(r => r.premio))), brl(sum(rows.map(r => r.rtri))), brl(sum(rows.map(r => r.rano))), brl(sum(rows.map(r => r.total)))].map(pdfTxt)],
+      columnStyles: Object.assign(cols, { 9: { halign: 'right', fontStyle: 'bold' } }),
+      styles: { font: 'helvetica', fontSize: fs, cellPadding: 1, lineColor: COR.linha, lineWidth: 0.1, textColor: [32, 36, 42], overflow: 'linebreak' }, headStyles: { fillColor: COR.alt, textColor: COR.cinza, fontStyle: 'bold', fontSize: fs - 0.3 },
+      footStyles: { fillColor: [32, 36, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: fs + 0.3 },
+      didParseCell: d => { if (d.section === 'body' && sub.has(d.row.index)) { d.cell.styles.fillColor = [236, 238, 241]; d.cell.styles.fontStyle = 'bold'; } } });
+    // resumo por módulo
+    const resumo = mods.map(m => { const rs = rows.filter(r => r.modulo === m.nome); const me = rs.every(r => r.meta != null) ? sum(rs.map(r => r.meta || 0)) : null, re = sum(rs.map(r => r.real));
+      return [m.nome, tipoNome(m), String(rs.length), me == null ? '-' : brl(me), brl(re), pct(me ? re / me : null), brl(sum(rs.map(r => r.total)))]; });
+    y = pdfSecao(doc, y + 5, t('Resumo por módulo'));
+    y = pdfTabela(doc, { startY: y + 1, head: [[t('Módulo'), t('Tipo'), t('Pessoas'), t('Meta'), t('Realizado'), t('Atingido'), t('Total a pagar')].map(pdfTxt)], body: resumo.map(r => r.map(pdfTxt)),
+      columnStyles: { 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { halign: 'right', fontStyle: 'bold' } },
+      styles: { font: 'helvetica', fontSize: fs, cellPadding: 1, lineColor: COR.linha, lineWidth: 0.1, textColor: [32, 36, 42] }, headStyles: { fillColor: COR.alt, textColor: COR.cinza, fontStyle: 'bold', fontSize: fs - 0.3 }, margin: { left: 12, right: 12, top: 31, bottom: 30 } });
+    doc.setFont('helvetica', 'italic'); doc.setFontSize(6.4); doc.setTextColor(...COR.cinza);
+    doc.text(pdfTxt(t('* prévia: mês ainda não fechado — valor pode mudar. Faixa/% = faixa de premiação atingida ou % de comissão.')), 12, y + 3.5);
+    pdfAssinaturas(doc, [t('Elaborado por'), t('Aprovado — Diretoria'), t('Financeiro')]);
+    pdfRodapes(doc);
+    return doc;
+  };
+  const doc = pdfUmaPagina(montar);
+  doc.save(`pagamentos_${ano}_${modo === 'acum' ? 'jan-' : ''}${String(mes).padStart(2, '0')}.pdf`);
+}
+function excelPagamentos(ano, mes, modo, rows) {
+  if (!window.XLSX) { notify(t('Biblioteca de Excel ainda carregando, tente de novo.'), 'warning'); return; }
+  const dados = rows.map(r => ({ [t('Pessoa')]: r.pessoa, [t('E-mail')]: r.email, [t('Módulo')]: r.modulo, [t('Tipo')]: r.tipo, [t('Meta')]: r.meta, [t('Realizado')]: r.real,
+    [t('Atingido %')]: r.ating == null ? '' : +(r.ating * 100).toFixed(2), [t('Faixa / %')]: r.faixa == null ? '' : +(r.faixa * 100).toFixed(2), [t('Prêmio / comissão')]: r.premio,
+    [t('Rec. tri')]: r.rtri, [t('Rec. ano')]: r.rano, [t('Total a pagar')]: r.total, [t('Situação')]: r.fechado ? t('Fechado') : t('Prévia') }));
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dados), t('Pagamentos').slice(0, 31));
+  XLSX.writeFile(wb, `pagamentos_${ano}_${modo === 'acum' ? 'jan-' : ''}${String(mes).padStart(2, '0')}.xlsx`);
+}
+
+/* ============================== ADM › RELATÓRIOS ============================== */
+function aRelatorios() {
+  const anos = [...new Set(S.modulos.map(m => m.ano))].sort((a, b) => b - a);
+  if (!anos.length) { $('#adm-body').innerHTML = `<div class="fi-card"><div class="fi-empty">${t('Crie um módulo de metas primeiro.')}</div></div>`; return; }
+  if (!anos.includes(S.relAno)) S.relAno = anos.includes(HOJE.getFullYear()) ? HOJE.getFullYear() : anos[0];
+  const ano = S.relAno, modsAno = S.modulos.filter(m => m.ano === ano && m.ativo);
+  const ufAno = Math.max(0, ...modsAno.map(m => ultimoFechado(m.id)));
+  if (!S.relMes) S.relMes = ufAno || mesPadrao(ano);
+  if (!S.relModo) S.relModo = 'mes';
+  if (!S.relMods || !S.relMods.every(id => modsAno.some(m => m.id === id))) S.relMods = modsAno.map(m => m.id);
+  if (S.relSoValor == null) S.relSoValor = false;
+  const mes = S.relMes, modo = S.relModo, mods = modsAno.filter(m => S.relMods.includes(m.id));
+  const rows = linhasPagamento(ano, mes, modo, mods, S.relSoValor);
+  const mesOpt = Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}" ${i + 1 === mes ? 'selected' : ''}>${MESL(i)}</option>`).join('');
+  if (!byId(S.modulos, S.relMod) || S.modulos.find(z => z.id === S.relMod).ano !== ano) S.relMod = (modsAno[0] || {}).id;
+  const mr = byId(S.modulos, S.relMod);
+  const prev = rows.filter(r => !r.fechado).length;
+  $('#adm-body').innerHTML = `
+  <section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Relatório geral de pagamentos')}${dica(t('Junta todos os módulos escolhidos, pessoa a pessoa, com prêmio ou comissão, recuperações e total a pagar. O PDF é ajustado para caber em uma folha A4. Meses fechados usam os valores congelados; meses abertos entram como prévia (marcados com *).'))}</div>
+      <div class="fi-card__note">${t('Para conferência e envio ao financeiro — cabe em uma folha A4.')}</div></div>
+      <div class="mt-row"><button class="fi-btn" id="r-xls">${t('Exportar Excel')}</button><button class="fi-btn fi-btn--primary" id="r-pdf">${t('Gerar PDF de pagamentos')}</button></div></div>
+    <div class="fi-card__body" style="display:grid;gap:10px">
+      <div class="fi-filters">
+        <label class="fi-field"><span class="fi-label">${t('Ano')}</span><select class="fi-select" id="r-ano" style="width:auto">${anos.map(a => `<option value="${a}" ${a === ano ? 'selected' : ''}>${a}</option>`).join('')}</select></label>
+        <label class="fi-field"><span class="fi-label">${t('Mês de referência')}</span><select class="fi-select" id="r-mes" style="width:auto">${mesOpt}</select></label>
+        <div class="fi-field"><span class="fi-label">${t('Período')}</span><div class="mt-tabs" style="margin:0"><button class="mt-tab" data-rmodo="mes" aria-selected="${modo === 'mes'}">${t('Só o mês')}</button><button class="mt-tab" data-rmodo="acum" aria-selected="${modo === 'acum'}">${esc(t('Jan. até {m}', { m: MES(mes - 1).toLowerCase() }))}</button></div></div>
+        <label class="mt-check" style="align-self:end"><input type="checkbox" id="r-so" ${S.relSoValor ? 'checked' : ''}> ${t('Só quem tem valor a pagar')}</label>
+      </div>
+      <div class="mt-row" style="gap:6px 14px">${modsAno.map(m => `<label class="mt-check"><input type="checkbox" data-rm="${m.id}" ${S.relMods.includes(m.id) ? 'checked' : ''}> ${esc(m.nome)}</label>`).join('')}</div>
+      ${prev ? `<div class="fi-alert fi-alert--warning">${esc(t('{n} linha(s) com mês ainda não fechado entram como prévia (*).', { n: prev }))}</div>` : ''}
+    </div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-rel"><thead><tr><th>${t('Pessoa')}</th><th>${t('Módulo')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th><th class="mt-num">${t('Atingido')}</th>${modo === 'mes' ? `<th class="mt-num">${t('Faixa / %')}</th>` : ''}<th class="mt-num">${t('Prêmio / comissão')}</th><th class="mt-num">${t('Rec. tri')}</th><th class="mt-num">${t('Rec. ano')}</th><th class="mt-num">${t('Total a pagar')}</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td class="mt-strong">${esc(r.pessoa)}</td><td>${esc(r.modulo)}${r.fechado ? '' : ' <span class="fi-badge fi-badge--warning">' + t('prévia') + '</span>'}</td><td class="mt-num">${r.meta == null ? '—' : brl(r.meta)}</td><td class="mt-num">${brl(r.real)}</td><td class="mt-num">${pct(r.ating)}</td>${modo === 'mes' ? `<td class="mt-num">${faixaTxt(r.faixa)}</td>` : ''}<td class="mt-num">${brl(r.premio)}</td><td class="mt-num">${r.rtri ? brl(r.rtri) : ''}</td><td class="mt-num">${r.rano ? brl(r.rano) : ''}</td><td class="mt-num mt-strong">${brl(r.total)}</td></tr>`).join('')
+        || `<tr><td colspan="10"><div class="fi-empty">${t('Nada a mostrar com esses filtros.')}</div></td></tr>`}</tbody>
+      ${rows.length ? `<tfoot><tr><td>${t('Total geral')}</td><td></td><td></td><td></td><td></td>${modo === 'mes' ? '<td></td>' : ''}<td class="mt-num">${brl(sum(rows.map(r => r.premio)))}</td><td class="mt-num">${brl(sum(rows.map(r => r.rtri)))}</td><td class="mt-num">${brl(sum(rows.map(r => r.rano)))}</td><td class="mt-num mt-strong" id="r-total">${brl(sum(rows.map(r => r.total)))}</td></tr></tfoot>` : ''}</table></div></section>
+
+  <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Fechamento por módulo e individual')}</div>
+      <div class="fi-card__note">${t('PDF do fechamento do módulo (com anexos por pessoa), planilha do mês e fechamento individual em uma folha A4.')}</div></div></div>
+    <div class="fi-card__body" style="display:grid;gap:10px">
+      <div class="fi-filters">
+        <label class="fi-field"><span class="fi-label">${t('Módulo')}</span>${seletorModulo(S.relMod, 'r-mod').replace('<select', '<select data-filtro-ano="' + ano + '"')}</label>
+        <span class="mt-small mt-muted" style="align-self:center">${mr ? (fechadosDe(mr.id).has(mes) ? '✓ ' + esc(t('{m} fechado', { m: MESL(mes - 1) })) : esc(t('{m} ainda aberto — sai como prévia', { m: MESL(mes - 1) }))) : ''}</span>
+      </div>
+      <div class="mt-row">
+        <button class="fi-btn" id="r-fpdf">${t('PDF do fechamento do módulo')}</button>
+        <button class="fi-btn" id="r-fxls">${t('Excel do fechamento')}</button>
+        <button class="fi-btn" id="r-itodos">${t('PDFs individuais (todos)')}</button>
+      </div>
+      <div class="fi-table-wrap"><table class="fi-table" id="tb-ind"><thead><tr><th>${t('Pessoa')}</th><th class="mt-num">${t('Total a pagar')}</th><th>${t('Situação')}</th><th></th></tr></thead><tbody>
+        ${mr ? vincDe(mr.id).filter(x => noPer(mr, mes) || true).map(x => { const l = dadosMes(mr, x, mes); return `<tr><td class="mt-strong">${esc(x.v.nome)}${papelBadge(x)}</td><td class="mt-num">${brl(l.d.total)}</td><td>${l.fechado ? `<span class="fi-badge fi-badge--success">${t('Fechado')}</span>` : `<span class="fi-badge fi-badge--warning">${t('Prévia')}</span>`}</td>
+          <td class="mt-num"><button class="fi-btn" data-pdfi="${x.vendedor_id}">${t('PDF individual')}</button></td></tr>`; }).join('') : ''}</tbody></table></div>
+    </div></section>`;
+  const rel = () => aRelatorios();
+  $('#r-ano').onchange = e => { S.relAno = Number(e.target.value); S.relMes = null; S.relMods = null; rel(); };
+  $('#r-mes').onchange = e => { S.relMes = Number(e.target.value); rel(); };
+  $$('[data-rmodo]').forEach(b => b.onclick = () => { S.relModo = b.dataset.rmodo; rel(); });
+  $('#r-so').onchange = e => { S.relSoValor = e.target.checked; rel(); };
+  $$('[data-rm]').forEach(c => c.onchange = () => { S.relMods = $$('[data-rm]').filter(z => z.checked).map(z => z.dataset.rm); rel(); });
+  $('#r-pdf').onclick = () => { if (!rows.length) { notify(t('Nada a mostrar com esses filtros.'), 'warning'); return; } pdfPagamentos(ano, mes, modo, mods, rows); };
+  $('#r-xls').onclick = () => excelPagamentos(ano, mes, modo, rows);
+  // módulo
+  const selM = $('#r-mod'); $$('option', selM).forEach(o => { const z = byId(S.modulos, o.value); if (!z || z.ano !== ano) o.remove(); });
+  selM.onchange = e => { S.relMod = e.target.value; rel(); };
+  const linhasMod = () => vincDe(mr.id).map(x => dadosMes(mr, x, mes));
+  $('#r-fpdf').onclick = () => { if (!mr) return; const ls = linhasMod(), f0 = ls.find(l => l.f); pdfFechamento(mr, mes, ls, ls.length && ls.every(l => l.fechado), mes % 3 === 0, quandoDe(f0)); };
+  $('#r-fxls').onclick = () => { if (!mr) return; const ls = linhasMod(); exportarFechamento(mr, mes, ls, ls.length && ls.every(l => l.fechado), mes % 3 === 0); };
+  $('#r-itodos').onclick = () => { if (!mr) return; pdfIndividual(mr, linhasMod(), mes); };
+  $$('[data-pdfi]').forEach(b => b.onclick = () => { const x = vincDe(mr.id).find(z => z.vendedor_id === b.dataset.pdfi); if (x) pdfIndividual(mr, [dadosMes(mr, x, mes)], mes); });
+}
+
 /* ------------------------------ início ------------------------------ */
 /* ============================== VISIBILIDADE ============================== */
 const SECOES = [['inicio', 'Início'], ['painel', 'Meu painel'], ['estrategia', 'Estratégia'],
-  ['adm-distribuicao', 'Distribuição'], ['adm-modulos', 'Módulos de metas'], ['adm-fechamento', 'Lançamentos e fechamento'],
+  ['adm-distribuicao', 'Distribuição'], ['adm-modulos', 'Módulos de metas'], ['adm-fechamento', 'Lançamentos e fechamento'], ['adm-relatorios', 'Relatórios'],
   ['adm-vendedores', 'Vendedores e supervisores'], ['adm-tabelas', 'Tabelas de premiação'], ['adm-acessos', 'Acessos']];
 const padraoSecoes = admin => admin ? SECOES.map(z => z[0]) : ['inicio', 'painel', 'estrategia'];
 function secoesDe(email, admin) {
