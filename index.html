@@ -64,6 +64,7 @@
   .mt-bar>span{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--mt-c1);max-width:100%}
   .fi-progress>span{background:var(--mt-c1)!important}
   .mt-bar>i{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--fi-line-strong)}
+  .mt-modal--top{z-index:400!important}
   .mt-modal{position:fixed;inset:0;z-index:210;display:grid;place-items:center;padding:18px;background:rgba(9,12,16,.55)}
   .mt-modal__panel{width:min(760px,100%);max-height:calc(100vh - 36px);display:flex;flex-direction:column;border:1px solid var(--fi-line);border-radius:9px;background:var(--fi-surface);box-shadow:0 24px 64px rgba(0,0,0,.28)}
   .mt-modal__head{padding:14px 16px;border-bottom:1px solid var(--fi-line);font-weight:750;display:flex;align-items:center;gap:10px}
@@ -385,7 +386,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.024', DOC_DATA = '08/10/2026';
+const DOC_VERSAO = 'V.026', DOC_DATA = '08/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -558,7 +559,7 @@ const EN = {
   'Nenhum vendedor na equipe.':'No sales rep in the team.','Comissão pela própria carteira + premiação individual menor':'Commission on own portfolio + smaller individual incentive',
   'Premiação por meta':'Target incentive','Sim — meta individual, valores menores (já recebe comissão)':'Yes — individual target, smaller amounts (already earns commission)',
   'Sim — meta da equipe, tabela própria':'Yes — team target, own table','Tipo de meta no sistema':'Target type in the system','Premiação dos vendedores':'Sales rep incentives',
-  'Além da comissão, o vendedor também tem premiação por meta individual, com valores menores que os da supervisão, porque já é remunerado pela comissão. Cada público usa sua própria tabela de premiação (Meta de vendedor × Meta de supervisão).':'Besides commission, sales reps also earn an incentive on their individual target, with smaller amounts than supervision because they are already paid commission. Each group uses its own incentive table (Sales rep target × Supervision target).',
+  'Além da comissão, o vendedor também tem premiação por meta individual, com valores menores que os da supervisão, porque já é remunerado pela comissão. Cada público tem as próprias faixas de premiação, cadastradas na meta (Meta de vendedor × Meta de supervisão).':'Besides commission, sales reps also earn an incentive on their individual target, with smaller amounts than supervision because they are already paid commission. Each group has its own incentive tiers, set in the target (Sales rep target × Supervision target).',
   'Vendedores e supervisores':'Sales reps & supervisors','Nova pessoa':'New person','Função':'Role','Editar pessoa':'Edit person','Função *':'Role *',
   'Vendedor — comissão + premiação individual':'Sales rep — commission + individual incentive','Supervisor — premiação pela meta da equipe':'Supervisor — incentive on the team target',
   'Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago. Crie tabelas próprias para vendedores (premiação menor, pois já recebem comissão) e para a supervisão.':'Each tier sets the minimum achievement % and how much of the base incentive is paid. Create separate tables for sales reps (smaller incentive, since they already earn commission) and for supervision.',
@@ -723,6 +724,7 @@ const EN = {
   'Os {n} participante(s) passam a ter o papel do novo tipo (Supervisão 1/2 conforme a função cadastrada, ou vendedor).':'The {n} participant(s) take the role of the new type (Supervision 1/2 according to their registered role, or rep).',
   'Equipe (setores / módulos)':'Team (sectors / modules)',
   'Subir':'Move up','Descer':'Move down','Arraste para reordenar':'Drag to reorder','Ordem salva':'Order saved',
+  'Confirmar':'Confirm',
   'Visão geral de todos os módulos de metas.':'Overview of all target modules.',
   'Editar':'Edit','Concluir edição':'Finish editing','Salvar textos ({n})':'Save texts ({n})','Textos salvos ({n})':'Texts saved ({n})',
   'Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.':'Click any text with a dashed outline to change it. Clear it to restore the original text.',
@@ -781,7 +783,19 @@ function parseNum(s) {
   return isFinite(n) ? n : null;
 }
 function notify(msg, type) { UI() ? UI().notify(msg, { type: type || 'brand', duration: type === 'danger' ? 5000 : 2600 }) : alert(msg); }
-async function confirmar(o) { return UI() ? UI().confirm(Object.assign({ cancelText: t('Cancelar') }, o)) : window.confirm(o.message); }
+/* confirmação própria: abre sempre por cima de qualquer janela (inclusive a do módulo) */
+function confirmar(o) {
+  if (typeof window.__confirmResp === 'boolean') return Promise.resolve(window.__confirmResp);   // testes automatizados
+  return new Promise(res => {
+    let feito = false;
+    const el = modal({ titulo: o.title || t('Confirmar'), largura: 480, corpo: `<p style="margin:0;line-height:1.5">${esc(o.message || '')}</p>`,
+      botoes: [{ texto: o.cancelText || t('Cancelar'), acao: () => { feito = true; res(false); } },
+               { texto: o.confirmText || 'OK', primario: !o.danger, perigo: !!o.danger, acao: () => { feito = true; res(true); } }],
+      aoFechar: () => { if (!feito) res(false); } });
+    el.classList.add('mt-modal--top');
+    const bt = $$('.mt-modal__foot button', el).pop(); if (bt) bt.focus();
+  });
+}
 function erroMsg(e) {
   const m = (e && (e.message || e.details || e.hint)) || String(e);
   if (/row-level security|permission denied/i.test(m)) return t('Sem permissão para esta operação (ou o mês já está fechado).');
@@ -1466,7 +1480,7 @@ function vEstrategia() {
   }).join('') : `<div class="mt-muted">${t('Nenhuma tabela de premiação cadastrada ainda.')}</div>`;
 
   $('#view').innerHTML = `
-  <div class="es-hero">
+  <div class="es-hero" style="grid-template-columns:1fr">
     <section class="fi-card"><div class="fi-card__body">
       <div class="es-org">
         <div class="es-node es-sup"><b>${t('Supervisão')}</b><small>${t('Premiação pela meta consolidada da equipe')}</small></div>
@@ -1477,45 +1491,23 @@ function vEstrategia() {
         <div class="es-band">${t('Meta da equipe = soma das metas dos vendedores')}</div>
       </div>
     </div></section>
-    <section class="fi-card"><div class="fi-card__head"><div class="fi-card__title">${t('Lado a lado')}</div></div>
-      <div class="fi-card__body" style="padding-top:4px">
-      <table class="es-cmp"><thead><tr><th></th><th>${t('Vendedor')}</th><th>${t('Supervisão')}</th></tr></thead><tbody>
-        <tr><th>${t('Recebe')}</th><td>${t('Comissão sobre as vendas da carteira individual')}</td><td>${t('Premiação pelo atingimento da meta consolidada')}</td></tr>
-        <tr><th>${t('Premiação por meta')}</th><td class="es-yes">✓ ${t('Sim — meta individual, valores menores (já recebe comissão)')}</td><td class="es-yes">✓ ${t('Sim — meta da equipe, tabela própria')}</td></tr>
-        <tr><th>${t('Tipo de meta no sistema')}</th><td>${t('Meta de vendedor')}</td><td>${t('Meta de supervisão')}</td></tr>
-        <tr><th>${t('Base do cálculo')}</th><td>${t('Percentuais e critérios definidos pela empresa')}</td><td>${t('Tabela de premiação aprovada × % de atingimento')}</td></tr>
-        <tr><th>${t('Carteira própria')}</th><td class="es-yes">✓ ${t('Sim')}</td><td class="es-no">✕ ${t('Não')}</td></tr>
-        <tr><th>${t('Comissão por venda individual')}</th><td class="es-yes">✓ ${t('Sim')}</td><td class="es-no">✕ ${t('Não')}</td></tr>
-        <tr><th>${t('Pode prospectar, visitar e ajudar a fechar')}</th><td class="es-yes">✓ ${t('Sim')}</td><td class="es-yes">✓ ${t('Sim')}</td></tr>
-        <tr><th>${t('Ganha mais quando')}</th><td>${t('Vende mais para os clientes da sua carteira')}</td><td>${t('A equipe inteira performa melhor')}</td></tr>
-      </tbody></table></div></section>
   </div>
 
-  <div class="fi-alert fi-alert--info mt-mt2"><div><b>${t('Premiação dos vendedores')}</b> — ${t('Além da comissão, o vendedor também tem premiação por meta individual, com valores menores que os da supervisão, porque já é remunerado pela comissão. Cada público usa sua própria tabela de premiação (Meta de vendedor × Meta de supervisão).')}</div></div>
-  <div class="fi-eyebrow mt-mt2">${t('As 8 regras')}</div>
-  <div class="es-rules">${regras.map((r, i) => `<article class="es-rule"><div class="mt-row"><span class="es-n">${i + 1}</span><span class="es-tag">${t(r[2]).trim()}</span></div>
-    <h3>${t(r[0])}</h3><p>${t(r[1])}</p></article>`).join('')}</div>
-
+  <div class="fi-alert fi-alert--info mt-mt2"><div><b>${t('Premiação dos vendedores')}</b> — ${t('Além da comissão, o vendedor também tem premiação por meta individual, com valores menores que os da supervisão, porque já é remunerado pela comissão. Cada público tem as próprias faixas de premiação, cadastradas na meta (Meta de vendedor × Meta de supervisão).')}</div></div>
   <div class="fi-grid fi-grid--2 mt-mt2">
-    <section class="fi-card"><div class="fi-card__head"><div class="fi-card__title">${t('Cliente novo captado pela supervisão')}</div><span class="es-tag">5 · 4</span></div>
+    <section class="fi-card"><div class="fi-card__head"><div class="fi-card__title">${t('Cliente novo captado pela supervisão')}</div></div>
       <div class="fi-card__body"><div class="es-flow">
         <div class="es-step"><b>1. ${t('Supervisão capta')}</b><span>${t('prospecção e visita')}</span></div>
         <div class="es-step"><b>2. ${t('Empresa distribui')}</b><span>${t('conforme critérios definidos')}</span></div>
         <div class="es-step"><b>3. ${t('Entra na carteira')}</b><span>${t('de um vendedor')}</span></div>
         <div class="es-step es-hl"><b>4. ${t('Comissão do vendedor')}</b><span>${t('vendas futuras deste cliente')}</span></div>
       </div></div></section>
-    <section class="fi-card"><div class="fi-card__head"><div class="fi-card__title">${t('Transferência de carteira')}</div><span class="es-tag">6</span></div>
+    <section class="fi-card"><div class="fi-card__head"><div class="fi-card__title">${t('Transferência de carteira')}</div></div>
       <div class="fi-card__body"><div class="es-tl" data-vig="${esc(t('Data de vigência (aprovada pela direção)'))}">
         <div><b>${t('Vendas anteriores')}</b><div class="mt-muted">${t('continuam atribuídas ao vendedor de origem')} (${t('Vendedor A')})</div></div>
         <div><b>${t('Vendas a partir da vigência')}</b><div class="mt-muted">${t('passam para o novo vendedor')} (${t('Vendedor B')})</div></div>
       </div></div></section>
-  </div>
-
-  <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Exemplo: premiação da supervisão')}</div>
-    <div class="fi-card__note">${tb ? esc(t('Conforme a tabela “{n}” — prêmio-base ilustrativo de {v}.', { n: tb.nome, v: brl0(baseEx) })) : ''}</div></div><span class="es-tag">7 · 8</span></div>
-    <div class="fi-card__body"><div class="es-g mt-small mt-muted" style="font-weight:700;text-transform:uppercase"><span>${t('Atingimento da equipe')}</span><span></span><span class="mt-num">${t('Supervisão recebe')}</span></div>
-      <div class="es-gauge mt-mt">${exemplo}</div>
-      <p class="mt-help mt-mt">${t('O ganho da supervisão depende do resultado coletivo — quanto mais a equipe vende, maior a premiação.')}</p></div></section>`;
+  </div>`;
 }
 
 /* ============================ ADMINISTRAÇÃO ============================ */
@@ -3100,11 +3092,11 @@ function pdfPagamentos(ano, mes, modo, mods, rows) {
     const body = [], sub = new Set(), ini = new Set();
     const SEP = 10;
     pessoas.forEach((p, ip) => {
-      if (ip) body.push([{ content: '', colSpan: SEP, styles: { minCellHeight: 2.6, cellPadding: 0, lineWidth: 0, fillColor: [255, 255, 255] } }]);   // linha em branco entre vendedores
       const rs = rows.filter(r => r.pessoa === p);
       ini.add(body.length);
       rs.forEach((r, k) => body.push([r.pessoa, r.modulo, r.meta == null ? '-' : brl(r.meta), brl(r.real), pct(r.ating), modo === 'mes' ? faixaTxt(r.faixa) : '', brl(r.premio), r.rtri ? brl(r.rtri) : '', r.rano ? brl(r.rano) : '', brl(r.total)]));
-      if (rs.length > 1) { sub.add(body.length); body.push([t('Subtotal {n}', { n: p }), '', '', '', '', '', brl(sum(rs.map(r => r.premio))), brl(sum(rs.map(r => r.rtri))), brl(sum(rs.map(r => r.rano))), brl(sum(rs.map(r => r.total)))]); }
+      sub.add(body.length); body.push([t('Subtotal {n}', { n: p }), '', '', '', '', '', brl(sum(rs.map(r => r.premio))), brl(sum(rs.map(r => r.rtri))), brl(sum(rs.map(r => r.rano))), brl(sum(rs.map(r => r.total)))]);
+      body.push([{ content: '', colSpan: SEP, styles: { minCellHeight: 3.2, cellPadding: 0, lineWidth: 0, fillColor: [255, 255, 255] } }]);   // linha em branco após o subtotal
     });
     const cols = {}; for (let k = 2; k <= 9; k++) cols[k] = { halign: 'right' };
     y = pdfTabela(doc, { startY: y + 1, head: [[t('Pessoa'), t('Módulo'), t('Meta'), t('Realizado'), t('Atingido'), modo === 'mes' ? t('Faixa / %') : '', t('Prêmio / comissão'), t('Rec. tri'), t('Rec. ano'), t('Total a pagar')].map(pdfTxt)],
