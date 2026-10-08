@@ -242,6 +242,7 @@
   .mt-fbt:hover{color:var(--fi-text);border-color:var(--fi-line-strong)}button.mt-fbt--on,span.mt-fbt--on{color:var(--fi-text);background:var(--fi-surface-alt);border-color:var(--fi-line-strong)}
   span.mt-fbt--on{cursor:default}.mt-fbt--off{opacity:.3;cursor:not-allowed}
   .mt-meta__fx{font-size:.7rem;font-weight:700}
+  .mt-pdfver{width:100%;height:min(78vh,1000px);border:1px solid var(--fi-line);border-radius:6px;background:#fff}.mt-nowrap{white-space:nowrap}
   .mt-mtab .mt-cel.mt-man{font-weight:800}.mt-mtab .mt-cel::placeholder{color:var(--fi-muted);opacity:.85}
   .mt-mtab .mt-pg .mt-cel{min-width:44px;padding:1px 2px;font-size:.64rem;min-height:21px}.mt-mtab .mt-pg td{white-space:nowrap;font-size:.64rem}
   body.mt-a4 .mt-mtab .mt-pg td,body.mt-a4 .mt-mtab th{padding:2px 2px}.mt-mtab th{font-size:.58rem}
@@ -433,7 +434,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.034', DOC_DATA = '07/10/2026';
+const DOC_VERSAO = 'V.035', DOC_DATA = '07/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -728,7 +729,7 @@ const EN = {
   'O mês final não pode ser antes do inicial.':'The end month cannot be before the start month.','Aplicar prêmio-base':'Apply base prize','Aplicar':'Apply',
   'Aplicar {v} como prêmio-base mensal de todos os participantes nos meses abertos do período?':'Apply {v} as the monthly base prize for all participants in the open months of the period?',
   'Fora do período da meta especial':'Outside the special target period','Preenche os meses abertos de todos com o prêmio-base do módulo; depois é só salvar.':'Fills everyone’s open months with the module base prize; then just save.',
-  'Aplicar padrão {v}':'Apply default {v}','Premiação':'Incentive','Prêm. aplicável':'Applicable bonus','Editar parâmetros':'Edit parameters','Metas e lançamentos':'Targets & actuals','{n}º tri':'Q{n}','rec.':'rec.','Fora do período da meta':'Outside the target period','Feche antes o mês nas metas da equipe':'Close the month in the team targets first','Vendas':'Sales','Alcance':'Achievement','Tabela de %':'% table','Provisório: meta e vendas da supervisão podem ser digitadas. Campo vazio = soma da equipe (em cinza).':'Temporary: supervision target and sales can be typed. Empty field = team total (in grey).','fora da distribuição':'outside the allocation','Prêmio-base padrão {v}/mês':'Default base prize {v}/month',
+  'Aplicar padrão {v}':'Apply default {v}','Premiação':'Incentive','Prêm. aplicável':'Applicable bonus','Visualizar':'View','Abrir em nova aba':'Open in new tab','Visualizar (todos)':'View (all)','Editar parâmetros':'Edit parameters','Metas e lançamentos':'Targets & actuals','{n}º tri':'Q{n}','rec.':'rec.','Fora do período da meta':'Outside the target period','Feche antes o mês nas metas da equipe':'Close the month in the team targets first','Vendas':'Sales','Alcance':'Achievement','Tabela de %':'% table','Provisório: meta e vendas da supervisão podem ser digitadas. Campo vazio = soma da equipe (em cinza).':'Temporary: supervision target and sales can be typed. Empty field = team total (in grey).','fora da distribuição':'outside the allocation','Prêmio-base padrão {v}/mês':'Default base prize {v}/month',
   'Tabela antiga de comissão: a comissão agora é definida dentro da Meta especial, em Módulos de metas. Pode excluir esta tabela se não estiver em uso.':'Old commission table: commission is now set inside the Special target, in Target modules. You may delete this table if it is not in use.',
   'Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago. Comissão sobre vendas é definida na Meta especial, em Módulos de metas.':'Each tier sets the minimum achievement % and how much of the base prize is paid. Commission on sales is set in the Special target, in Target modules.',
   'Relatórios':'Reports','PDFs e planilhas deste mês: ADM › Relatórios.':'PDFs and spreadsheets for this month: ADM › Reports.','Fechar {m}':'Close {m}','{m} fechado':'{m} closed',
@@ -2955,6 +2956,16 @@ function pdfAnexo(doc, m, x, c, mesRef, novaPagina) {
   }
   return yFim;
 }
+/* PDF: baixa o arquivo ou, no modo "Visualizar", mostra na tela */
+let PDF_VER = false;
+function salvarPdf(doc, nome) {
+  if (!PDF_VER) { doc.save(nome); return; }
+  const url = URL.createObjectURL(doc.output('blob'));
+  modal({ titulo: nome, largura: 1100, aoFechar: () => URL.revokeObjectURL(url),
+    corpo: `<iframe class="mt-pdfver" src="${url}" title="${esc(nome)}"></iframe>`,
+    botoes: [{ texto: t('Baixar PDF'), esquerda: true, acao: () => { doc.save(nome); return false; } }, { texto: t('Abrir em nova aba'), acao: () => { window.open(url, '_blank'); return false; } }, { texto: t('Fechar'), primario: true }] });
+}
+const verPdf = fn => { PDF_VER = true; try { fn(); } finally { PDF_VER = false; } };
 function pdfFechamento(m, mes, linhas, fechado, ehTri, quando) {
   if (!pdfPronto()) return;
   const tb = tabelaModulo(m);
@@ -2992,7 +3003,7 @@ function pdfFechamento(m, mes, linhas, fechado, ehTri, quando) {
     pdfAnexo(doc, m, x, calcular(tabelaDe(m, x), x.metas, x.premios, real, mes), mes, true);
   });
   pdfRodapes(doc);
-  doc.save(`fechamento_${nomeArq(m.nome)}_${m.ano}_${String(mes).padStart(2, '0')}${fechado ? '' : '_previa'}.pdf`);
+  salvarPdf(doc, `fechamento_${nomeArq(m.nome)}_${m.ano}_${String(mes).padStart(2, '0')}${fechado ? '' : '_previa'}.pdf`);
 }
 function pdfVendedor(m, x, mes) {
   if (!pdfPronto() || !x) return;
@@ -3136,7 +3147,7 @@ function pdfPessoas(pessoas, ano, mes) {
   const doc = pdfNovo(t('Fechamento individual — {m}/{a}', { m: MESL(mes - 1), a: ano }), t('Todas as metas'), '', 'portrait');
   pessoas.forEach((v, k) => { if (k) { doc.addPage('a4', 'portrait'); pdfCabecalho(doc); } paginaPessoa(doc, v, ano, mes, fsDe(v)); });
   pdfRodapes(doc, true);
-  doc.save(pessoas.length === 1 ? `fechamento_individual_${nomeArq(pessoas[0].nome)}_${ano}_${String(mes).padStart(2, '0')}.pdf` : `fechamentos_individuais_${ano}_${String(mes).padStart(2, '0')}.pdf`);
+  salvarPdf(doc, pessoas.length === 1 ? `fechamento_individual_${nomeArq(pessoas[0].nome)}_${ano}_${String(mes).padStart(2, '0')}.pdf` : `fechamentos_individuais_${ano}_${String(mes).padStart(2, '0')}.pdf`);
 }
 
 /* ---------- Relatório geral de pagamentos: 1 folha A4 (paisagem) ---------- */
@@ -3193,7 +3204,7 @@ function pdfPagamentos(ano, mes, modo, mods, rows) {
     return doc;
   };
   const doc = pdfUmaPagina(montar);
-  doc.save(`pagamentos_${ano}_${modo === 'acum' ? 'jan-' : ''}${String(mes).padStart(2, '0')}.pdf`);
+  salvarPdf(doc, `pagamentos_${ano}_${modo === 'acum' ? 'jan-' : ''}${String(mes).padStart(2, '0')}.pdf`);
 }
 function excelPagamentos(ano, mes, modo, rows) {
   if (!window.XLSX) { notify(t('Biblioteca de Excel ainda carregando, tente de novo.'), 'warning'); return; }
@@ -3224,7 +3235,7 @@ function aRelatorios() {
   $('#adm-body').innerHTML = `
   <section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Relatório geral de pagamentos')}${dica(t('Junta todos os módulos escolhidos, pessoa a pessoa, com prêmio ou comissão, recuperações e total a pagar. O PDF é ajustado para caber em uma folha A4. Meses fechados usam os valores congelados; meses abertos entram como prévia (marcados com *).'))}</div>
       <div class="fi-card__note">${t('Para conferência e envio ao financeiro — cabe em uma folha A4.')}</div></div>
-      <div class="mt-row"><button class="fi-btn" id="r-xls">${t('Exportar Excel')}</button><button class="fi-btn fi-btn--primary" id="r-pdf">${t('Gerar PDF de pagamentos')}</button></div></div>
+      <div class="mt-row"><button class="fi-btn" id="r-ver">${t('Visualizar')}</button><button class="fi-btn" id="r-xls">${t('Exportar Excel')}</button><button class="fi-btn fi-btn--primary" id="r-pdf">${t('Gerar PDF de pagamentos')}</button></div></div>
     <div class="fi-card__body" style="display:grid;gap:10px">
       <div class="fi-filters">
         <label class="fi-field"><span class="fi-label">${t('Ano')}</span><select class="fi-select" id="r-ano" style="width:auto">${anos.map(a => `<option value="${a}" ${a === ano ? 'selected' : ''}>${a}</option>`).join('')}</select></label>
@@ -3242,12 +3253,12 @@ function aRelatorios() {
 
   <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Fechamento individual')}${dica(t('Uma folha A4 por pessoa (vendedor ou supervisor) com todas as metas dela no mês: valores de cada meta, total a pagar, evolução no ano e regras. Usa o mês de referência escolhido acima.'))}</div>
       <div class="fi-card__note">${esc(t('Por pessoa, com todas as metas — {m}/{a}.', { m: MESL(mes - 1), a: ano }))}</div></div>
-      <button class="fi-btn" id="r-ptodos">${t('PDFs individuais (todos)')}</button></div>
+      <button class="fi-btn" id="r-pver">${t('Visualizar (todos)')}</button><button class="fi-btn" id="r-ptodos">${t('PDFs individuais (todos)')}</button></div>
     <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-ind"><thead><tr><th>${t('Pessoa')}</th><th>${t('Função')}</th><th>${t('Metas')}</th><th class="mt-num">${t('Total a pagar')}</th><th>${t('Situação')}</th><th></th></tr></thead><tbody>
       ${pessoasComMeta(ano).map(v => { const rp = resumoPessoa(v, ano, mes); return `<tr><td class="mt-strong">${esc(v.nome)}</td><td>${funcaoNome(v)}</td>
         <td style="white-space:normal">${rp.itens.map(o => `<span class="fi-badge" style="margin:1px">${esc(o.m.nome)}</span>`).join(' ')}</td><td class="mt-num mt-strong">${brl(rp.total)}</td>
         <td>${rp.fechado ? `<span class="fi-badge fi-badge--success">${t('Fechado')}</span>` : `<span class="fi-badge fi-badge--warning">${t('Prévia')}</span>`}</td>
-        <td class="mt-num"><button class="fi-btn" data-pdfp="${v.id}">${t('PDF individual')}</button></td></tr>`; }).join('') || `<tr><td colspan="6"><div class="fi-empty">${t('Ninguém atrelado a metas neste ano.')}</div></td></tr>`}</tbody></table></div></section>
+        <td class="mt-num mt-nowrap"><button class="fi-btn" data-verp="${v.id}">${t('Visualizar')}</button> <button class="fi-btn" data-pdfp="${v.id}">${t('PDF individual')}</button></td></tr>`; }).join('') || `<tr><td colspan="6"><div class="fi-empty">${t('Ninguém atrelado a metas neste ano.')}</div></td></tr>`}</tbody></table></div></section>
 
   <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Fechamento do módulo')}</div>
       <div class="fi-card__note">${t('PDF do fechamento de um módulo (com anexos por pessoa) e planilha do mês.')}</div></div></div>
@@ -3257,6 +3268,7 @@ function aRelatorios() {
         <span class="mt-small mt-muted" style="align-self:center">${mr ? (fechadosDe(mr.id).has(mes) ? '✓ ' + esc(t('{m} fechado', { m: MESL(mes - 1) })) : esc(t('{m} ainda aberto — sai como prévia', { m: MESL(mes - 1) }))) : ''}</span>
       </div>
       <div class="mt-row">
+        <button class="fi-btn" id="r-fver">${t('Visualizar')}</button>
         <button class="fi-btn" id="r-fpdf">${t('PDF do fechamento do módulo')}</button>
         <button class="fi-btn" id="r-fxls">${t('Excel do fechamento')}</button>
       </div>
@@ -3269,6 +3281,9 @@ function aRelatorios() {
   $$('[data-rm]').forEach(c => c.onchange = () => { S.relMods = $$('[data-rm]').filter(z => z.checked).map(z => z.dataset.rm); rel(); });
   $('#r-pdf').onclick = () => { if (!rows.length) { notify(t('Nada a mostrar com esses filtros.'), 'warning'); return; } pdfPagamentos(ano, mes, modo, mods, rows); };
   $('#r-xls').onclick = () => excelPagamentos(ano, mes, modo, rows);
+  $('#r-ver').onclick = () => verPdf(() => $('#r-pdf').onclick());
+  $('#r-fver').onclick = () => verPdf(() => $('#r-fpdf').onclick());
+  $('#r-pver').onclick = () => verPdf(() => $('#r-ptodos').onclick());
   // módulo
   const selM = $('#r-mod'); $$('option', selM).forEach(o => { const z = byId(S.modulos, o.value); if (!z || z.ano !== ano) o.remove(); });
   selM.onchange = e => { S.relMod = e.target.value; rel(); };
@@ -3277,6 +3292,7 @@ function aRelatorios() {
   $('#r-fxls').onclick = () => { if (!mr) return; const ls = linhasMod(); exportarFechamento(mr, mes, ls, ls.length && ls.every(l => l.fechado), mes % 3 === 0); };
   $('#r-ptodos').onclick = () => pdfPessoas(pessoasComMeta(ano), ano, mes);
   $$('[data-pdfp]').forEach(b => b.onclick = () => { const v = byId(S.vendedores, b.dataset.pdfp); if (v) pdfPessoas([v], ano, mes); });
+  $$('[data-verp]').forEach(b => b.onclick = () => { const v = byId(S.vendedores, b.dataset.verp); if (v) verPdf(() => pdfPessoas([v], ano, mes)); });
 }
 
 /* ------------------------------ início ------------------------------ */
