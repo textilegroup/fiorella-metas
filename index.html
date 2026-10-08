@@ -235,6 +235,18 @@
   .mt-add{width:auto!important;max-width:280px;min-height:26px!important;padding:2px 8px;font-size:.72rem;margin-right:10px}
   .mt-dtab td{vertical-align:middle}.mt-dtab .mt-cel{min-width:92px}
   .mt-mlab{display:block;font-size:.58rem;color:var(--fi-muted);font-weight:700;margin-bottom:1px}
+  .mt-pgrid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
+  .mt-pess{overflow:hidden}.mt-fior__scroll{overflow-x:auto}.mt-fior{margin-top:12px;overflow:hidden;border-color:var(--mt-c2)}
+  .mt-pess__head{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--fi-line);background:var(--fi-surface-alt)}
+  .mt-pess__head b{font-size:.86rem}.mt-pess__head .fi-badge{font-size:.6rem}
+  .mt-pess__tab{width:100%;border-collapse:collapse;font-size:.72rem}
+  .mt-pess__tab th{padding:4px 8px;text-align:left;color:var(--fi-muted);font-size:.6rem;text-transform:uppercase;font-weight:700;border-bottom:1px solid var(--fi-line)}
+  .mt-pess__tab td{padding:4px 8px;border-bottom:1px solid var(--fi-line);font-variant-numeric:tabular-nums}
+  .mt-pess__tab th.mt-num{text-align:right}
+  .mt-pess__meta{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mt-pess__bar{width:70px}.mt-pess__bar .mt-bar{height:5px;min-width:50px}
+  .mt-hkpis small{display:block;color:var(--fi-muted);font-size:.6rem}
+  @media(max-width:760px){.mt-pgrid2{grid-template-columns:1fr}.mt-fior .mt-hkpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}.mt-pess__bar{display:none}}
   .mt-x{width:22px;height:22px;border:1px solid var(--fi-line);border-radius:5px;background:var(--fi-surface);color:var(--fi-muted);cursor:pointer;font-size:.62rem}
   .mt-x:hover{color:var(--fi-danger);border-color:var(--fi-danger)}
   .mt-modnome{display:flex;align-items:flex-start;gap:8px}
@@ -405,7 +417,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.028', DOC_DATA = '08/10/2026';
+const DOC_VERSAO = 'V.029', DOC_DATA = '08/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -750,6 +762,10 @@ const EN = {
   'Remove {n} desta meta, com os valores dele. Lançamentos e fechamentos já gravados permanecem.':'Removes {n} from this target, with their values. Recorded actuals and closings remain.',
   'trimestres e meses':'quarters and months','Trimestre':'Quarter','1º mês':'1st month','2º mês':'2nd month','3º mês':'3rd month','Soma dos meses':'Sum of months','Diferença':'Difference',
   'Planejamento anual':'Annual plan','do planejamento':'of plan','Soma dos setores':'Sum of sectors',
+  'Painel por vendedor e supervisor.':'Dashboard per sales rep and supervisor.','Suas metas.':'Your targets.','Nenhuma meta liberada para você ainda.':'No target released to you yet.',
+  'Assim que a gestão liberar a visualização, ela aparece aqui.':'As soon as management releases it, it shows up here.','Todas as vendas × planejamento {a}':'All sales × plan {a}',
+  'Vendas · {p}':'Sales · {p}','Planejado · {p}':'Planned · {p}','Vendas no ano (até {m})':'Sales YTD (to {m})','% do anual':'% of annual','Setor':'Sector','Vendas no ano':'Sales YTD',
+  'Sem setor':'No sector','Subsídio (diretoria)':'Subsidy (board)','Sem planejamento salvo para {a} em ADM › Distribuição.':'No plan saved for {a} in ADM › Allocation.',
   'Visão geral de todos os módulos de metas.':'Overview of all target modules.',
   'Editar':'Edit','Concluir edição':'Finish editing','Salvar textos ({n})':'Save texts ({n})','Textos salvos ({n})':'Texts saved ({n})',
   'Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.':'Click any text with a dashed outline to change it. Clear it to restore the original text.',
@@ -1234,55 +1250,64 @@ function vInicio() {
   const rotPer = sel === 'ytd' ? t('Jan. até {m}', { m: MES(MES_ATUAL - 1).toLowerCase() }) : MESL(sel - 1);
   const opts = MESL_PT.map((_, i) => `<option value="${i + 1}" ${sel === i + 1 ? 'selected' : ''}>${MESL(i)}${i + 1 === MES_ATUAL ? ' · ' + t('atual') : ''}</option>`).join('')
     + `<option value="ytd" ${sel === 'ytd' ? 'selected' : ''}>${t('Jan. até {m}', { m: MES(MES_ATUAL - 1).toLowerCase() })}</option>`;
-  setHead(t('Comercial'), t('Metas e Premiação'),
-    S.veTudo ? t('Visão geral de todos os módulos de metas.') : t('Módulos de metas liberados para você.'),
+  setHead(t('Comercial'), t('Metas e Premiação'), S.veTudo ? t('Painel por vendedor e supervisor.') : t('Suas metas.'),
     `<label class="fi-field" style="gap:3px"><span class="fi-label">${t('Período')}</span><select class="fi-select" id="h-mes" style="min-height:34px;padding:4px 10px;width:auto">${opts}</select></label>`);
   $('#h-mes').onchange = e => { S.homeMes = e.target.value === 'ytd' ? 'ytd' : Number(e.target.value); vInicio(); };
   const meusIds = new Set(meusVendedores().map(v => v.id));
-  const mods = S.modulos.filter(m => S.veTudo || (m.visivel && m.ativo && S.mv.some(x => x.modulo_id === m.id && meusIds.has(x.vendedor_id))));
-  if (!mods.length) {
-    $('#view').innerHTML = `<div class="fi-card"><div class="fi-empty"><div><strong>${S.veTudo ? t('Nenhum módulo de metas criado ainda.') : t('Nenhum módulo de metas liberado ainda.')}</strong>
-      <p class="mt-small">${S.admin ? t('Crie o primeiro em ADM › Módulos de metas.') :
-        (meusVendedores().length ? t('Assim que a gestão liberar a visualização, ele aparece aqui.') : esc(t('Seu e-mail ({e}) ainda não está cadastrado como vendedor.', { e: S.email })))}</p></div></div></div>`;
+  const mods = S.modulos.filter(m => m.ativo && (S.veTudo || m.visivel));
+  // pessoas e as metas de cada uma
+  const pessoas = new Map();
+  mods.forEach(m => vincDe(m.id).forEach(x => {
+    if (!S.veTudo && !meusIds.has(x.vendedor_id)) return;
+    if (!pessoas.has(x.vendedor_id)) pessoas.set(x.vendedor_id, { v: x.v, papel: x.papel, itens: [] });
+    const p = pessoas.get(x.vendedor_id); p.itens.push({ m, x, r: resumoPer(m, x, sel) });
+    if (ORDEM_PAPEL[x.papel] > ORDEM_PAPEL[p.papel]) p.papel = x.papel;
+  }));
+  const lista = [...pessoas.values()].sort((a, b) => (ORDEM_PAPEL[a.papel] - ORDEM_PAPEL[b.papel]) || a.v.nome.localeCompare(b.v.nome, 'pt-BR'));
+  if (!lista.length && !S.veTudo) {
+    $('#view').innerHTML = `<div class="fi-card"><div class="fi-empty"><div><strong>${t('Nenhuma meta liberada para você ainda.')}</strong>
+      <p class="mt-small">${meusVendedores().length ? t('Assim que a gestão liberar a visualização, ela aparece aqui.') : esc(t('Seu e-mail ({e}) ainda não está cadastrado como vendedor.', { e: S.email }))}</p></div></div></div>`;
     return;
   }
-  const anos = [...new Set(mods.map(m => m.ano))].sort((a, b) => b - a);
-  const somaR = rs => { const ok = rs.filter(r => r.meta != null); return { meta: ok.length ? sum(ok.map(r => r.meta)) : null, real: ok.some(r => r.real != null) ? sum(ok.map(r => r.real || 0)) : null }; };
-  let html = '<div class="mt-homegrid">';
-  anos.forEach(ano => {
-    if (anos.length > 1) html += `<div class="fi-eyebrow mt-homeano">${ano}</div>`;
-    mods.filter(m => m.ano === ano).forEach(m => {
-      const vinc = vincDe(m.id).filter(x => S.veTudo || x.v.email === S.email);
-      const linhas = vinc.map(x => ({ x, r: resumoPer(m, x, sel) }));
-      const soLid = linhas.every(l => ehLider(l.x));
-      let tot = somaR(linhas.filter(l => !ehLider(l.x) || soLid).map(l => l.r));
-      let equipe = '';
-      if (ehSup(m)) {
-        const eq = equipeUniao(m).map(z => ({ z, r: resumoPer(z.baseMod, z, sel) }));
-        tot = somaR(eq.map(o => o.r));
-        const msS = metaSetores(m, null);
-        if (msS) { const ate = ateAtual(m.ano); tot.meta = sel === 'ytd' ? (ate ? sum(msS.slice(0, ate)) : null) : msS[sel - 1]; }
-        if (eq.length && S.veTudo) equipe = `<div class="mt-hsub">${t('Painel da equipe')} · ${eq.length}<span>${rotPer}: <b style="color:${corAt(atDe(tot))}">${pct(atDe(tot))}</b></span></div>
-          <div class="mt-mgrid">${eq.map(({ z, r }) => miniCard(z, r)).join('')}</div>`;
-      }
-      const at = atDe(tot), tb = tabelaModulo(m), fech = ultimoFechado(m.id);
-      html += `<section class="fi-card mt-hmod">
-        <div class="fi-card__head">
-          <div class="mt-hmod__tit"><div class="fi-card__title" title="${esc(m.nome)}">${esc(m.nome)}</div>
-            <div class="mt-row">${tipoBadge(m)}${m.setor ? `<span class="fi-badge">${t(m.setor === 'bordados' ? 'Bordados' : 'Industrial')}</span>` : ''}${S.veTudo && !m.visivel ? `<span class="fi-badge">${t('Oculto')}</span>` : ''}${!m.ativo ? `<span class="fi-badge fi-badge--warning">${t('Inativo')}</span>` : ''}</div></div>
-          <div class="fi-card__note">${esc(tb ? tb.nome : '—')}</div>
-          <div class="mt-hkpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
-            <div><span>${t('Meta')} · ${rotPer}</span><b>${tot.meta != null ? brl0(tot.meta) : '—'}</b></div>
-            <div><span>${t('Realizado')}</span><b>${tot.real != null ? brl0(tot.real) : '—'}</b></div>
-            <div><span>${t('Atingido')}</span><b style="color:${corAt(at)}">${pct(at)}</b></div>
-            <div><span>${t('Fechado até')}</span><b>${fech ? MES(fech - 1) : '—'}</b></div>
-          </div></div>
-        <div class="fi-card__body"><div class="mt-mgrid">
-        ${linhas.map(({ x, r }) => miniCard(x, r)).join('') || `<div class="mt-muted mt-small">${t('Nenhum vendedor atrelado.')}</div>`}
-        </div>${equipe}</div></section>`;
-    });
-  });
-  $('#view').innerHTML = html + '</div>';
+  const barra = a => `<div class="mt-bar"><span style="width:${Math.min(100, (a || 0) / 1.1 * 100)}%"></span><i style="left:${90 / 1.1}%"></i><i style="left:${100 / 1.1}%"></i></div>`;
+  const cardPessoa = p => `<section class="fi-card mt-pess">
+      <div class="mt-pess__head"><b>${esc(p.v.nome)}</b><span class="fi-badge">${funcaoNome(p.v)}</span></div>
+      <table class="mt-pess__tab"><thead><tr><th>${t('Meta')}</th><th class="mt-num">${t('Meta R$')}</th><th class="mt-num">${t('Realizado')}</th><th class="mt-num">%</th><th></th></tr></thead><tbody>
+      ${p.itens.map(({ m, r }) => { const a = atDe(r); return `<tr><td class="mt-pess__meta" title="${esc(m.nome)}">${esc(m.nome)}</td>
+        <td class="mt-num">${r.meta == null ? '—' : brlC(r.meta)}</td><td class="mt-num">${r.real == null ? '—' : brlC(r.real)}</td>
+        <td class="mt-num mt-strong" style="color:${corAt(a)}">${pct(a)}</td><td class="mt-pess__bar">${barra(a)}</td></tr>`; }).join('')}
+      </tbody></table></section>`;
+  // painel Fiorella: todas as vendas × planejamento
+  let fiorella = '';
+  if (S.veTudo) {
+    const ano = HOJE.getFullYear(), d = (S.dist || []).find(z => z.ano === ano);
+    const ate = MES_ATUAL, meses = sel === 'ytd' ? Array.from({ length: ate }, (_, i) => i) : [sel - 1];
+    const vendMods = S.modulos.filter(m => m.ano === ano && m.ativo && m.tipo === 'vendedor');
+    const vendasDe = (lst, idx) => sum(lst.flatMap(m => vincDe(m.id).map(x => sum(idx.map(i => Number(realDe(m.id, x.vendedor_id)[i]) || 0)))));
+    const planoDe = (k, idx) => d && Array.isArray(d['meses_' + k]) ? sum(idx.map(i => Number(d['meses_' + k][i]) || 0)) : null;
+    const anoIdx = Array.from({ length: 12 }, (_, i) => i), ateIdx = Array.from({ length: ate }, (_, i) => i);
+    const linhas = SETORES.map(([k, n]) => { const ms = vendMods.filter(m => m.setor === k);
+      return { n: t(n), pp: planoDe(k, meses), vp: vendasDe(ms, meses), pa: d ? Number(d[k]) || 0 : null, va: vendasDe(ms, ateIdx) }; });
+    const semSetor = vendMods.filter(m => !m.setor);
+    if (semSetor.length) linhas.push({ n: t('Sem setor'), pp: null, vp: vendasDe(semSetor, meses), pa: null, va: vendasDe(semSetor, ateIdx) });
+    const vp = sum(linhas.map(l => l.vp)), va = sum(linhas.map(l => l.va));
+    const pp = d ? sum(SETORES.map(([k]) => planoDe(k, meses) || 0)) : null, plano = d ? Number(d.planejamento) || 0 : null;
+    const kp = (r, v, extra) => `<div><span>${r}</span><b>${v}</b>${extra ? `<small>${extra}</small>` : ''}</div>`;
+    fiorella = `<section class="fi-card mt-fior">
+      <div class="mt-pess__head"><b>Fiorella</b><span class="mt-small mt-muted">${esc(t('Todas as vendas × planejamento {a}', { a: ano }))}</span></div>
+      <div class="mt-hkpis" style="grid-template-columns:repeat(6,minmax(0,1fr));padding:8px 12px">
+        ${kp(t('Vendas · {p}', { p: rotPer }), brl0(vp))}${kp(t('Planejado · {p}', { p: rotPer }), pp == null ? '—' : brl0(pp))}${kp('%', `<span style="color:${corAt(pp ? vp / pp : null)}">${pct(pp ? vp / pp : null)}</span>`)}
+        ${kp(t('Vendas no ano (até {m})', { m: MES(ate - 1) }), brl0(va))}${kp(t('Planejamento anual'), plano == null ? '—' : brl0(plano))}${kp(t('% do anual'), pct(plano ? va / plano : null))}
+      </div>
+      ${barra(plano ? va / plano : null).replace('class="mt-bar"', 'class="mt-bar" style="margin:0 12px 8px"')}
+      <div class="mt-fior__scroll"><table class="mt-pess__tab"><thead><tr><th>${t('Setor')}</th><th class="mt-num">${t('Planejado · {p}', { p: rotPer })}</th><th class="mt-num">${t('Vendas · {p}', { p: rotPer })}</th><th class="mt-num">%</th><th class="mt-num">${t('Planejamento anual')}</th><th class="mt-num">${t('Vendas no ano')}</th><th class="mt-num">${t('% do anual')}</th></tr></thead><tbody>
+      ${linhas.map(l => `<tr><td class="mt-strong">${esc(l.n)}</td><td class="mt-num">${l.pp == null ? '—' : brl0(l.pp)}</td><td class="mt-num">${brl0(l.vp)}</td><td class="mt-num mt-strong" style="color:${corAt(l.pp ? l.vp / l.pp : null)}">${pct(l.pp ? l.vp / l.pp : null)}</td>
+        <td class="mt-num">${l.pa == null ? '—' : brl0(l.pa)}</td><td class="mt-num">${brl0(l.va)}</td><td class="mt-num mt-strong">${pct(l.pa ? l.va / l.pa : null)}</td></tr>`).join('')}
+      ${d && Number(d.subsidio) ? `<tr><td class="mt-muted">${t('Subsídio (diretoria)')}</td><td></td><td></td><td></td><td class="mt-num mt-muted">${brl0(Number(d.subsidio))}</td><td></td><td></td></tr>` : ''}
+      </tbody></table></div>
+      ${d ? '' : `<div class="mt-small mt-muted" style="padding:0 12px 8px">${esc(t('Sem planejamento salvo para {a} em ADM › Distribuição.', { a: ano }))}</div>`}</section>`;
+  }
+  $('#view').innerHTML = `<div class="mt-pgrid2">${lista.map(cardPessoa).join('')}</div>${fiorella}`;
 }
 
 /* ========================== DETALHE DO MÓDULO ========================== */
