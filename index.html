@@ -434,7 +434,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.036', DOC_DATA = '07/10/2026';
+const DOC_VERSAO = 'V.038', DOC_DATA = '07/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -2876,6 +2876,7 @@ function pdfRodapes(doc, semAutor) {
     doc.text(pdfTxt(t('Página {a} de {b}', { a: i, b: n })), W - 12, H - 7, { align: 'right' });
   }
 }
+const PRETO = { fillColor: [32, 36, 42], textColor: [255, 255, 255], fontStyle: 'bold' };   // só o total geral no fim do relatório
 function pdfTabela(doc, opts) {
   doc.autoTable(Object.assign({
     theme: 'grid',
@@ -2996,7 +2997,7 @@ function pdfFechamento(m, mes, linhas, fechado, ehTri, quando) {
   const iFaixa = head.indexOf(t('Faixa'));
   const cols = {}; for (let k = 1; k < head.length; k++) cols[k] = { halign: k === iFaixa ? 'center' : 'right' };
   let y = pdfSecao(doc, 35, t('Resumo do fechamento'));
-  y = pdfTabela(doc, { startY: y + 2, head: [head.map(pdfTxt)], body, foot: [foot.map(pdfTxt)], columnStyles: cols,
+  y = pdfTabela(doc, { startY: y + 2, head: [head.map(pdfTxt)], body, foot: [foot.map(pdfTxt)], footStyles: PRETO, columnStyles: cols,
     didParseCell: d => { if (d.section === 'body' && d.column.index === head.length - 2) d.cell.styles.fontStyle = 'bold'; } });
   pdfRegras(doc, y, tb);
   ok.forEach(({ x }) => {
@@ -3028,10 +3029,10 @@ function pdfCaixas(doc, y, itens, cols, larg) {
   itens.forEach((it, k) => {
     const cx = x0 + (k % cols) * (w + gap), cy = y + Math.floor(k / cols) * (h + gap);
     doc.setDrawColor(...COR.linha); doc.setLineWidth(0.2);
-    if (it.destaque) { doc.setFillColor(32, 36, 42); doc.rect(cx, cy, w, h, 'F'); } else { doc.setFillColor(...COR.alt); doc.rect(cx, cy, w, h, 'FD'); }
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(6.3); doc.setTextColor(...(it.destaque ? [220, 224, 228] : COR.cinza));
+    doc.setFillColor(...COR.alt); doc.rect(cx, cy, w, h, 'FD');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(6.3); doc.setTextColor(...COR.cinza);
     doc.text(pdfTxt(String(it.r).toUpperCase()), cx + 2.5, cy + 4.6);
-    doc.setFontSize(it.destaque ? 11 : 9.6); doc.setTextColor(...(it.destaque ? [255, 255, 255] : [32, 36, 42]));
+    doc.setFontSize(9.6); doc.setTextColor(32, 36, 42);
     doc.text(pdfTxt(it.v), cx + 2.5, cy + 10.4);
   });
   return y + Math.ceil(itens.length / cols) * (h + gap);
@@ -3099,7 +3100,7 @@ function paginaPessoa(doc, v, ano, mes, fs) {
     head: [[t('Meta'), t('Tipo'), t('Meta R$'), t('Realizado'), t('Ating.'), t('Faixa'), t('Prêmio-base'), t('Prêmio'), t('Rec. tri'), t('Rec. ano'), t('Total')].map(pdfTxt)],
     body: body.map(rw => rw.map(c => typeof c === 'object' ? c : pdfTxt(c))),
     foot: [[{ content: footRow[0], colSpan: 7 }, ...footRow.slice(7)]],
-    footStyles: { fillColor: [32, 36, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: fs }, columnStyles: cR,
+    footStyles: { fillColor: COR.alt, textColor: [32, 36, 42], fontStyle: 'bold', fontSize: fs }, columnStyles: cR,
     didParseCell: dd => { if (dd.section === 'foot' && dd.column.index >= 7) dd.cell.styles.halign = 'right'; } });
   const exc = ativos.filter(o => o.l.d.vendas_excluidas);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(fs); doc.setTextColor(...COR.cinza);
@@ -3131,7 +3132,7 @@ function paginaPessoa(doc, v, ano, mes, fs) {
   const cR2 = {}; for (let k = 1; k <= cs.length * 2 + 1; k++) cR2[k] = { halign: 'right' }; cR2[cs.length * 2 + 1].fontStyle = 'bold';
   y = pdfTabela(doc, { startY: y + 1.5, styles: Object.assign({}, stl, { overflow: 'ellipsize' }), headStyles: Object.assign({}, hst, { overflow: 'linebreak' }), head: [head1, head2.map(pdfTxt)], body: ev.map(rw => rw.map(pdfTxt)),
     foot: [[t('Ano'), ...cs.flatMap(o => [pct(o.c.atingAte), brl(o.c.totalAte)]), brl(sum(cs.map(o => o.c.totalAte)))].map(pdfTxt)], columnStyles: cR2,
-    footStyles: { fillColor: [32, 36, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: fs },
+    footStyles: Object.assign({ fontSize: fs }, PRETO),
     didParseCell: dd => { if (dd.section === 'foot' && dd.column.index >= 1) dd.cell.styles.halign = 'right'; if (dd.section !== 'body') return;
       if (tri.has(dd.row.index)) { dd.cell.styles.fillColor = [236, 238, 241]; dd.cell.styles.fontStyle = 'bold'; }
       if (rec.has(dd.row.index)) { dd.cell.styles.fontStyle = 'italic'; dd.cell.styles.textColor = [70, 76, 84]; } } });
@@ -3196,7 +3197,7 @@ function pdfPagamentos(ano, mes, modo, mods, rows) {
       body: body.map(r => r.map(c => typeof c === 'object' ? c : pdfTxt(c))), foot: [[t('Total geral'), '', '', '', '', '', brl(sum(rows.map(r => r.premio))), brl(sum(rows.map(r => r.rtri))), brl(sum(rows.map(r => r.rano))), brl(sum(rows.map(r => r.total)))].map(pdfTxt)],
       columnStyles: Object.assign(cols, { 9: { halign: 'right', fontStyle: 'bold' } }),
       styles: { font: 'helvetica', fontSize: fs, cellPadding: 1, lineColor: COR.linha, lineWidth: 0.1, textColor: [32, 36, 42], overflow: 'linebreak' }, headStyles: { fillColor: COR.alt, textColor: COR.cinza, fontStyle: 'bold', fontSize: fs - 0.3 },
-      footStyles: { fillColor: [32, 36, 42], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: fs + 0.3 },
+      footStyles: Object.assign({ fontSize: fs + 0.3 }, PRETO),
       didParseCell: d => { if (d.section === 'foot' && d.column.index >= 2) d.cell.styles.halign = 'right';
         if (d.section !== 'body') return;
         if (sub.has(d.row.index)) { d.cell.styles.fillColor = [236, 238, 241]; d.cell.styles.fontStyle = 'bold'; }
