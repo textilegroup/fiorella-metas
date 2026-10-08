@@ -386,7 +386,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.026', DOC_DATA = '08/10/2026';
+const DOC_VERSAO = 'V.027', DOC_DATA = '08/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -725,6 +725,7 @@ const EN = {
   'Equipe (setores / módulos)':'Team (sectors / modules)',
   'Subir':'Move up','Descer':'Move down','Arraste para reordenar':'Drag to reorder','Ordem salva':'Order saved',
   'Confirmar':'Confirm',
+  'Meta = soma das metas dos setores {s} (ADM › Distribuição) — atualiza sozinha.':'Target = sum of the targets of sectors {s} (ADM › Allocation) — updates automatically.',
   'Visão geral de todos os módulos de metas.':'Overview of all target modules.',
   'Editar':'Edit','Concluir edição':'Finish editing','Salvar textos ({n})':'Save texts ({n})','Textos salvos ({n})':'Texts saved ({n})',
   'Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.':'Click any text with a dashed outline to change it. Clear it to restore the original text.',
@@ -979,14 +980,27 @@ const soVendedores = lista => lista.filter(x => !ehLider(x));
 /* Supervisão: meta e realizado de cada mês = soma da equipe no módulo base de vendedores.
    Mês com meta ou realizado faltando em algum vendedor da equipe fica nulo ("Aguardando dados"). */
 function consolidar(mod, x) {
-  return consolidarEq(equipeDe(mod, x), basesDe(mod)[0] || null);
+  const r = consolidarEq(equipeDe(mod, x), basesDe(mod)[0] || null);
+  const ms = metaSetores(mod, x);
+  if (ms) { r.metas = ms; r.metaSetores = true; }
+  return r;
+}
+/* Supervisão por setores (equipe = todos): a meta já nasce como a soma das metas dos setores (ADM › Distribuição) */
+function metaSetores(mod, x) {
+  const sets = (mod && mod.setores) || [];
+  if (!sets.length || (x && (x.equipe || []).length)) return null;
+  const d = (S.dist || []).find(z => z.ano === mod.ano);
+  if (!d) return null;
+  const arrs = sets.map(k => Array.isArray(d['meses_' + k]) && d['meses_' + k].length === 12 ? d['meses_' + k].map(Number) : null);
+  if (arrs.some(a => !a)) return null;
+  return Array.from({ length: 12 }, (_, i) => Math.round(sum(arrs.map(a => a[i] || 0)) * 100) / 100);
 }
 function consolidarEq(eq, base) {
   const metas = [], real = [];
   for (let i = 0; i < 12; i++) {
     if (!eq.length) { metas.push(null); real.push(null); continue; }
-    const ms = eq.map(z => z.metas[i]);
-    metas.push(ms.some(v => v == null) ? null : sum(ms));
+    const ms = eq.map(z => valorMeta(z.metas[i])).filter(v => v != null);
+    metas.push(ms.length ? sum(ms) : null);
     const rs = eq.map(z => realDe((z.baseMod || base).id, z.vendedor_id)[i]);
     real.push(rs.some(v => v == null) ? null : sum(rs));
   }
@@ -1022,7 +1036,7 @@ async function carregar() {
     q(sb.from('met_realizado').select('*')),
     q(sb.from('met_fechamentos').select('*'))
   ]);
-  if (S.veTudo) { try { S.dist = await q(sb.from('met_distribuicao').select('*')) || []; } catch (_) { S.dist = []; } }
+  { try { S.dist = await q(sb.from('met_distribuicao').select('*')) || []; } catch (_) { S.dist = []; } }
   const ordMod = (a, b) => ((a.ordem == null ? 1e9 : a.ordem) - (b.ordem == null ? 1e9 : b.ordem)) || (b.ano - a.ano) || String(a.nome).localeCompare(String(b.nome), 'pt-BR');
   Object.assign(S, { regioes: reg || [], vendedores: ven || [], tabelas: tab || [], modulos: (mod || []).slice().sort(ordMod),
                      mv: mv || [], realizado: rea || [], fechamentos: fec || [] });
@@ -1222,6 +1236,8 @@ function vInicio() {
       if (ehSup(m)) {
         const eq = equipeUniao(m).map(z => ({ z, r: resumoPer(z.baseMod, z, sel) }));
         tot = somaR(eq.map(o => o.r));
+        const msS = metaSetores(m, null);
+        if (msS) { const ate = ateAtual(m.ano); tot.meta = sel === 'ytd' ? (ate ? sum(msS.slice(0, ate)) : null) : msS[sel - 1]; }
         if (eq.length && S.veTudo) equipe = `<div class="mt-hsub">${t('Painel da equipe')} · ${eq.length}<span>${rotPer}: <b style="color:${corAt(atDe(tot))}">${pct(atDe(tot))}</b></span></div>
           <div class="mt-mgrid">${eq.map(({ z, r }) => miniCard(z, r)).join('')}</div>`;
       }
@@ -2028,7 +2044,7 @@ function aModuloEditor(m) {
   })()}
 
   <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Participantes e metas mensais')}</div>
-      <div class="fi-card__note">${sup ? (campo === 'metas' ? t('Metas calculadas a partir da equipe — somente leitura. Para mudar, ajuste as metas dos vendedores no módulo base.') : t('Prêmio-base mensal da supervisão.'))
+      <div class="fi-card__note">${sup && campo === 'metas' && metaSetores(m, null) ? esc(t('Meta = soma das metas dos setores {s} (ADM › Distribuição) — atualiza sozinha.', { s: (m.setores || []).map(k => t(k === 'bordados' ? 'Bordados' : 'Industrial')).join(' + ') })) + ' ' : ''}${sup ? (campo === 'metas' ? t('Metas calculadas a partir da equipe — somente leitura. Para mudar, ajuste as metas dos vendedores no módulo base.') : t('Prêmio-base mensal da supervisão.'))
         : t('Lance a meta de cada mês por vendedor. Trimestres e ano são calculados sozinhos com os meses já lançados; enquanto faltar algum mês, aparece “Aguardando dados”.')}</div></div>
       <div class="mt-row">
         <div class="mt-tabs" style="margin:0"><button class="mt-tab" data-campo="metas" aria-selected="${campo === 'metas'}">${t('Meta')}</button>${comis ? '' : `<button class="mt-tab" data-campo="premios" aria-selected="${campo === 'premios'}">${t('Prêmio-base')}</button>`}</div>
@@ -2068,7 +2084,8 @@ function aModuloEditor(m) {
       const somaV = Array.from({ length: 12 }, (_, i) => !iv.length || iv.some(k => todos[k][i] == null) ? null : sum(iv.map(k => todos[k][i])));
       vinc.forEach((x, k) => { if (!ehLider(x)) return; todos[k] = somaV; somaV.forEach((v, i) => { const c = $(`[data-ro="${x.vendedor_id}|${i + 1}"]`); if (c) c.innerHTML = brlOuWait(v); }); });
     }
-    const paraTotal = (sup && campo === 'metas') ? equipeUniao(m).map(z => Array.from({ length: 12 }, (_, i) => valorMeta((z.metas || [])[i])))  // supervisão: soma da equipe toda, sem duplicar
+    const paraTotal = (sup && campo === 'metas' && metaSetores(m, null)) ? [metaSetores(m, null)]
+      : (sup && campo === 'metas') ? equipeUniao(m).map(z => Array.from({ length: 12 }, (_, i) => valorMeta((z.metas || [])[i])))  // supervisão: soma da equipe toda, sem duplicar
       : vinc.map((x, k) => (campo === 'metas' && ehLider(x) && vinc.some(z => !ehLider(z))) ? null : todos[k]).filter(Boolean);
     vinc.forEach((x, k) => COLS.filter(c => typeof c !== 'number').forEach(c => {
       const [a, b] = per(c); $(`[data-calc="${x.vendedor_id}|${c}"]`).innerHTML = brlOuWait(somaPer(todos[k], a, b));
