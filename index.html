@@ -242,6 +242,7 @@
   .mt-fbt:hover{color:var(--fi-text);border-color:var(--fi-line-strong)}button.mt-fbt--on,span.mt-fbt--on{color:var(--fi-text);background:var(--fi-surface-alt);border-color:var(--fi-line-strong)}
   span.mt-fbt--on{cursor:default}.mt-fbt--off{opacity:.3;cursor:not-allowed}
   .mt-meta__fx{font-size:.7rem;font-weight:700}
+  .mt-mtab .mt-cel.mt-man{font-weight:800}.mt-mtab .mt-cel::placeholder{color:var(--fi-muted);opacity:.85}
   .mt-mtab .mt-pg .mt-cel{min-width:44px;padding:1px 2px;font-size:.64rem;min-height:21px}.mt-mtab .mt-pg td{white-space:nowrap;font-size:.64rem}
   body.mt-a4 .mt-mtab .mt-pg td,body.mt-a4 .mt-mtab th{padding:2px 2px}.mt-mtab th{font-size:.58rem}
   .mt-mtab .mt-pg .mt-rot{font-size:.54rem;padding-left:6px!important}
@@ -432,7 +433,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.033', DOC_DATA = '07/10/2026';
+const DOC_VERSAO = 'V.034', DOC_DATA = '07/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -727,7 +728,7 @@ const EN = {
   'O mês final não pode ser antes do inicial.':'The end month cannot be before the start month.','Aplicar prêmio-base':'Apply base prize','Aplicar':'Apply',
   'Aplicar {v} como prêmio-base mensal de todos os participantes nos meses abertos do período?':'Apply {v} as the monthly base prize for all participants in the open months of the period?',
   'Fora do período da meta especial':'Outside the special target period','Preenche os meses abertos de todos com o prêmio-base do módulo; depois é só salvar.':'Fills everyone’s open months with the module base prize; then just save.',
-  'Aplicar padrão {v}':'Apply default {v}','Premiação':'Incentive','Prêm. aplicável':'Applicable bonus','Editar parâmetros':'Edit parameters','Metas e lançamentos':'Targets & actuals','{n}º tri':'Q{n}','rec.':'rec.','Fora do período da meta':'Outside the target period','Feche antes o mês nas metas da equipe':'Close the month in the team targets first','Vendas':'Sales','Alcance':'Achievement','Tabela de %':'% table','Meta e vendas da supervisão = soma da equipe (automático).':'Supervision target and sales = team total (automatic).','fora da distribuição':'outside the allocation','Prêmio-base padrão {v}/mês':'Default base prize {v}/month',
+  'Aplicar padrão {v}':'Apply default {v}','Premiação':'Incentive','Prêm. aplicável':'Applicable bonus','Editar parâmetros':'Edit parameters','Metas e lançamentos':'Targets & actuals','{n}º tri':'Q{n}','rec.':'rec.','Fora do período da meta':'Outside the target period','Feche antes o mês nas metas da equipe':'Close the month in the team targets first','Vendas':'Sales','Alcance':'Achievement','Tabela de %':'% table','Provisório: meta e vendas da supervisão podem ser digitadas. Campo vazio = soma da equipe (em cinza).':'Temporary: supervision target and sales can be typed. Empty field = team total (in grey).','fora da distribuição':'outside the allocation','Prêmio-base padrão {v}/mês':'Default base prize {v}/month',
   'Tabela antiga de comissão: a comissão agora é definida dentro da Meta especial, em Módulos de metas. Pode excluir esta tabela se não estiver em uso.':'Old commission table: commission is now set inside the Special target, in Target modules. You may delete this table if it is not in use.',
   'Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago. Comissão sobre vendas é definida na Meta especial, em Módulos de metas.':'Each tier sets the minimum achievement % and how much of the base prize is paid. Commission on sales is set in the Special target, in Target modules.',
   'Relatórios':'Reports','PDFs e planilhas deste mês: ADM › Relatórios.':'PDFs and spreadsheets for this month: ADM › Reports.','Fechar {m}':'Close {m}','{m} fechado':'{m} closed',
@@ -1010,7 +1011,16 @@ function vincDe(moduloId) {
     .map(x => ({ ...x, papel: x.papel || 'vendedor', equipe: x.equipe || [], metas: (x.metas || Array(12).fill(null)).map(valorMeta), premios: (x.premios || Array(12).fill(0)), v: byId(S.vendedores, x.vendedor_id) }))
     .filter(x => x.v)
     .sort((a, b) => (ORDEM_PAPEL[a.papel] - ORDEM_PAPEL[b.papel]) || a.v.nome.localeCompare(b.v.nome, 'pt-BR'));
-  if (ehSup(mod)) { lista.forEach(x => Object.assign(x, consolidar(mod, x))); return lista; }
+  if (ehSup(mod)) {   // supervisão: soma da equipe; valor digitado na própria tabela (provisório) prevalece no mês
+    lista.forEach(x => {
+      const man = x.metas.slice(), realMan = realDe(mod.id, x.vendedor_id);
+      Object.assign(x, consolidar(mod, x));
+      x.metasAuto = x.metas; x.realAuto = x.realSup; x.metasMan = man; x.realMan = realMan;
+      x.metas = x.metasAuto.map((v, i) => man[i] != null ? man[i] : v);
+      x.realSup = x.realAuto.map((v, i) => realMan[i] != null ? realMan[i] : v);
+    });
+    return lista;
+  }
   // módulo de vendedores: só vendedores (supervisão fica nos módulos de supervisão)
   return lista.filter(x => !ehLider(x));
 }
@@ -1914,7 +1924,8 @@ function botFech(m, mes, vinc) {
     return mes === uf ? `<button class="mt-fbt mt-fbt--on" data-reab="${m.id}|${mes}" title="${esc(quem + ' — ' + t('Reabrir {m}', { m: MESL(mes - 1) }))}" aria-label="${esc(t('Reabrir {m}', { m: MESL(mes - 1) }))}">${ICO_FECH}</button>`
       : `<span class="mt-fbt mt-fbt--on" title="${esc(quem)}">${ICO_FECH}</span>`;
   }
-  const bases = ehSup(m) ? basesDe(m) : [], baseOk = !ehSup(m) || (bases.length && bases.every(b => fechadosDe(b.id).has(mes)));
+  const bases = ehSup(m) ? basesDe(m) : [], manual = ehSup(m) && vinc.length && vinc.every(x => x.realMan && x.realMan[mes - 1] != null);
+  const baseOk = !ehSup(m) || manual || (bases.length && bases.every(b => fechadosDe(b.id).has(mes)));
   const pode = mes === uf + 1 && vinc.length && noPer(m, mes) && baseOk;
   const dica = !noPer(m, mes) ? t('Fora do período da meta') : !baseOk && mes === uf + 1 ? t('Feche antes o mês nas metas da equipe') : t('Os meses são fechados em sequência. Próximo a fechar: {m}.', { m: uf < 12 ? MESL(uf) : '—' });
   return pode ? `<button class="mt-fbt" data-fech="${m.id}|${mes}" title="${esc(t('Fechar {m}', { m: MESL(mes - 1) }))}" aria-label="${esc(t('Fechar {m}', { m: MESL(mes - 1) }))}">${ICO_ABER}</button>`
@@ -1928,17 +1939,18 @@ function aModulos() {
     const info = [tipoNome(m), m.ano, m.setor ? t(m.setor === 'bordados' ? 'Bordados' : 'Industrial') : '', sup && (m.setores || []).length ? (m.setores || []).map(k => t(k === 'bordados' ? 'Bordados' : 'Industrial')).join(' + ') : '',
       ehEsp(m) ? MES(perMod(m)[0] - 1) + '–' + MES(perMod(m)[1] - 1) : '', m.visivel ? '' : t('Oculto'), m.ativo ? '' : t('Inativo')].filter(Boolean).join(' · ');
     const pessoa = x => {
-      const vid = x.vendedor_id, cs = celulasPessoa(m, x), lid = sup || ehLider(x), raw = lid ? null : rawDe(m.id, vid);
+      const vid = x.vendedor_id, cs = celulasPessoa(m, x), lid = !sup && ehLider(x), raw = lid ? null : rawDe(m.id, vid);
+      const auto = (arr, i) => sup && arr && arr[i] != null ? ` placeholder="${numIn(arr[i])}"` : '';
       const trava = mes => fech.has(mes) || !noPer(m, mes);
       const C = (k, extra, cls) => `<td class="mt-num ${(cs[k] || {}).c || ''}${cls || ''}" data-c="${m.id}|${vid}|${k}"${extra || ''}${k.endsWith('|A') && k.startsWith('meta|') ? ` data-tot="${m.id}|${vid}"` : ''}>${cs[k] && cs[k].h != null ? cs[k].h : '—'}</td>`;
       const linha = (rot, cel, chave) => `<tr><td class="mt-rot">${rot}</td>${COLS_MT.map(k => typeof k === 'number' ? cel(k) : C(chave + '|' + k, '', ' mt-tcol')).join('')}</tr>`;
-      const inp = (attr, v, mes) => `<td class="mt-tight"><input class="mt-in mt-cel" inputmode="decimal" ${attr}="${m.id}|${vid}|${mes}" value="${numIn(v)}" ${trava(mes) ? 'disabled' : ''}></td>`;
+      const inp = (attr, v, mes, ph) => `<td class="mt-tight"><input class="mt-in mt-cel${sup && v != null && attr !== 'data-mp' ? ' mt-man' : ''}" inputmode="decimal" ${attr}="${m.id}|${vid}|${mes}" value="${numIn(v)}"${ph || ''} ${trava(mes) ? 'disabled' : ''}></td>`;
       return `<tbody class="mt-pg" data-pg="${m.id}|${vid}">
         <tr class="mt-prow"><td colspan="18"><span class="mt-pnome">${esc(x.v.nome)}</span>${papelBadge(x)}
           <button class="mt-x" data-rmp="${m.id}|${vid}" title="${t('Remover da meta')}" aria-label="${t('Remover da meta')}">✕</button></td></tr>
         ${comis ? '' : linha(t('Prêm. aplicável'), mes => inp('data-mp', noPer(m, mes) ? x.premios[mes - 1] : null, mes), 'pb')}
-        ${linha(t('Meta'), mes => lid ? C('meta|' + mes, ` data-mvro="${m.id}|${vid}|${mes}"`) : inp('data-mv', x.metas[mes - 1], mes), 'meta')}
-        ${linha(t('Vendas'), mes => lid ? C('ven|' + mes) : inp('data-rv', raw[mes - 1] ? raw[mes - 1].valor : null, mes), 'ven')}
+        ${linha(t('Meta'), mes => lid ? C('meta|' + mes, ` data-mvro="${m.id}|${vid}|${mes}"`) : inp('data-mv', sup ? x.metasMan[mes - 1] : x.metas[mes - 1], mes, auto(x.metasAuto, mes - 1)), 'meta')}
+        ${linha(t('Vendas'), mes => lid ? C('ven|' + mes) : inp('data-rv', raw[mes - 1] ? raw[mes - 1].valor : null, mes, auto(x.realAuto, mes - 1)), 'ven')}
         ${linha(t('Alcance'), mes => C('al|' + mes), 'al')}
         ${linha(t('Premiação'), mes => C('pr|' + mes), 'pr')}
         ${linha(t('Total'), mes => C('tt|' + mes), 'tt')}
@@ -1953,7 +1965,7 @@ function aModulos() {
       <div class="fi-table-wrap mt-meta__grid"><table class="fi-table mt-mtab"><thead><tr><th></th>${head}</tr></thead>
         ${vinc.map(pessoa).join('')}
         <tbody><tr class="mt-addrow"><td colspan="18"><select class="fi-select mt-add" data-add="${m.id}" ${cand.length ? '' : 'disabled'}><option value="">+ ${cand.length ? t('Adicionar pessoa…') : t('Todos já estão nesta meta')}</option>${cand.map(v => `<option value="${v.id}">${esc(v.nome)}${v.funcao !== 'vendedor' ? ' (' + funcaoNome(v) + ')' : ''}</option>`).join('')}</select>
-          ${sup ? `<span class="mt-small mt-muted">${t('Meta e vendas da supervisão = soma da equipe (automático).')}</span>` : ''}</td></tr>
+          ${sup ? `<span class="mt-small mt-muted">${t('Provisório: meta e vendas da supervisão podem ser digitadas. Campo vazio = soma da equipe (em cinza).')}</span>` : ''}</td></tr>
         <tr class="mt-fechrow"><td class="mt-rot">${t('Fechamento')}</td>${COLS_MT.map(k => typeof k !== 'number' ? '<td class="mt-tcol"></td>' : `<td class="mt-c">${botFech(m, k, vinc)}</td>`).join('')}</tr></tbody></table></div>
     </section>`;
   };
@@ -1991,7 +2003,7 @@ function aModulos() {
     const val = inp.value.trim() === '' ? null : parseNum(inp.value);
     const arr = (x[campo] || Array(12).fill(campo === 'metas' ? null : 0)).slice(); arr[Number(mes) - 1] = campo === 'premios' ? (val || 0) : val;
     inp.classList.add('mt-dirty');
-    try { await q(S.sb.from('met_modulo_vendedores').update({ [campo]: arr }).eq('modulo_id', mid).eq('vendedor_id', vid)); x[campo] = arr; inp.value = numIn(campo === 'premios' ? (val || 0) : val); ok(inp); repinta(mid); }
+    try { await q(S.sb.from('met_modulo_vendedores').update({ [campo]: arr }).eq('modulo_id', mid).eq('vendedor_id', vid)); x[campo] = arr; inp.value = numIn(campo === 'premios' ? (val || 0) : val); inp.classList.toggle('mt-man', campo === 'metas' && ehSup(byId(S.modulos, mid)) && val != null); ok(inp); repinta(mid); }
     catch (e) { notify(erroMsg(e), 'danger'); }
   }));
   $$('#mt-metas [data-rv]').forEach(inp => inp.addEventListener('change', async () => {
@@ -2003,7 +2015,7 @@ function aModulos() {
       const i = S.realizado.findIndex(r => r.modulo_id === mid && r.vendedor_id === vid && r.mes === n), ant = i >= 0 ? S.realizado[i] : {};
       if (i >= 0) S.realizado.splice(i, 1);
       if (val != null) S.realizado.push({ ...ant, modulo_id: mid, vendedor_id: vid, mes: n, valor: val });
-      inp.value = numIn(val); ok(inp); repinta(mid);
+      inp.value = numIn(val); inp.classList.toggle('mt-man', ehSup(m) && val != null); ok(inp); repinta(mid);
     } catch (e) { notify(erroMsg(e), 'danger'); }
   }));
   $$('#mt-metas [data-fech]').forEach(b => b.onclick = () => { const [mid, mes] = b.dataset.fech.split('|'); fecharMes(byId(S.modulos, mid), Number(mes)); });
@@ -2498,6 +2510,7 @@ const quandoDe = l => l && l.f ? { d: new Date(l.f.fechado_em).toLocaleString(LO
 /* bruto e exclusões do mês (supervisão = soma da equipe); pend = alterações ainda não salvas */
 function infoMes(m, x, mes, pend) {
   const vazio = { valor: null, excluido: 0, excluir: false, obs: '' };
+  if (ehSup(m) && rawDe(m.id, x.vendedor_id)[mes - 1]) return rawDe(m.id, x.vendedor_id)[mes - 1];   // venda digitada na supervisão
   if (ehSup(m) || ehLider(x)) {
     const rs = (x.equipeV || []).map(z => rawDe((z.baseMod || x.baseMod).id, z.vendedor_id)[mes - 1]);
     if (!rs.length || rs.some(r => !r)) return vazio;
