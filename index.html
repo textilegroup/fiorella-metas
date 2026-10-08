@@ -434,7 +434,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.035', DOC_DATA = '07/10/2026';
+const DOC_VERSAO = 'V.036', DOC_DATA = '07/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -1006,6 +1006,8 @@ const ehLider = x => !!x && (x.papel === 'supervisor' || x.papel === 'gerente');
 const ORDEM_PAPEL = { vendedor: 0, supervisor: 1, gerente: 2 };
 const papelBadge = x => !ehLider(x) ? '' : x.papel === 'supervisor'
   ? ` <span class="fi-badge fi-badge--info">${t('Supervisão 2')}</span>` : ` <span class="fi-badge fi-badge--warning">${t('Supervisão 1')}</span>`;
+/* provisório: meta e vendas da supervisão digitadas na tabela, sem vínculo com a distribuição nem com os vendedores */
+const SUP_MANUAL = !window.__SUP_AUTO;   // (__SUP_AUTO só nos testes do modo automático)
 function vincDe(moduloId) {
   const mod = byId(S.modulos, moduloId);
   const lista = S.mv.filter(x => x.modulo_id === moduloId)
@@ -1017,8 +1019,8 @@ function vincDe(moduloId) {
       const man = x.metas.slice(), realMan = realDe(mod.id, x.vendedor_id);
       Object.assign(x, consolidar(mod, x));
       x.metasAuto = x.metas; x.realAuto = x.realSup; x.metasMan = man; x.realMan = realMan;
-      x.metas = x.metasAuto.map((v, i) => man[i] != null ? man[i] : v);
-      x.realSup = x.realAuto.map((v, i) => realMan[i] != null ? realMan[i] : v);
+      x.metas = SUP_MANUAL ? man : x.metasAuto.map((v, i) => man[i] != null ? man[i] : v);
+      x.realSup = SUP_MANUAL ? realMan : x.realAuto.map((v, i) => realMan[i] != null ? realMan[i] : v);
     });
     return lista;
   }
@@ -1925,7 +1927,7 @@ function botFech(m, mes, vinc) {
     return mes === uf ? `<button class="mt-fbt mt-fbt--on" data-reab="${m.id}|${mes}" title="${esc(quem + ' — ' + t('Reabrir {m}', { m: MESL(mes - 1) }))}" aria-label="${esc(t('Reabrir {m}', { m: MESL(mes - 1) }))}">${ICO_FECH}</button>`
       : `<span class="mt-fbt mt-fbt--on" title="${esc(quem)}">${ICO_FECH}</span>`;
   }
-  const bases = ehSup(m) ? basesDe(m) : [], manual = ehSup(m) && vinc.length && vinc.every(x => x.realMan && x.realMan[mes - 1] != null);
+  const bases = ehSup(m) ? basesDe(m) : [], manual = ehSup(m) && (SUP_MANUAL || (vinc.length && vinc.every(x => x.realMan && x.realMan[mes - 1] != null)));
   const baseOk = !ehSup(m) || manual || (bases.length && bases.every(b => fechadosDe(b.id).has(mes)));
   const pode = mes === uf + 1 && vinc.length && noPer(m, mes) && baseOk;
   const dica = !noPer(m, mes) ? t('Fora do período da meta') : !baseOk && mes === uf + 1 ? t('Feche antes o mês nas metas da equipe') : t('Os meses são fechados em sequência. Próximo a fechar: {m}.', { m: uf < 12 ? MESL(uf) : '—' });
@@ -1941,11 +1943,11 @@ function aModulos() {
       ehEsp(m) ? MES(perMod(m)[0] - 1) + '–' + MES(perMod(m)[1] - 1) : '', m.visivel ? '' : t('Oculto'), m.ativo ? '' : t('Inativo')].filter(Boolean).join(' · ');
     const pessoa = x => {
       const vid = x.vendedor_id, cs = celulasPessoa(m, x), lid = !sup && ehLider(x), raw = lid ? null : rawDe(m.id, vid);
-      const auto = (arr, i) => sup && arr && arr[i] != null ? ` placeholder="${numIn(arr[i])}"` : '';
+      const auto = (arr, i) => sup && !SUP_MANUAL && arr && arr[i] != null ? ` placeholder="${numIn(arr[i])}"` : '';
       const trava = mes => fech.has(mes) || !noPer(m, mes);
       const C = (k, extra, cls) => `<td class="mt-num ${(cs[k] || {}).c || ''}${cls || ''}" data-c="${m.id}|${vid}|${k}"${extra || ''}${k.endsWith('|A') && k.startsWith('meta|') ? ` data-tot="${m.id}|${vid}"` : ''}>${cs[k] && cs[k].h != null ? cs[k].h : '—'}</td>`;
       const linha = (rot, cel, chave) => `<tr><td class="mt-rot">${rot}</td>${COLS_MT.map(k => typeof k === 'number' ? cel(k) : C(chave + '|' + k, '', ' mt-tcol')).join('')}</tr>`;
-      const inp = (attr, v, mes, ph) => `<td class="mt-tight"><input class="mt-in mt-cel${sup && v != null && attr !== 'data-mp' ? ' mt-man' : ''}" inputmode="decimal" ${attr}="${m.id}|${vid}|${mes}" value="${numIn(v)}"${ph || ''} ${trava(mes) ? 'disabled' : ''}></td>`;
+      const inp = (attr, v, mes, ph) => `<td class="mt-tight"><input class="mt-in mt-cel${sup && !SUP_MANUAL && v != null && attr !== 'data-mp' ? ' mt-man' : ''}" inputmode="decimal" ${attr}="${m.id}|${vid}|${mes}" value="${numIn(v)}"${ph || ''} ${trava(mes) ? 'disabled' : ''}></td>`;
       return `<tbody class="mt-pg" data-pg="${m.id}|${vid}">
         <tr class="mt-prow"><td colspan="18"><span class="mt-pnome">${esc(x.v.nome)}</span>${papelBadge(x)}
           <button class="mt-x" data-rmp="${m.id}|${vid}" title="${t('Remover da meta')}" aria-label="${t('Remover da meta')}">✕</button></td></tr>
@@ -1966,7 +1968,7 @@ function aModulos() {
       <div class="fi-table-wrap mt-meta__grid"><table class="fi-table mt-mtab"><thead><tr><th></th>${head}</tr></thead>
         ${vinc.map(pessoa).join('')}
         <tbody><tr class="mt-addrow"><td colspan="18"><select class="fi-select mt-add" data-add="${m.id}" ${cand.length ? '' : 'disabled'}><option value="">+ ${cand.length ? t('Adicionar pessoa…') : t('Todos já estão nesta meta')}</option>${cand.map(v => `<option value="${v.id}">${esc(v.nome)}${v.funcao !== 'vendedor' ? ' (' + funcaoNome(v) + ')' : ''}</option>`).join('')}</select>
-          ${sup ? `<span class="mt-small mt-muted">${t('Provisório: meta e vendas da supervisão podem ser digitadas. Campo vazio = soma da equipe (em cinza).')}</span>` : ''}</td></tr>
+          ${sup ? `<span class="mt-small mt-muted">${SUP_MANUAL ? '' : t('Provisório: meta e vendas da supervisão podem ser digitadas. Campo vazio = soma da equipe (em cinza).')}</span>` : ''}</td></tr>
         <tr class="mt-fechrow"><td class="mt-rot">${t('Fechamento')}</td>${COLS_MT.map(k => typeof k !== 'number' ? '<td class="mt-tcol"></td>' : `<td class="mt-c">${botFech(m, k, vinc)}</td>`).join('')}</tr></tbody></table></div>
     </section>`;
   };
@@ -2004,7 +2006,7 @@ function aModulos() {
     const val = inp.value.trim() === '' ? null : parseNum(inp.value);
     const arr = (x[campo] || Array(12).fill(campo === 'metas' ? null : 0)).slice(); arr[Number(mes) - 1] = campo === 'premios' ? (val || 0) : val;
     inp.classList.add('mt-dirty');
-    try { await q(S.sb.from('met_modulo_vendedores').update({ [campo]: arr }).eq('modulo_id', mid).eq('vendedor_id', vid)); x[campo] = arr; inp.value = numIn(campo === 'premios' ? (val || 0) : val); inp.classList.toggle('mt-man', campo === 'metas' && ehSup(byId(S.modulos, mid)) && val != null); ok(inp); repinta(mid); }
+    try { await q(S.sb.from('met_modulo_vendedores').update({ [campo]: arr }).eq('modulo_id', mid).eq('vendedor_id', vid)); x[campo] = arr; inp.value = numIn(campo === 'premios' ? (val || 0) : val); inp.classList.toggle('mt-man', !SUP_MANUAL && campo === 'metas' && ehSup(byId(S.modulos, mid)) && val != null); ok(inp); repinta(mid); }
     catch (e) { notify(erroMsg(e), 'danger'); }
   }));
   $$('#mt-metas [data-rv]').forEach(inp => inp.addEventListener('change', async () => {
@@ -2016,7 +2018,7 @@ function aModulos() {
       const i = S.realizado.findIndex(r => r.modulo_id === mid && r.vendedor_id === vid && r.mes === n), ant = i >= 0 ? S.realizado[i] : {};
       if (i >= 0) S.realizado.splice(i, 1);
       if (val != null) S.realizado.push({ ...ant, modulo_id: mid, vendedor_id: vid, mes: n, valor: val });
-      inp.value = numIn(val); inp.classList.toggle('mt-man', ehSup(m) && val != null); ok(inp); repinta(mid);
+      inp.value = numIn(val); inp.classList.toggle('mt-man', !SUP_MANUAL && ehSup(m) && val != null); ok(inp); repinta(mid);
     } catch (e) { notify(erroMsg(e), 'danger'); }
   }));
   $$('#mt-metas [data-fech]').forEach(b => b.onclick = () => { const [mid, mes] = b.dataset.fech.split('|'); fecharMes(byId(S.modulos, mid), Number(mes)); });
@@ -2511,7 +2513,7 @@ const quandoDe = l => l && l.f ? { d: new Date(l.f.fechado_em).toLocaleString(LO
 /* bruto e exclusões do mês (supervisão = soma da equipe); pend = alterações ainda não salvas */
 function infoMes(m, x, mes, pend) {
   const vazio = { valor: null, excluido: 0, excluir: false, obs: '' };
-  if (ehSup(m) && rawDe(m.id, x.vendedor_id)[mes - 1]) return rawDe(m.id, x.vendedor_id)[mes - 1];   // venda digitada na supervisão
+  if (ehSup(m) && (SUP_MANUAL || rawDe(m.id, x.vendedor_id)[mes - 1])) return rawDe(m.id, x.vendedor_id)[mes - 1] || vazio;   // venda digitada na supervisão
   if (ehSup(m) || ehLider(x)) {
     const rs = (x.equipeV || []).map(z => rawDe((z.baseMod || x.baseMod).id, z.vendedor_id)[mes - 1]);
     if (!rs.length || rs.some(r => !r)) return vazio;
