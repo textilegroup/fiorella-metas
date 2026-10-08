@@ -230,6 +230,15 @@
   .mt-mtab .mt-pnome{white-space:nowrap;font-weight:700;padding-left:10px!important;max-width:170px;overflow:hidden;text-overflow:ellipsis}
   .mt-mtab .mt-cel{min-width:62px;width:100%;min-height:24px;padding:2px 4px;font-size:.7rem}
   .mt-mtab .mt-cel.mt-ok{border-color:var(--fi-success)}
+  .mt-mtab .mt-prow td{background:var(--fi-surface-alt);padding:5px 10px!important;border-top:2px solid var(--fi-line-strong)}
+  .mt-mtab .mt-prow .mt-pnome{font-weight:800;font-size:.78rem}.mt-mtab .mt-prow .mt-x{float:right}
+  .mt-mtab .mt-rot{white-space:nowrap;color:var(--fi-muted);font-size:.6rem;font-weight:750;text-transform:uppercase;letter-spacing:.03em;padding-left:10px!important}
+  .mt-mtab td small{display:block;font-size:.58rem;font-weight:700;opacity:.85}
+  .mt-mtab td.mt-al0{background:#fde4e2;color:#a3221b}.mt-mtab td.mt-al1{background:#fdf1c7;color:#7a5200}
+  .mt-mtab td.mt-al2{background:#dcf5e3;color:#16613a}.mt-mtab td.mt-al3{background:#b8860b;color:#fff;font-weight:800}
+  .mt-meta__fx{font-size:.7rem;font-weight:700}
+  .mt-mtab .mt-pg .mt-cel{min-width:48px;padding:2px 3px}.mt-mtab .mt-pg td{white-space:nowrap}
+  body.mt-a4 .mt-mtab .mt-pg td{padding:3px 3px}
   .mt-mtab .mt-totrow td{background:var(--fi-surface-alt);font-weight:750}
   .mt-mtab .mt-addrow td{background:transparent;padding:4px 10px!important}
   .mt-add{width:auto!important;max-width:280px;min-height:26px!important;padding:2px 8px;font-size:.72rem;margin-right:10px}
@@ -417,7 +426,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.029', DOC_DATA = '08/10/2026';
+const DOC_VERSAO = 'V.030', DOC_DATA = '07/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -712,7 +721,7 @@ const EN = {
   'O mês final não pode ser antes do inicial.':'The end month cannot be before the start month.','Aplicar prêmio-base':'Apply base prize','Aplicar':'Apply',
   'Aplicar {v} como prêmio-base mensal de todos os participantes nos meses abertos do período?':'Apply {v} as the monthly base prize for all participants in the open months of the period?',
   'Fora do período da meta especial':'Outside the special target period','Preenche os meses abertos de todos com o prêmio-base do módulo; depois é só salvar.':'Fills everyone’s open months with the module base prize; then just save.',
-  'Aplicar padrão {v}':'Apply default {v}','Premiação':'Incentive','fora da distribuição':'outside the allocation','Prêmio-base padrão {v}/mês':'Default base prize {v}/month',
+  'Aplicar padrão {v}':'Apply default {v}','Premiação':'Incentive','Prêm. aplicável':'Applicable bonus','Vendas':'Sales','Alcance':'Achievement','Tabela de %':'% table','Meta e vendas da supervisão = soma da equipe (automático).':'Supervision target and sales = team total (automatic).','fora da distribuição':'outside the allocation','Prêmio-base padrão {v}/mês':'Default base prize {v}/month',
   'Tabela antiga de comissão: a comissão agora é definida dentro da Meta especial, em Módulos de metas. Pode excluir esta tabela se não estiver em uso.':'Old commission table: commission is now set inside the Special target, in Target modules. You may delete this table if it is not in use.',
   'Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago. Comissão sobre vendas é definida na Meta especial, em Módulos de metas.':'Each tier sets the minimum achievement % and how much of the base prize is paid. Commission on sales is set in the Special target, in Target modules.',
   'Relatórios':'Reports','PDFs e planilhas deste mês: ADM › Relatórios.':'PDFs and spreadsheets for this month: ADM › Reports.','Fechar {m}':'Close {m}','{m} fechado':'{m} closed',
@@ -1576,7 +1585,7 @@ function vEstrategia() {
 }
 
 /* ============================ ADMINISTRAÇÃO ============================ */
-const ADM_TABS = [['distribuicao', 'Distribuição'], ['modulos', 'Módulos de metas'], ['fechamento', 'Lançamentos e fechamento'],
+const ADM_TABS = [['distribuicao', 'Distribuição'], ['modulos', 'Módulos de metas'], ['fechamento', 'Fechamento'],
                   ['relatorios', 'Relatórios'], ['vendedores', 'Vendedores e supervisores'], ['acessos', 'Acessos']];
 function vAdm() {
   const abas = ADM_TABS.filter(([k]) => pode('adm-' + k));
@@ -1830,30 +1839,73 @@ function candidatosMeta(m) {
   return S.vendedores.filter(v => v.ativo && !dentro.has(v.id) && (ehEsp(m) || (ehSup(m) ? ['supervisor', 'gerente'].includes(v.funcao) : (v.funcao || 'vendedor') === 'vendedor')))
     .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 }
+/* cor do alcance: < 90% vermelho · 90–100% amarelo · 100%+ verde · 105%+ dourado */
+const alCls = a => a == null ? '' : a >= 1.05 ? 'mt-al3' : a >= 1 ? 'mt-al2' : a >= 0.9 ? 'mt-al1' : 'mt-al0';
+function faixasTxt(tb) {
+  if (ehComissao(tb)) return t('Comissão') + ': ' + (comissoesOrd(tb).map(c => (c.min > 0 ? '≥ ' + brl0(c.min) : t('vendas')) + ' → ' + pctN(c.pct) + '%').join(' · ') || '—');
+  return t('Tabela de %') + ': ' + (faixasOrd(tb).map(f => num(f.min, f.min % 1 ? 1 : 0) + '% → ' + multTxt(f.mult)).join(' · ') || '—');
+}
+/* valores calculados de uma pessoa numa meta: chave → { h: html, c: classe } */
+function celulasPessoa(m, x) {
+  const c = calcVinc(m, x, 12), out = {}, ok = mm => mm.real != null && mm.meta != null;
+  c.meses.forEach(mm => { const k = mm.mes, den = noPer(m, k);
+    out['meta|' + k] = { h: den && mm.meta != null ? num(mm.meta, 0) : '—' };
+    out['ven|' + k] = { h: den && mm.real != null ? num(mm.real, 0) : '—' };
+    out['al|' + k] = { h: den && ok(mm) ? pct(mm.ating) : '—', c: den && ok(mm) ? alCls(mm.ating) : '' };
+    out['pr|' + k] = { h: den && mm.apurado ? `${brl0(mm.premio)}<small>${multTxt(mm.mult)}</small>` : '—', c: den && mm.apurado ? alCls(mm.ating) : '' };
+    out['tt|' + k] = { h: den && (mm.apurado || mm.total) ? brl0(mm.total) : '—' };
+  });
+  const ms = c.meses.filter(mm => noPer(m, mm.mes)), comp = ms.filter(ok);
+  const mA = sum(comp.map(mm => mm.meta)), aA = mA > 0 ? sum(comp.map(mm => mm.real)) / mA : null;
+  out['pb|A'] = { h: brl0(sum(ms.map(mm => mm.base))) };
+  out['meta|A'] = { h: ms.some(mm => mm.meta != null) ? num(sum(ms.map(mm => mm.meta || 0)), 0) : '—' };
+  out['ven|A'] = { h: ms.some(mm => mm.real != null) ? num(sum(ms.map(mm => mm.real || 0)), 0) : '—' };
+  out['al|A'] = { h: pct(aA), c: alCls(aA) };
+  out['pr|A'] = { h: brl0(sum(ms.map(mm => mm.premio))) };
+  out['tt|A'] = { h: `<b>${brl0(sum(ms.map(mm => mm.total)))}</b>` };
+  return out;
+}
+/* metas afetadas por uma alteração: a própria e as supervisões que a usam como base */
+const afetadas = mid => [mid, ...S.modulos.filter(z => ehSup(z) && basesDe(z).some(b => b.id === mid)).map(z => z.id)];
+function pintarMeta(mid) {
+  const m = byId(S.modulos, mid); if (!m) return;
+  vincDe(mid).forEach(x => { const cs = celulasPessoa(m, x);
+    Object.keys(cs).forEach(k => { const el = $(`[data-c="${mid}|${x.vendedor_id}|${k}"]`); if (!el) return;
+      el.innerHTML = cs[k].h; el.classList.remove('mt-al0', 'mt-al1', 'mt-al2', 'mt-al3'); if (cs[k].c) el.classList.add(cs[k].c); }); });
+}
 function aModulos() {
   const head = Array.from({ length: 12 }, (_, i) => `<th class="mt-num">${MES(i)}</th>`).join('');
   const secao = m => {
-    const vinc = vincDe(m.id), sup = ehSup(m), fech = fechadosDe(m.id);
+    const vinc = vincDe(m.id), sup = ehSup(m), fech = fechadosDe(m.id), tb = tabelaModulo(m), comis = ehComissao(tb);
     const info = [tipoNome(m), m.ano, m.setor ? t(m.setor === 'bordados' ? 'Bordados' : 'Industrial') : '', sup && (m.setores || []).length ? (m.setores || []).map(k => t(k === 'bordados' ? 'Bordados' : 'Industrial')).join(' + ') : '',
       ehEsp(m) ? MES(perMod(m)[0] - 1) + '–' + MES(perMod(m)[1] - 1) : '', m.visivel ? '' : t('Oculto'), m.ativo ? '' : t('Inativo')].filter(Boolean).join(' · ');
-    const linhas = vinc.map(x => `<tr><td class="mt-pnome">${esc(x.v.nome)}${papelBadge(x)}</td>
-      ${Array.from({ length: 12 }, (_, i) => { const mes = i + 1, v = x.metas[i];
-        return sup ? `<td class="mt-num" data-mvro="${m.id}|${x.vendedor_id}|${mes}">${v == null ? '—' : num(v, 0)}</td>`
-          : `<td class="mt-tight"><input class="mt-in mt-cel" inputmode="decimal" data-mv="${m.id}|${x.vendedor_id}|${mes}" value="${numIn(v)}" ${fech.has(mes) || !noPer(m, mes) ? 'disabled' : ''}></td>`; }).join('')}
-      <td class="mt-num mt-strong" data-tot="${m.id}|${x.vendedor_id}">${somaMetas(x.metas, 1, 12) == null ? '—' : num(sum(x.metas.map(v => v || 0)), 0)}</td>
-      <td class="mt-tight"><button class="mt-x" data-rmp="${m.id}|${x.vendedor_id}" title="${t('Remover da meta')}" aria-label="${t('Remover da meta')}">✕</button></td></tr>`).join('');
-    const tot = !sup && vinc.length ? `<tr class="mt-totrow"><td>${t('Total')}</td>${Array.from({ length: 12 }, (_, i) => `<td class="mt-num" data-totm="${m.id}|${i + 1}">${num(sum(vinc.map(x => x.metas[i] || 0)), 0)}</td>`).join('')}
-      <td class="mt-num" data-totm="${m.id}|A">${num(sum(vinc.map(x => sum(x.metas.map(v => v || 0)))), 0)}</td><td></td></tr>` : '';
+    const pessoa = x => {
+      const vid = x.vendedor_id, cs = celulasPessoa(m, x), lid = sup || ehLider(x), raw = lid ? null : rawDe(m.id, vid);
+      const trava = mes => fech.has(mes) || !noPer(m, mes);
+      const C = (k, extra) => `<td class="mt-num ${(cs[k] || {}).c || ''}" data-c="${m.id}|${vid}|${k}"${extra || ''}>${(cs[k] || {}).h || '—'}</td>`;
+      const linha = (rot, cel, ano) => `<tr><td class="mt-rot">${rot}</td>${Array.from({ length: 12 }, (_, i) => cel(i + 1)).join('')}${ano}</tr>`;
+      const inp = (attr, v, mes) => `<td class="mt-tight"><input class="mt-in mt-cel" inputmode="decimal" ${attr}="${m.id}|${vid}|${mes}" value="${numIn(v)}" ${trava(mes) ? 'disabled' : ''}></td>`;
+      return `<tbody class="mt-pg" data-pg="${m.id}|${vid}">
+        <tr class="mt-prow"><td colspan="14"><span class="mt-pnome">${esc(x.v.nome)}</span>${papelBadge(x)}
+          <button class="mt-x" data-rmp="${m.id}|${vid}" title="${t('Remover da meta')}" aria-label="${t('Remover da meta')}">✕</button></td></tr>
+        ${comis ? '' : linha(t('Prêm. aplicável'), mes => inp('data-mp', noPer(m, mes) ? x.premios[mes - 1] : null, mes), C('pb|A'))}
+        ${linha(t('Meta'), mes => lid ? C('meta|' + mes, ` data-mvro="${m.id}|${vid}|${mes}"`) : inp('data-mv', x.metas[mes - 1], mes), C('meta|A', ` data-tot="${m.id}|${vid}"`))}
+        ${linha(t('Vendas'), mes => lid ? C('ven|' + mes) : inp('data-rv', raw[mes - 1] ? raw[mes - 1].valor : null, mes), C('ven|A'))}
+        ${linha(t('Alcance'), mes => C('al|' + mes), C('al|A'))}
+        ${linha(t('Premiação'), mes => C('pr|' + mes), C('pr|A'))}
+        ${linha(t('Total'), mes => C('tt|' + mes), C('tt|A'))}
+      </tbody>`;
+    };
     const cand = candidatosMeta(m);
     return `<section class="mt-meta" data-meta="${m.id}">
       <div class="mt-meta__head">
         <span class="mt-ord" data-noed><button type="button" class="mt-ordbt" data-ordup="${m.id}" title="${t('Subir')}" aria-label="${t('Subir')}">▲</button><button type="button" class="mt-ordbt" data-orddn="${m.id}" title="${t('Descer')}" aria-label="${t('Descer')}">▼</button></span>
-        <b class="mt-meta__nome">${esc(m.nome)}</b><span class="mt-meta__info">${esc(info)}</span><span class="mt-sp"></span>
+        <b class="mt-meta__nome">${esc(m.nome)}</b><span class="mt-meta__fx">(${esc(faixasTxt(tb))})</span><span class="mt-meta__info">${esc(info)}</span><span class="mt-sp"></span>
         <button class="fi-btn mt-btn-sm" data-edm="${m.id}">${t('Editar')}</button></div>
-      <div class="fi-table-wrap mt-meta__grid"><table class="fi-table mt-mtab"><thead><tr><th>${sup ? t('Supervisão') : t('Pessoa')}</th>${head}<th class="mt-num">${t('Ano')}</th><th></th></tr></thead>
-        <tbody>${linhas}${tot}
-        <tr class="mt-addrow"><td colspan="15"><select class="fi-select mt-add" data-add="${m.id}" ${cand.length ? '' : 'disabled'}><option value="">+ ${cand.length ? t('Adicionar pessoa…') : t('Todos já estão nesta meta')}</option>${cand.map(v => `<option value="${v.id}">${esc(v.nome)}${v.funcao !== 'vendedor' ? ' (' + funcaoNome(v) + ')' : ''}</option>`).join('')}</select>
-          ${sup ? `<span class="mt-small mt-muted">${t('Meta da supervisão = soma da equipe (automática).')}</span>` : ''}</td></tr></tbody></table></div>
+      <div class="fi-table-wrap mt-meta__grid"><table class="fi-table mt-mtab"><thead><tr><th></th>${head}<th class="mt-num">${t('Total')}</th></tr></thead>
+        ${vinc.map(pessoa).join('')}
+        <tbody><tr class="mt-addrow"><td colspan="14"><select class="fi-select mt-add" data-add="${m.id}" ${cand.length ? '' : 'disabled'}><option value="">+ ${cand.length ? t('Adicionar pessoa…') : t('Todos já estão nesta meta')}</option>${cand.map(v => `<option value="${v.id}">${esc(v.nome)}${v.funcao !== 'vendedor' ? ' (' + funcaoNome(v) + ')' : ''}</option>`).join('')}</select>
+          ${sup ? `<span class="mt-small mt-muted">${t('Meta e vendas da supervisão = soma da equipe (automático).')}</span>` : ''}</td></tr></tbody></table></div>
     </section>`;
   };
   $('#adm-body').innerHTML = `<div class="mt-row" style="margin-bottom:8px"><span class="mt-sp"></span><button class="fi-btn fi-btn--primary" id="bt-novo">${t('Nova meta')}</button></div>
@@ -1881,24 +1933,31 @@ function aModulos() {
     if (!await confirmar({ title: t('Remover da meta'), message: t('Remove {n} desta meta, com os valores dele. Lançamentos e fechamentos já gravados permanecem.', { n: v ? v.nome : '' }), confirmText: t('Remover'), danger: true })) return;
     try { await q(S.sb.from('met_modulo_vendedores').delete().eq('modulo_id', mid).eq('vendedor_id', vid)); await recarregar(); } catch (e) { notify(erroMsg(e), 'danger'); }
   });
-  // valores: salvos ao sair da célula
-  const totais = mid => {
-    const rows = S.mv.filter(x => x.modulo_id === mid);
-    rows.forEach(x => { const c = $(`[data-tot="${mid}|${x.vendedor_id}"]`); if (c) c.textContent = num(sum((x.metas || []).map(v => Number(v) || 0)), 0); });
-    for (let i = 0; i < 12; i++) { const c = $(`[data-totm="${mid}|${i + 1}"]`); if (c) c.textContent = num(sum(rows.filter(x => !ehLider(x)).map(x => Number((x.metas || [])[i]) || 0)), 0); }
-    const ca = $(`[data-totm="${mid}|A"]`); if (ca) ca.textContent = num(sum(rows.filter(x => !ehLider(x)).flatMap(x => (x.metas || []).map(v => Number(v) || 0))), 0);
-  };
-  $$('[data-mv]').forEach(inp => {
-    inp.addEventListener('change', async () => {
-      const [mid, vid, mes] = inp.dataset.mv.split('|'), x = S.mv.find(z => z.modulo_id === mid && z.vendedor_id === vid); if (!x) return;
-      const val = inp.value.trim() === '' ? null : parseNum(inp.value);
-      const arr = (x.metas || Array(12).fill(null)).slice(); arr[Number(mes) - 1] = val;
-      inp.classList.add('mt-dirty');
-      try { await q(S.sb.from('met_modulo_vendedores').update({ metas: arr }).eq('modulo_id', mid).eq('vendedor_id', vid)); x.metas = arr; inp.value = numIn(val); inp.classList.remove('mt-dirty'); inp.classList.add('mt-ok'); setTimeout(() => inp.classList.remove('mt-ok'), 900); totais(mid); }
-      catch (e) { notify(erroMsg(e), 'danger'); }
-    });
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { const all = $$('[data-mv]:not(:disabled)'); const n = all[all.indexOf(inp) + 1]; if (n) n.focus(); } });
-  });
+  // valores digitados na própria tabela: salvos ao sair da célula; os cálculos atualizam na hora
+  const ok = inp => { inp.classList.remove('mt-dirty'); inp.classList.add('mt-ok'); setTimeout(() => inp.classList.remove('mt-ok'), 900); };
+  const repinta = mid => afetadas(mid).forEach(pintarMeta);
+  $$('#mt-metas [data-mv], #mt-metas [data-mp]').forEach(inp => inp.addEventListener('change', async () => {
+    const campo = inp.dataset.mv ? 'metas' : 'premios', [mid, vid, mes] = (inp.dataset.mv || inp.dataset.mp).split('|');
+    const x = S.mv.find(z => z.modulo_id === mid && z.vendedor_id === vid); if (!x) return;
+    const val = inp.value.trim() === '' ? null : parseNum(inp.value);
+    const arr = (x[campo] || Array(12).fill(campo === 'metas' ? null : 0)).slice(); arr[Number(mes) - 1] = campo === 'premios' ? (val || 0) : val;
+    inp.classList.add('mt-dirty');
+    try { await q(S.sb.from('met_modulo_vendedores').update({ [campo]: arr }).eq('modulo_id', mid).eq('vendedor_id', vid)); x[campo] = arr; inp.value = numIn(campo === 'premios' ? (val || 0) : val); ok(inp); repinta(mid); }
+    catch (e) { notify(erroMsg(e), 'danger'); }
+  }));
+  $$('#mt-metas [data-rv]').forEach(inp => inp.addEventListener('change', async () => {
+    const [mid, vid, mes] = inp.dataset.rv.split('|'), m = byId(S.modulos, mid), n = Number(mes);
+    const val = inp.value.trim() === '' ? null : parseNum(inp.value);
+    inp.classList.add('mt-dirty');
+    try {
+      await gravarRealizado(m, [{ vendedor_id: vid, mes: n, valor: val }]);
+      const i = S.realizado.findIndex(r => r.modulo_id === mid && r.vendedor_id === vid && r.mes === n), ant = i >= 0 ? S.realizado[i] : {};
+      if (i >= 0) S.realizado.splice(i, 1);
+      if (val != null) S.realizado.push({ ...ant, modulo_id: mid, vendedor_id: vid, mes: n, valor: val });
+      inp.value = numIn(val); ok(inp); repinta(mid);
+    } catch (e) { notify(erroMsg(e), 'danger'); }
+  }));
+  $$('#mt-metas .mt-cel').forEach(inp => inp.addEventListener('keydown', e => { if (e.key === 'Enter') { const all = $$('#mt-metas .mt-cel:not(:disabled)'); const n = all[all.indexOf(inp) + 1]; if (n) n.focus(); } }));
   if (S.modEdit === 'novo' && !$('#modal-root .mt-modal')) formModulo(null);
 }
 /* módulo aberto em janela secundária sobre a lista */
