@@ -216,7 +216,14 @@
   .mt-inline .mt-modal__head{border-left:3px solid var(--mt-c1)}
   #tb-mods tr.mt-sel td{background:var(--fi-surface-alt);box-shadow:inset 0 -1px var(--fi-line)}
   #tb-mods tr.mt-sel td:first-child{box-shadow:inset 3px 0 var(--mt-c1)}
-  .mt-modsub{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.mt-modsub .fi-badge{font-size:.6rem}
+  .mt-modsub{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+  .mt-modnome{display:flex;align-items:flex-start;gap:8px}
+  .mt-ord{display:inline-grid;justify-items:center;gap:0;flex:0 0 auto;margin-top:-2px}
+  .mt-ordbt{width:24px;height:19px;padding:0;border:1px solid var(--fi-line);border-radius:4px;background:var(--fi-surface);color:var(--fi-muted);font-size:.62rem;line-height:1;cursor:pointer}
+  .mt-ordbt:hover{color:var(--fi-text);border-color:var(--mt-c1)}
+  .mt-grip{color:var(--fi-muted);font-size:.62rem;letter-spacing:-2px;cursor:grab;line-height:1.1;user-select:none}
+  #tb-mods tr.mt-drag{opacity:.45}
+  #tb-mods tr.mt-dropalvo td{box-shadow:inset 0 2px 0 var(--mt-c1)}.mt-modsub .fi-badge{font-size:.6rem}
   .mt-faixasel{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--fi-muted);font-weight:700}
   .mt-faixasel select{min-height:32px;padding:4px 8px;width:auto}
   .mt-homegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
@@ -378,7 +385,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.023', DOC_DATA = '08/10/2026';
+const DOC_VERSAO = 'V.024', DOC_DATA = '08/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -715,6 +722,7 @@ const EN = {
   'Já há lançamentos ou fechamentos neste módulo.':'This module already has actuals or closings.','Trocar o tipo da meta':'Change target type','Trocar':'Change',
   'Os {n} participante(s) passam a ter o papel do novo tipo (Supervisão 1/2 conforme a função cadastrada, ou vendedor).':'The {n} participant(s) take the role of the new type (Supervision 1/2 according to their registered role, or rep).',
   'Equipe (setores / módulos)':'Team (sectors / modules)',
+  'Subir':'Move up','Descer':'Move down','Arraste para reordenar':'Drag to reorder','Ordem salva':'Order saved',
   'Visão geral de todos os módulos de metas.':'Overview of all target modules.',
   'Editar':'Edit','Concluir edição':'Finish editing','Salvar textos ({n})':'Save texts ({n})','Textos salvos ({n})':'Texts saved ({n})',
   'Clique em um texto com contorno tracejado para alterá-lo. Apague tudo para voltar ao texto original.':'Click any text with a dashed outline to change it. Clear it to restore the original text.',
@@ -1001,7 +1009,8 @@ async function carregar() {
     q(sb.from('met_fechamentos').select('*'))
   ]);
   if (S.veTudo) { try { S.dist = await q(sb.from('met_distribuicao').select('*')) || []; } catch (_) { S.dist = []; } }
-  Object.assign(S, { regioes: reg || [], vendedores: ven || [], tabelas: tab || [], modulos: mod || [],
+  const ordMod = (a, b) => ((a.ordem == null ? 1e9 : a.ordem) - (b.ordem == null ? 1e9 : b.ordem)) || (b.ano - a.ano) || String(a.nome).localeCompare(String(b.nome), 'pt-BR');
+  Object.assign(S, { regioes: reg || [], vendedores: ven || [], tabelas: tab || [], modulos: (mod || []).slice().sort(ordMod),
                      mv: mv || [], realizado: rea || [], fechamentos: fec || [] });
   if (S.admin) { try { S.contas = await q(sb.rpc('met_contas_central')); } catch (_) { S.contas = null; } }
   try { S.vis = await q(sb.from('met_visibilidade').select('*')) || []; } catch (_) { S.vis = []; }
@@ -1908,7 +1917,7 @@ function aModulos() {
       const prC = comis && meta != null ? sum(soVendedores(v).flatMap(x => (x.metas || []).map(mv => (valorMeta(mv) || 0) * taxaComissao(tb, valorMeta(mv) || 0)))) : null;
       const pr = comis ? prC : fx ? base * fx.mult : null;
       const com = comis ? (meta ? prC / meta : null) : fx && meta ? pr / (meta * fx.min / 100) : null;
-      return `<tr data-abrir="${m.id}" class="${m.id === aberto ? 'mt-sel' : ''}" style="cursor:pointer"><td><div class="mt-strong" style="white-space:normal;min-width:180px">${esc(m.nome)}</div>
+      return `<tr data-abrir="${m.id}" draggable="true" class="${m.id === aberto ? 'mt-sel' : ''}" style="cursor:pointer"><td><div class="mt-modnome"><span class="mt-ord mt-noprint" data-noed><button type="button" class="mt-ordbt" data-ordup="${m.id}" title="${t('Subir')}" aria-label="${t('Subir')}">▲</button><span class="mt-grip" title="${t('Arraste para reordenar')}">⋮⋮</span><button type="button" class="mt-ordbt" data-orddn="${m.id}" title="${t('Descer')}" aria-label="${t('Descer')}">▼</button></span><div class="mt-strong" style="white-space:normal;min-width:160px">${esc(m.nome)}</div></div>
           <div class="mt-modsub">${tipoBadge(m)}<span class="fi-badge">${m.ano}</span>${m.setor ? `<span class="fi-badge">${t(m.setor === 'bordados' ? 'Bordados' : 'Industrial')}</span>` : ''}${m.visivel ? `<span class="fi-badge fi-badge--success">${t('Liberado')}</span>` : `<span class="fi-badge">${t('Oculto')}</span>`}${m.ativo ? '' : `<span class="fi-badge fi-badge--warning">${t('Inativo')}</span>`}</div></td>
       <td class="mt-hide-sm mt-small" style="white-space:normal;max-width:230px">${tb ? pillsTabela(tb) : '—'}</td>
       <td class="mt-num">${v.length}</td><td class="mt-num">${meta == null ? (ehComissao(tb) ? '—' : WAIT()) : brl0(meta)}</td>
@@ -1920,8 +1929,29 @@ function aModulos() {
     </tbody></table></div></section>`;
   $('#bt-novo').onclick = () => { location.hash = '#/adm/modulos/novo'; };
   const fs = $('#mod-faixa'); if (fs) fs.onchange = e => { S.modFaixa = Number(e.target.value); aModulos(); };
+  /* ordenação vertical dos módulos: setas ou arrastar a linha */
+  const salvaOrdem = async ids => {
+    S.modulos.forEach(z => { const k = ids.indexOf(z.id); if (k >= 0) z.ordem = k + 1; });
+    S.modulos.sort((a, b) => (a.ordem || 0) - (b.ordem || 0)); aModulos();
+    try { for (let k = 0; k < ids.length; k++) await q(S.sb.from('met_modulos').update({ ordem: k + 1 }).eq('id', ids[k])); notify(t('Ordem salva'), 'success'); }
+    catch (e) { notify(erroMsg(e), 'danger'); }
+  };
+  const ordemAtual = () => $$('#tb-mods tbody tr[data-abrir]').map(tr => tr.dataset.abrir);
+  const move = (id, d) => { const ids = ordemAtual(), i = ids.indexOf(id), j = i + d; if (i < 0 || j < 0 || j >= ids.length) return; [ids[i], ids[j]] = [ids[j], ids[i]]; salvaOrdem(ids); };
+  $$('[data-ordup]').forEach(b => b.onclick = e => { e.stopPropagation(); move(b.dataset.ordup, -1); });
+  $$('[data-orddn]').forEach(b => b.onclick = e => { e.stopPropagation(); move(b.dataset.orddn, 1); });
+  let arrastado = null;
+  $$('#tb-mods tbody tr[data-abrir]').forEach(tr => {
+    tr.addEventListener('dragstart', e => { arrastado = tr; tr.classList.add('mt-drag'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', tr.dataset.abrir); } catch (_) {} });
+    tr.addEventListener('dragend', () => { tr.classList.remove('mt-drag'); $$('#tb-mods .mt-dropalvo').forEach(z => z.classList.remove('mt-dropalvo')); });
+    tr.addEventListener('dragover', e => { if (!arrastado || arrastado === tr) return; e.preventDefault(); $$('#tb-mods .mt-dropalvo').forEach(z => z.classList.remove('mt-dropalvo')); tr.classList.add('mt-dropalvo'); });
+    tr.addEventListener('drop', e => { e.preventDefault(); if (!arrastado || arrastado === tr) return;
+      const ids = ordemAtual().filter(id => id !== arrastado.dataset.abrir), alvo = ids.indexOf(tr.dataset.abrir);
+      const antes = ordemAtual().indexOf(arrastado.dataset.abrir) > ordemAtual().indexOf(tr.dataset.abrir);
+      ids.splice(antes ? alvo : alvo + 1, 0, arrastado.dataset.abrir); arrastado = null; salvaOrdem(ids); });
+  });
   $$('[data-abrir]').forEach(tr => tr.onclick = e => {
-    if (e.target.closest('[data-dup]')) return;
+    if (e.target.closest('[data-dup]') || e.target.closest('.mt-ord')) return;
     if (tr.dataset.abrir === aberto) { const m = byId(S.modulos, aberto); if (m && !$('#mod-modal')) janelaModulo(m); return; }
     location.hash = '#/adm/modulos/' + tr.dataset.abrir;
   });
@@ -2213,7 +2243,7 @@ function editorEquipe(m, x) {
 
 /* ------------------------------ Lançamentos e fechamento ------------------------------ */
 function seletorModulo(atual, idSel) {
-  return `<select class="fi-select" id="${idSel}" style="max-width:380px">${S.modulos.map(m => `<option value="${m.id}" ${m.id === atual ? 'selected' : ''}>${esc(m.nome)} · ${m.ano} · ${ehSup(m) ? t('Supervisão') : ehEsp(m) ? t('Meta especial') : t('Vendedores')}</option>`).join('')}</select>`;
+  return `<select class="fi-select" id="${idSel}" style="max-width:420px;font-weight:800">${S.modulos.map(m => `<option value="${m.id}" ${m.id === atual ? 'selected' : ''}>${esc(m.nome)} · ${m.ano} · ${ehSup(m) ? t('Supervisão') : ehEsp(m) ? t('Meta especial') : t('Vendedores')}</option>`).join('')}</select>`;
 }
 const PEND = new Map();     // `${modulo}|${mes}|${vendedor}` -> valor (null = apagar)
 function aFechamento() {
