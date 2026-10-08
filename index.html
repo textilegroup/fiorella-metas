@@ -242,6 +242,10 @@
   .mt-fbt:hover{color:var(--fi-text);border-color:var(--fi-line-strong)}button.mt-fbt--on,span.mt-fbt--on{color:var(--fi-text);background:var(--fi-surface-alt);border-color:var(--fi-line-strong)}
   span.mt-fbt--on{cursor:default}.mt-fbt--off{opacity:.3;cursor:not-allowed}
   .mt-meta__fx{font-size:.7rem;font-weight:700}
+  .mt-sel2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:760px){.mt-sel2{grid-template-columns:1fr}}
+  .mt-selbox{border:1px solid var(--fi-line);border-radius:7px;padding:7px 10px;background:var(--fi-surface-alt)}
+  .mt-selbox__t{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--fi-muted);margin-bottom:5px}
+  .mt-lnk{border:0;background:none;padding:0;color:var(--fi-muted);font:inherit;text-transform:none;letter-spacing:0;text-decoration:underline;cursor:pointer}
   .mt-pdfver{width:100%;height:min(78vh,1000px);border:1px solid var(--fi-line);border-radius:6px;background:#fff}.mt-nowrap{white-space:nowrap}
   .mt-mtab .mt-cel.mt-man{font-weight:800}.mt-mtab .mt-cel::placeholder{color:var(--fi-muted);opacity:.85}
   .mt-mtab .mt-pg .mt-cel{min-width:44px;padding:1px 2px;font-size:.64rem;min-height:21px}.mt-mtab .mt-pg td{white-space:nowrap;font-size:.64rem}
@@ -434,7 +438,7 @@
 
 /* VERSÃO DO DOCUMENTO (HTML): aumentar em 1 a cada atualização entregue (formato V.001).
    Aparece no topo, ao lado do logo, e no rodapé dos PDFs. */
-const DOC_VERSAO = 'V.038', DOC_DATA = '07/10/2026';
+const DOC_VERSAO = 'V.039', DOC_DATA = '07/10/2026';
 console.info('[Metas Fiorella] documento ' + DOC_VERSAO + ' · ' + DOC_DATA);
 
 /* ============================ IDIOMA ============================ */
@@ -729,7 +733,7 @@ const EN = {
   'O mês final não pode ser antes do inicial.':'The end month cannot be before the start month.','Aplicar prêmio-base':'Apply base prize','Aplicar':'Apply',
   'Aplicar {v} como prêmio-base mensal de todos os participantes nos meses abertos do período?':'Apply {v} as the monthly base prize for all participants in the open months of the period?',
   'Fora do período da meta especial':'Outside the special target period','Preenche os meses abertos de todos com o prêmio-base do módulo; depois é só salvar.':'Fills everyone’s open months with the module base prize; then just save.',
-  'Aplicar padrão {v}':'Apply default {v}','Premiação':'Incentive','Prêm. aplicável':'Applicable bonus','Visualizar':'View','Abrir em nova aba':'Open in new tab','Visualizar (todos)':'View (all)','Editar parâmetros':'Edit parameters','Metas e lançamentos':'Targets & actuals','{n}º tri':'Q{n}','rec.':'rec.','Fora do período da meta':'Outside the target period','Feche antes o mês nas metas da equipe':'Close the month in the team targets first','Vendas':'Sales','Alcance':'Achievement','Tabela de %':'% table','Provisório: meta e vendas da supervisão podem ser digitadas. Campo vazio = soma da equipe (em cinza).':'Temporary: supervision target and sales can be typed. Empty field = team total (in grey).','fora da distribuição':'outside the allocation','Prêmio-base padrão {v}/mês':'Default base prize {v}/month',
+  'Aplicar padrão {v}':'Apply default {v}','Premiação':'Incentive','Prêm. aplicável':'Applicable bonus','Visualizar':'View','todos':'all','nenhum':'none','Abrir em nova aba':'Open in new tab','Visualizar (todos)':'View (all)','Editar parâmetros':'Edit parameters','Metas e lançamentos':'Targets & actuals','{n}º tri':'Q{n}','rec.':'rec.','Fora do período da meta':'Outside the target period','Feche antes o mês nas metas da equipe':'Close the month in the team targets first','Vendas':'Sales','Alcance':'Achievement','Tabela de %':'% table','Provisório: meta e vendas da supervisão podem ser digitadas. Campo vazio = soma da equipe (em cinza).':'Temporary: supervision target and sales can be typed. Empty field = team total (in grey).','fora da distribuição':'outside the allocation','Prêmio-base padrão {v}/mês':'Default base prize {v}/month',
   'Tabela antiga de comissão: a comissão agora é definida dentro da Meta especial, em Módulos de metas. Pode excluir esta tabela se não estiver em uso.':'Old commission table: commission is now set inside the Special target, in Target modules. You may delete this table if it is not in use.',
   'Cada faixa define o % mínimo de atingimento e quanto do prêmio-base é pago. Comissão sobre vendas é definida na Meta especial, em Módulos de metas.':'Each tier sets the minimum achievement % and how much of the base prize is paid. Commission on sales is set in the Special target, in Target modules.',
   'Relatórios':'Reports','PDFs e planilhas deste mês: ADM › Relatórios.':'PDFs and spreadsheets for this month: ADM › Reports.','Fechar {m}':'Close {m}','{m} fechado':'{m} closed',
@@ -742,7 +746,7 @@ const EN = {
   'Pessoa':'Person','Módulo':'Module','Faixa / %':'Tier / %','Prêmio / comissão':'Prize / commission','Total geral':'Grand total','Resumo por módulo':'Summary by module',
   '* prévia: mês ainda não fechado — valor pode mudar. Faixa/% = faixa de premiação atingida ou % de comissão.':'* preview: month not closed yet — value may change. Tier/% = incentive tier reached or commission %.',
   'Elaborado por':'Prepared by','Aprovado — Diretoria':'Approved — Board','Financeiro':'Finance','Situação':'Status','Prévia':'Preview','Pagamentos':'Payments',
-  'Relatório geral de pagamentos':'General payments report','Junta todos os módulos escolhidos, pessoa a pessoa, com prêmio ou comissão, recuperações e total a pagar. O PDF é ajustado para caber em uma folha A4. Meses fechados usam os valores congelados; meses abertos entram como prévia (marcados com *).':'Combines all chosen modules, person by person, with prize or commission, recoveries and total payable. The PDF is fitted to one A4 page. Closed months use frozen values; open months appear as preview (marked with *).',
+  'Relatório geral de pagamentos':'General payments report','Junta todos os módulos escolhidos, vendedor a vendedor, com prêmio ou comissão, recuperações e total a pagar. O PDF é ajustado para caber em uma folha A4. Meses fechados usam os valores congelados; meses abertos entram como prévia (marcados com *).':'Combines all chosen modules, person by person, with prize or commission, recoveries and total payable. The PDF is fitted to one A4 page. Closed months use frozen values; open months appear as preview (marked with *).',
   'Para conferência e envio ao financeiro — cabe em uma folha A4.':'For review and sending to finance — fits one A4 page.','Gerar PDF de pagamentos':'Generate payments PDF','Só o mês':'Month only',
   'Só quem tem valor a pagar':'Only people with an amount payable','{n} linha(s) com mês ainda não fechado entram como prévia (*).':'{n} row(s) with a month not yet closed appear as preview (*).','prévia':'preview',
   'Nada a mostrar com esses filtros.':'Nothing to show with these filters.','Fechamento por módulo e individual':'Closing by module and individual',
@@ -756,9 +760,9 @@ const EN = {
   'com.':'com.','Meta R$':'Target R$','Ating.':'Achiev.','Prêmio / com.':'Prize / com.','Total da pessoa':'Person total','* prévia: mês ainda não fechado nesta meta.':'* preview: month not closed yet for this target.',
   '{m}: realizado bruto {b} − vendas excluídas {e}{o}':'{m}: gross actual {b} − excluded sales {e}{o}','Pago':'Paid','Total pago':'Total paid','Evolução no ano (até {m})':'Year to date (to {m})','Regras de cada meta':'Rules of each target',
   'Todas as metas da pessoa':'All of the person’s targets','Fechamento individual':'Individual closing',
-  'Uma folha A4 por pessoa (vendedor ou supervisor) com todas as metas dela no mês: valores de cada meta, total a pagar, evolução no ano e regras. Usa o mês de referência escolhido acima.':'One A4 page per person (rep or supervisor) with all of their targets in the month: values of each target, total payable, year to date and rules. Uses the reference month chosen above.',
-  'Por pessoa, com todas as metas — {m}/{a}.':'Per person, with all targets — {m}/{a}.','Metas':'Targets','Ninguém atrelado a metas neste ano.':'Nobody assigned to targets this year.',
-  'Fechamento do módulo':'Module closing','PDF do fechamento de um módulo (com anexos por pessoa) e planilha do mês.':'Closing PDF of a module (with per-person annexes) and month spreadsheet.',
+  'Uma folha A4 por vendedor (ou supervisor) com todas as metas dela no mês: valores de cada meta, total a pagar, evolução no ano e regras. Usa o mês de referência escolhido acima.':'One A4 page per person (rep or supervisor) with all of their targets in the month: values of each target, total payable, year to date and rules. Uses the reference month chosen above.',
+  'Por vendedor, com todas as metas — {m}/{a}.':'Per person, with all targets — {m}/{a}.','Metas':'Targets','Ninguém atrelado a metas neste ano.':'Nobody assigned to targets this year.',
+  'Fechamento do módulo':'Module closing','PDF do fechamento de um módulo (com anexos por vendedor) e planilha do mês.':'Closing PDF of a module (with per-person annexes) and month spreadsheet.',
   'Todas as metas':'All targets','Especial':'Special','Rec. trimestral':'Quarterly rec.','Rec. anual':'Annual rec.','Valor':'Amount','Gerado em {d}':'Generated on {d}',
   'Total do vendedor':'Rep total',
   'Faixas do módulo':'Module tiers','Faixas da Supervisão 1':'Supervision 1 tiers','Faixas da Supervisão 2':'Supervision 2 tiers','Faixas de premiação':'Incentive tiers','Faixas de premiação *':'Incentive tiers *',
@@ -3162,7 +3166,7 @@ function linhasPagamento(ano, mes, modo, mods, soComValor) {
     if (!ds.length) return;
     const sm = k => sum(ds.map(z => Number(z.d[k]) || 0));
     const metaOk = ds.every(z => z.d.meta != null);
-    const r = { pessoa: x.v.nome, email: x.v.email, papel: x.papel, modulo: m.nome, tipo: tipoNome(m), comis: ehComissao(tabelaDe(m, x)),
+    const r = { vid: x.vendedor_id, pessoa: x.v.nome, email: x.v.email, papel: x.papel, modulo: m.nome, tipo: tipoNome(m), comis: ehComissao(tabelaDe(m, x)),
       meta: metaOk ? sm('meta') : null, real: sm('realizado'), premio: sm('premio_mes'), rtri: sm('recuperacao_tri'), rano: sm('recuperacao_ano'), total: sm('total'),
       faixa: modo === 'mes' ? ds[0].d.multiplicador : null, fechado: ds.every(z => z.fechado), pendentes: ds.filter(z => !z.fechado).length };
     r.ating = r.meta ? r.real / r.meta : null;
@@ -3179,10 +3183,7 @@ function pdfPagamentos(ano, mes, modo, mods, rows) {
   const montar = fs => {
     const doc = pdfNovo(t('Relatório de pagamentos — {p}', { p: per }), '', status, 'landscape');
     const W = doc.internal.pageSize.getWidth(), larg = W - 24;
-    let y = pdfCaixas(doc, 31, [
-      { r: t('Pessoas'), v: String(pessoas.length) }, { r: t('Prêmios / comissões'), v: brl(sum(rows.map(r => r.premio))) },
-      { r: t('Rec. trimestre'), v: brl(sum(rows.map(r => r.rtri))) }, { r: t('Rec. ano'), v: brl(sum(rows.map(r => r.rano))) },
-      { r: t('Total a pagar'), v: brl(sum(rows.map(r => r.total))), destaque: true }], 5, larg);
+    let y = 33;
     const body = [], sub = new Set(), ini = new Set();
     const SEP = 10;
     pessoas.forEach((p, ip) => {
@@ -3193,7 +3194,7 @@ function pdfPagamentos(ano, mes, modo, mods, rows) {
       body.push([{ content: '', colSpan: SEP, styles: { minCellHeight: 3.2, cellPadding: 0, lineWidth: 0, fillColor: [255, 255, 255] } }]);   // linha em branco após o subtotal
     });
     const cols = {}; for (let k = 2; k <= 9; k++) cols[k] = { halign: 'right' };
-    y = pdfTabela(doc, { startY: y + 1, head: [[t('Pessoa'), t('Módulo'), t('Meta'), t('Realizado'), t('Atingido'), modo === 'mes' ? t('Faixa / %') : '', t('Prêmio / comissão'), t('Rec. tri'), t('Rec. ano'), t('Total a pagar')].map(pdfTxt)],
+    y = pdfTabela(doc, { startY: y + 1, head: [[t('Vendedor'), t('Módulo'), t('Meta'), t('Realizado'), t('Atingido'), modo === 'mes' ? t('Faixa / %') : '', t('Prêmio / comissão'), t('Rec. tri'), t('Rec. ano'), t('Total a pagar')].map(pdfTxt)],
       body: body.map(r => r.map(c => typeof c === 'object' ? c : pdfTxt(c))), foot: [[t('Total geral'), '', '', '', '', '', brl(sum(rows.map(r => r.premio))), brl(sum(rows.map(r => r.rtri))), brl(sum(rows.map(r => r.rano))), brl(sum(rows.map(r => r.total)))].map(pdfTxt)],
       columnStyles: Object.assign(cols, { 9: { halign: 'right', fontStyle: 'bold' } }),
       styles: { font: 'helvetica', fontSize: fs, cellPadding: 1, lineColor: COR.linha, lineWidth: 0.1, textColor: [32, 36, 42], overflow: 'linebreak' }, headStyles: { fillColor: COR.alt, textColor: COR.cinza, fontStyle: 'bold', fontSize: fs - 0.3 },
@@ -3211,7 +3212,7 @@ function pdfPagamentos(ano, mes, modo, mods, rows) {
 }
 function excelPagamentos(ano, mes, modo, rows) {
   if (!window.XLSX) { notify(t('Biblioteca de Excel ainda carregando, tente de novo.'), 'warning'); return; }
-  const dados = rows.map(r => ({ [t('Pessoa')]: r.pessoa, [t('E-mail')]: r.email, [t('Módulo')]: r.modulo, [t('Tipo')]: r.tipo, [t('Meta')]: r.meta, [t('Realizado')]: r.real,
+  const dados = rows.map(r => ({ [t('Vendedor')]: r.pessoa, [t('E-mail')]: r.email, [t('Módulo')]: r.modulo, [t('Tipo')]: r.tipo, [t('Meta')]: r.meta, [t('Realizado')]: r.real,
     [t('Atingido %')]: r.ating == null ? '' : +(r.ating * 100).toFixed(2), [t('Faixa / %')]: r.faixa == null ? '' : +(r.faixa * 100).toFixed(2), [t('Prêmio / comissão')]: r.premio,
     [t('Rec. tri')]: r.rtri, [t('Rec. ano')]: r.rano, [t('Total a pagar')]: r.total, [t('Situação')]: r.fechado ? t('Fechado') : t('Prévia') }));
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dados), t('Pagamentos').slice(0, 31));
@@ -3230,13 +3231,16 @@ function aRelatorios() {
   if (!S.relMods || !S.relMods.every(id => modsAno.some(m => m.id === id))) S.relMods = modsAno.map(m => m.id);
   if (S.relSoValor == null) S.relSoValor = false;
   const mes = S.relMes, modo = S.relModo, mods = modsAno.filter(m => S.relMods.includes(m.id));
-  const rows = linhasPagamento(ano, mes, modo, mods, S.relSoValor);
+  const candP = new Map(); mods.forEach(m => vincDe(m.id).forEach(x => candP.set(x.vendedor_id, x.v)));
+  const pessoasF = [...candP.values()].sort((a, b) => (a.funcao === 'vendedor' ? 0 : 1) - (b.funcao === 'vendedor' ? 0 : 1) || a.nome.localeCompare(b.nome, 'pt-BR'));
+  S.relFora = S.relFora || [];
+  const rows = linhasPagamento(ano, mes, modo, mods, S.relSoValor).filter(r => !S.relFora.includes(r.vid));
   const mesOpt = Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}" ${i + 1 === mes ? 'selected' : ''}>${MESL(i)}</option>`).join('');
   if (!byId(S.modulos, S.relMod) || S.modulos.find(z => z.id === S.relMod).ano !== ano) S.relMod = (modsAno[0] || {}).id;
   const mr = byId(S.modulos, S.relMod);
   const prev = rows.filter(r => !r.fechado).length;
   $('#adm-body').innerHTML = `
-  <section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Relatório geral de pagamentos')}${dica(t('Junta todos os módulos escolhidos, pessoa a pessoa, com prêmio ou comissão, recuperações e total a pagar. O PDF é ajustado para caber em uma folha A4. Meses fechados usam os valores congelados; meses abertos entram como prévia (marcados com *).'))}</div>
+  <section class="fi-card"><div class="fi-card__head"><div><div class="fi-card__title">${t('Relatório geral de pagamentos')}${dica(t('Junta todos os módulos escolhidos, vendedor a vendedor, com prêmio ou comissão, recuperações e total a pagar. O PDF é ajustado para caber em uma folha A4. Meses fechados usam os valores congelados; meses abertos entram como prévia (marcados com *).'))}</div>
       <div class="fi-card__note">${t('Para conferência e envio ao financeiro — cabe em uma folha A4.')}</div></div>
       <div class="mt-row"><button class="fi-btn" id="r-ver">${t('Visualizar')}</button><button class="fi-btn" id="r-xls">${t('Exportar Excel')}</button><button class="fi-btn fi-btn--primary" id="r-pdf">${t('Gerar PDF de pagamentos')}</button></div></div>
     <div class="fi-card__body" style="display:grid;gap:10px">
@@ -3246,25 +3250,28 @@ function aRelatorios() {
         <div class="fi-field"><span class="fi-label">${t('Período')}</span><div class="mt-tabs" style="margin:0"><button class="mt-tab" data-rmodo="mes" aria-selected="${modo === 'mes'}">${t('Só o mês')}</button><button class="mt-tab" data-rmodo="acum" aria-selected="${modo === 'acum'}">${esc(t('Jan. até {m}', { m: MES(mes - 1).toLowerCase() }))}</button></div></div>
         <label class="mt-check" style="align-self:end"><input type="checkbox" id="r-so" ${S.relSoValor ? 'checked' : ''}> ${t('Só quem tem valor a pagar')}</label>
       </div>
-      <div class="mt-row" style="gap:6px 14px">${modsAno.map(m => `<label class="mt-check"><input type="checkbox" data-rm="${m.id}" ${S.relMods.includes(m.id) ? 'checked' : ''}> ${esc(m.nome)}</label>`).join('')}</div>
+      <div class="mt-sel2">
+        <div class="mt-selbox"><div class="mt-selbox__t">${t('Metas')}</div><div class="mt-row" style="gap:4px 14px">${modsAno.map(m => `<label class="mt-check"><input type="checkbox" data-rm="${m.id}" ${S.relMods.includes(m.id) ? 'checked' : ''}> ${esc(m.nome)}</label>`).join('')}</div></div>
+        <div class="mt-selbox"><div class="mt-selbox__t">${t('Vendedores e supervisores')} <button type="button" class="mt-lnk" id="r-ptodosel">${t('todos')}</button> · <button type="button" class="mt-lnk" id="r-pnenhum">${t('nenhum')}</button></div><div class="mt-row" style="gap:4px 14px">${pessoasF.map(v => `<label class="mt-check"><input type="checkbox" data-rp="${v.id}" ${S.relFora.includes(v.id) ? '' : 'checked'}> ${esc(v.nome)}${v.funcao !== 'vendedor' ? ` <span class="mt-muted mt-small">(${esc(funcaoNome(v))})</span>` : ''}</label>`).join('') || `<span class="mt-muted mt-small">—</span>`}</div></div>
+      </div>
       ${prev ? `<div class="fi-alert fi-alert--warning">${esc(t('{n} linha(s) com mês ainda não fechado entram como prévia (*).', { n: prev }))}</div>` : ''}
     </div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-rel"><thead><tr><th>${t('Pessoa')}</th><th>${t('Módulo')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th><th class="mt-num">${t('Atingido')}</th>${modo === 'mes' ? `<th class="mt-num">${t('Faixa / %')}</th>` : ''}<th class="mt-num">${t('Prêmio / comissão')}</th><th class="mt-num">${t('Rec. tri')}</th><th class="mt-num">${t('Rec. ano')}</th><th class="mt-num">${t('Total a pagar')}</th></tr></thead><tbody>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-rel"><thead><tr><th>${t('Vendedor')}</th><th>${t('Módulo')}</th><th class="mt-num">${t('Meta')}</th><th class="mt-num">${t('Realizado')}</th><th class="mt-num">${t('Atingido')}</th>${modo === 'mes' ? `<th class="mt-num">${t('Faixa / %')}</th>` : ''}<th class="mt-num">${t('Prêmio / comissão')}</th><th class="mt-num">${t('Rec. tri')}</th><th class="mt-num">${t('Rec. ano')}</th><th class="mt-num">${t('Total a pagar')}</th></tr></thead><tbody>
       ${rows.map(r => `<tr><td class="mt-strong">${esc(r.pessoa)}</td><td>${esc(r.modulo)}${r.fechado ? '' : ' <span class="fi-badge fi-badge--warning">' + t('prévia') + '</span>'}</td><td class="mt-num">${r.meta == null ? '—' : brl(r.meta)}</td><td class="mt-num">${brl(r.real)}</td><td class="mt-num">${pct(r.ating)}</td>${modo === 'mes' ? `<td class="mt-num">${faixaTxt(r.faixa)}</td>` : ''}<td class="mt-num">${brl(r.premio)}</td><td class="mt-num">${r.rtri ? brl(r.rtri) : ''}</td><td class="mt-num">${r.rano ? brl(r.rano) : ''}</td><td class="mt-num mt-strong">${brl(r.total)}</td></tr>`).join('')
         || `<tr><td colspan="10"><div class="fi-empty">${t('Nada a mostrar com esses filtros.')}</div></td></tr>`}</tbody>
       ${rows.length ? `<tfoot><tr><td>${t('Total geral')}</td><td></td><td></td><td></td><td></td>${modo === 'mes' ? '<td></td>' : ''}<td class="mt-num">${brl(sum(rows.map(r => r.premio)))}</td><td class="mt-num">${brl(sum(rows.map(r => r.rtri)))}</td><td class="mt-num">${brl(sum(rows.map(r => r.rano)))}</td><td class="mt-num mt-strong" id="r-total">${brl(sum(rows.map(r => r.total)))}</td></tr></tfoot>` : ''}</table></div></section>
 
-  <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Fechamento individual')}${dica(t('Uma folha A4 por pessoa (vendedor ou supervisor) com todas as metas dela no mês: valores de cada meta, total a pagar, evolução no ano e regras. Usa o mês de referência escolhido acima.'))}</div>
-      <div class="fi-card__note">${esc(t('Por pessoa, com todas as metas — {m}/{a}.', { m: MESL(mes - 1), a: ano }))}</div></div>
-      <button class="fi-btn" id="r-pver">${t('Visualizar (todos)')}</button><button class="fi-btn" id="r-ptodos">${t('PDFs individuais (todos)')}</button></div>
-    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-ind"><thead><tr><th>${t('Pessoa')}</th><th>${t('Função')}</th><th>${t('Metas')}</th><th class="mt-num">${t('Total a pagar')}</th><th>${t('Situação')}</th><th></th></tr></thead><tbody>
+  <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Fechamento individual')}${dica(t('Uma folha A4 por vendedor (ou supervisor) com todas as metas dela no mês: valores de cada meta, total a pagar, evolução no ano e regras. Usa o mês de referência escolhido acima.'))}</div>
+      <div class="fi-card__note">${esc(t('Por vendedor, com todas as metas — {m}/{a}.', { m: MESL(mes - 1), a: ano }))}</div></div>
+      <div class="mt-row"><button class="fi-btn" id="r-pver">${t('Visualizar (todos)')}</button><button class="fi-btn" id="r-ptodos">${t('PDFs individuais (todos)')}</button></div></div>
+    <div class="fi-table-wrap" style="border:0"><table class="fi-table" id="tb-ind"><thead><tr><th>${t('Vendedor')}</th><th>${t('Função')}</th><th>${t('Metas')}</th><th class="mt-num">${t('Total a pagar')}</th><th>${t('Situação')}</th><th></th></tr></thead><tbody>
       ${pessoasComMeta(ano).map(v => { const rp = resumoPessoa(v, ano, mes); return `<tr><td class="mt-strong">${esc(v.nome)}</td><td>${funcaoNome(v)}</td>
         <td style="white-space:normal">${rp.itens.map(o => `<span class="fi-badge" style="margin:1px">${esc(o.m.nome)}</span>`).join(' ')}</td><td class="mt-num mt-strong">${brl(rp.total)}</td>
         <td>${rp.fechado ? `<span class="fi-badge fi-badge--success">${t('Fechado')}</span>` : `<span class="fi-badge fi-badge--warning">${t('Prévia')}</span>`}</td>
         <td class="mt-num mt-nowrap"><button class="fi-btn" data-verp="${v.id}">${t('Visualizar')}</button> <button class="fi-btn" data-pdfp="${v.id}">${t('PDF individual')}</button></td></tr>`; }).join('') || `<tr><td colspan="6"><div class="fi-empty">${t('Ninguém atrelado a metas neste ano.')}</div></td></tr>`}</tbody></table></div></section>
 
   <section class="fi-card mt-mt2"><div class="fi-card__head"><div><div class="fi-card__title">${t('Fechamento do módulo')}</div>
-      <div class="fi-card__note">${t('PDF do fechamento de um módulo (com anexos por pessoa) e planilha do mês.')}</div></div></div>
+      <div class="fi-card__note">${t('PDF do fechamento de um módulo (com anexos por vendedor) e planilha do mês.')}</div></div></div>
     <div class="fi-card__body" style="display:grid;gap:10px">
       <div class="fi-filters">
         <label class="fi-field"><span class="fi-label">${t('Módulo')}</span>${seletorModulo(S.relMod, 'r-mod').replace('<select', '<select data-filtro-ano="' + ano + '"')}</label>
@@ -3282,6 +3289,9 @@ function aRelatorios() {
   $$('[data-rmodo]').forEach(b => b.onclick = () => { S.relModo = b.dataset.rmodo; rel(); });
   $('#r-so').onchange = e => { S.relSoValor = e.target.checked; rel(); };
   $$('[data-rm]').forEach(c => c.onchange = () => { S.relMods = $$('[data-rm]').filter(z => z.checked).map(z => z.dataset.rm); rel(); });
+  $$('[data-rp]').forEach(c => c.onchange = () => { S.relFora = S.relFora.filter(id => id !== c.dataset.rp); if (!c.checked) S.relFora.push(c.dataset.rp); rel(); });
+  $('#r-ptodosel').onclick = () => { S.relFora = []; rel(); };
+  $('#r-pnenhum').onclick = () => { S.relFora = pessoasF.map(v => v.id); rel(); };
   $('#r-pdf').onclick = () => { if (!rows.length) { notify(t('Nada a mostrar com esses filtros.'), 'warning'); return; } pdfPagamentos(ano, mes, modo, mods, rows); };
   $('#r-xls').onclick = () => excelPagamentos(ano, mes, modo, rows);
   $('#r-ver').onclick = () => verPdf(() => $('#r-pdf').onclick());
